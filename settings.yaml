@@ -39,6 +39,18 @@ evidence:
   search_for_referrals: false
   refuter: true                   # independent second read of passages that would carry a dispute
   sources: [crustdata_news]       # plus official-source adapters as added
+  regional_state_names:           # state -> regional-language name, for the regional rung (lane A)
+    Odisha: "ଓଡ଼ିଶା"
+    Maharashtra: "महाराष्ट्र"
+    West Bengal: "পশ্চিমবঙ্গ"
+    Assam: "অসম"
+    Karnataka: "ಕರ್ನಾಟಕ"
+    Gujarat: "ગુજરાત"
+  regional_event_words:           # event type -> regional query words; a word is used only with a name in the same script
+    bandh: ["ବନ୍ଦ", "बंद", "বন্ধ", "ಬಂದ್", "બંધ"]
+    strike: ["ଧର୍ମଘଟ", "संप", "হরতাল", "ಮುಷ್ಕರ", "હડતાળ"]
+    chakka_jam: ["चक्का जाम"]
+    blockade: ["रास्ता रोको", "ରାସ୍ତା ରୋକ"]
 economics:                        # never read by a verdict; only the gate reads the cost side
   search_gate_ratio: 1.0          # skip paid search when recoverable amount < ratio x estimated search cost; 0 disables
   estimated_search_credits: 7     # used until the ledger has its own average

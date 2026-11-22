@@ -198,7 +198,7 @@ def llm_json(task: str, source_text: str, schema: type[BaseModel], ctx: RunConte
 # --------------------------------------------------------------------------- real transport
 
 class AnthropicTransport:
-    """Messages API via the anthropic SDK. Only constructed when ANTHROPIC_API_KEY is set."""
+    """Messages API via the anthropic SDK (broker Transport protocol). Only built when ANTHROPIC_API_KEY is set."""
 
     def __init__(self, timeout: float = 60.0):
         self.timeout = timeout
@@ -210,16 +210,19 @@ class AnthropicTransport:
             self._client = anthropic.Anthropic(timeout=self.timeout, max_retries=0)
         return self._client
 
-    def send(self, endpoint: str, request: dict, **_: Any) -> dict:
-        """Returns {status, body, headers}; body is the response as a plain dict."""
+    def send(self, endpoint: str, request: dict, *, cache_key: str | None = None, timeout: float = 60.0):
+        """One Messages API call; HTTP errors become a Response, connection errors are raised for retry."""
+        from pdr.broker.transport import Response, TransportError, TransportTimeout
+        import anthropic
         try:
-            msg = self._sdk().messages.create(**request)
-            return {"status": 200, "body": msg.model_dump(mode="json"), "headers": {}}
-        except Exception as e:  # noqa: BLE001
-            status = getattr(e, "status_code", None)
-            return {"status": status, "body": None, "headers": {}, "error": type(e).__name__}
-
-    __call__ = send
+            msg = self._sdk().messages.create(**request, timeout=timeout)
+        except anthropic.APITimeoutError as e:
+            raise TransportTimeout(str(type(e).__name__)) from None
+        except anthropic.APIConnectionError as e:
+            raise TransportError(str(type(e).__name__)) from None
+        except anthropic.APIStatusError as e:
+            return Response(int(e.status_code), {}, {"error": type(e).__name__})
+        return Response(200, {}, msg.model_dump(mode="json"))
 
 
 __all__ = [
