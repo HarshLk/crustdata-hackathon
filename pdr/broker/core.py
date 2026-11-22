@@ -15,7 +15,7 @@ from typing import Any
 from pdr import guard
 from pdr.broker import throttle
 from pdr.broker.db import connect, db_path, is_memory, tx
-from pdr.broker.transport import Response, TransportError, TransportTimeout, cache_key, header
+from pdr.broker.transport import Response, TransportError, TransportOffline, TransportTimeout, cache_key, header
 from pdr.contracts import BudgetReached, CallResult, RunContext
 from pdr.crashpoints import crashpoint
 from pdr.models import LedgerEntry, canonical_json
@@ -131,10 +131,13 @@ def _spent(conn: sqlite3.Connection, run_id: str, dispute_key: str | None) -> tu
 
 def get_transport(provider: str, settings: Settings | None = None):
     from pdr.broker import TRANSPORTS
+    from pdr.broker.http import OfflineTransport, offline, real_transport
     t = TRANSPORTS.get(provider)
     if t is not None:
+        # PDR_OFFLINE=1 also stops real transports registered from pdr/ (e.g. llm.AnthropicTransport)
+        if offline() and type(t).__module__.startswith("pdr.") and not isinstance(t, OfflineTransport):
+            return OfflineTransport(provider)
         return t
-    from pdr.broker.http import real_transport
     return real_transport(provider, settings)
 
 
@@ -160,12 +163,14 @@ def execute(conn: sqlite3.Connection, *, settings: Settings, provider: str, endp
         throttle.acquire(conn, provider, int(cfg["rate_per_minute"] or 0))
         started = now_utc()
         resp: Response | None = None
+        offline = False
         try:
             resp = transport.send(endpoint, request, cache_key=key, timeout=float(cfg["timeout_seconds"]))
         except (TransportTimeout, TransportError, TimeoutError, ConnectionError, OSError) as e:
+            offline = isinstance(e, TransportOffline)
             last_err, last_status = f"{type(e).__name__}: {e}"[:200], None
         retryable = resp is None or resp.status == 429 or resp.status >= 500
-        final = not retryable or attempt == retries + 1
+        final = not retryable or offline or attempt == retries + 1
         credits = price_credits(cfg, endpoint, request, resp) if resp is not None else Decimal("0")
         spent += credits
         if not retryable:
@@ -197,6 +202,8 @@ def execute(conn: sqlite3.Connection, *, settings: Settings, provider: str, endp
             if final:
                 c.execute("UPDATE call_intents SET status='failed' WHERE cache_key=?", (key,))
         last_entry = e.entry_id
+        if final:
+            break
         if not final:
             wait = float(backoff[min(attempt - 1, len(backoff) - 1)])
             ra = header(resp.headers, "retry-after") if resp is not None else None

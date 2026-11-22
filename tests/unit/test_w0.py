@@ -202,7 +202,9 @@ def test_stubs(tmp_path, monkeypatch):
 
     ctx = _ctx(MemStore())
     req = EvidenceRequest(["Kini"], [], (T0, T0), ["bandh"])
-    assert evidence.find_evidence(req, ctx).status == "none"
+    monkeypatch.setitem(broker.TRANSPORTS, "crustdata",
+                        FakeTransport(entries=[{"endpoint": "/web/search/live", "response": {"results": []}}]))
+    assert evidence.find_evidence(req, ctx).status == "none"  # offline: empty recorded search
     assert evidence.estimate_credits(req, ctx) == Decimal("7")
     assert evidence.refute(next(o for o in _instances() if isinstance(o, Evidence)), ["x"], ctx) is None
     link = evidence.passage_link("https://n.example/a#old", "one two three four five six seven eight nine ten eleven twelve thirteen")

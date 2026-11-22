@@ -23,6 +23,10 @@ class TransportError(Exception):
     """Connection-level failure (retried by the broker)."""
 
 
+class TransportOffline(TransportError):
+    """PDR_OFFLINE=1: no network request is made; the call fails at once without retries."""
+
+
 class Transport(Protocol):
     def send(self, endpoint: str, request: dict, *, cache_key: str, timeout: float) -> Response: ...
 

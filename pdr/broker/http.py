@@ -11,7 +11,7 @@ from urllib.parse import urljoin, urlparse
 
 import httpx
 
-from pdr.broker.transport import Response, TransportError, TransportTimeout
+from pdr.broker.transport import Response, TransportError, TransportOffline, TransportTimeout
 
 DEFAULT_ENV_FILE = "/projects/2022B4AA1300P/hackathon/harsh/.env"
 UA = "Mozilla/5.0"  # the bare UA got 302s for 68 of 68 goto links; a full Chrome UA gets the "Verifying" page
@@ -101,7 +101,22 @@ class WebHttp:
 _WEB: WebHttp | None = None
 
 
+def offline() -> bool:
+    """PDR_OFFLINE=1 forbids real network transports (tests set it for the whole session)."""
+    return os.environ.get("PDR_OFFLINE", "").strip() not in ("", "0", "false", "no")
+
+
+class OfflineTransport:
+    def __init__(self, provider: str):
+        self.provider = provider
+
+    def send(self, endpoint: str, request: dict, *, cache_key: str = "", timeout: float = 0) -> Response:
+        raise TransportOffline(f"PDR_OFFLINE=1: no real {self.provider} request (register a fake transport)")
+
+
 def real_transport(provider: str, settings: Any = None):
+    if offline():
+        return OfflineTransport(provider)
     if provider == "crustdata":
         cfg = settings.providers.crustdata if settings is not None else None
         return CrustdataHttp(getattr(cfg, "base_url", "https://api.crustdata.com"),
