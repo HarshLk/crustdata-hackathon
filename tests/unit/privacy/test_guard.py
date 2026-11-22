@@ -7,7 +7,7 @@ from pdr import guard, vault
 from pdr.contracts import GuardViolation
 
 CANARY_NAME = "Canary Ramprasad Yadav"
-CANARY_PHONE = "+91 98765 43210"
+CANARY_PHONE = "+91 94440 12321"
 CANARY_LIC = "MH14 20110012345"
 
 
@@ -23,7 +23,7 @@ def _plant():
 
 
 @pytest.mark.parametrize("dest", ["crustdata_search", "crustdata_fetch", "crustdata_identify", "llm", "k7", "web"])
-@pytest.mark.parametrize("value", [CANARY_NAME, "9876543210", "098765-43210", "MH1420110012345"])
+@pytest.mark.parametrize("value", [CANARY_NAME, "9444012321", "094440-12321", "MH1420110012345"])
 def test_canary_blocked_for_every_destination(dest, value):
     _plant()
     with pytest.raises(GuardViolation):
@@ -70,19 +70,44 @@ def test_identify_rules(n):
 
 def test_pseudonymise_replaces_canary():
     ref = _plant()
-    txt = f"Driver {CANARY_NAME} (ph 98765-43210, DL MH-14-2011-0012345) reported bandh; other 9000012345"
+    txt = f"Driver {CANARY_NAME} (ph 94440-12321, DL MH-14-2011-0012345) reported bandh; other driver ph 9000012345; advice no 9876500000"
     out = guard.pseudonymise(txt, "ACME")
-    assert "Ramprasad" not in out and "43210" not in out and "0012345" not in out and "9000012345" not in out
-    assert ref in out
+    assert "Ramprasad" not in out and "12321" not in out and "0012345" not in out and "9000012345" not in out
+    assert ref in out and "advice no 9876500000" in out
     guard.check("llm", out)
 
 
 def test_driver_ref_stable_and_vault_read_logged(_data):
     a = _plant()
-    b = vault.put_driver("ACME", None, "9876543210")
+    b = vault.put_driver("ACME", None, "9444012321")
     assert a == b and len(a) == 12
     row = guard.vault_read(a, "kam", "dispute letter annex")
     assert row["name"] == CANARY_NAME
     log = vault.access_log()
     assert log[-1]["who"] == "kam" and log[-1]["purpose"] == "dispute letter annex"
     assert (_data / "vault.db").exists()
+
+
+def test_ten_digit_business_refs_pass_k7_and_llm():
+    _plant()
+    letter = ("We dispute deduction under payment advice no. 9876543210 line 1, LR 8123456789, "
+              "e-way bill 391234567890, vehicle MH12AB1234, action ACME|PA1|1:6a3f9e2c1b7d.")
+    for dest in ("k7", "llm"):
+        guard.check(dest, letter)
+        guard.check(dest, {"advice_no": "7012345678", "body": "Advice 7012345678 is disputed."})
+        guard.check(dest, "Please quote 9988776655 in your reply.", allow_refs=["9988776655"])
+
+
+@pytest.mark.parametrize("txt", ["Driver mob 9812345678", "contact: 98123 45678", "+91 9812345678", "call 09812345678",
+                                 "whatsapp 9812345678 for pod"])
+def test_phone_with_context_blocks(txt):
+    for dest in ("k7", "llm"):
+        with pytest.raises(GuardViolation):
+            guard.check(dest, txt)
+
+
+def test_canary_phone_blocks_even_as_a_ref():
+    _plant()
+    for dest in ("k7", "llm", "crustdata_search", "crustdata_identify", "crustdata_fetch", "web"):
+        with pytest.raises(GuardViolation):
+            guard.check(dest, {"advice_no": "9444012321", "body": "advice 9444012321"}, "ACME", allow_refs=["9444012321"])
