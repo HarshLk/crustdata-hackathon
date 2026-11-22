@@ -226,6 +226,32 @@ def _search_note(res: EvidenceResult) -> str:
     return "search log: " + ("; ".join(lines) or "no queries") + (". " + "; ".join(rej) if rej else "")
 
 
+TESTS = {"event": ("event_type_not_covered", "not_happened", "called_off", "announced"),
+         "place": ("place_not_on_route", "region_not_named", "snippet_no_place"),
+         "date": ("no_date", "no_event_date", "out_of_window", "published_out_of_window"),
+         "effect": ("no_effect",)}
+
+
+def failed_test(reason: str) -> str:
+    """Which of the four source tests a rejection reason failed; 'not tested' for fetch problems."""
+    code = re.split(r"[:\s]", (reason or "").strip(), maxsplit=1)[0]
+    return next((t for t, codes in TESTS.items() if code in codes), "not tested")
+
+
+def save_considered(c: CheckContext, req: EvidenceRequest, res: EvidenceResult) -> None:
+    """Save every source the search considered, keyed by evidence group (add-on E1); never breaks the check."""
+    try:
+        rows = [{"url": e.url or e.evidence_id, "status": "accepted", "test": "",
+                 "reason": "supports" if stance == "s" else "contradicts", "detail": e.place_named or ""}
+                for stance, group in (("s", res.supporting), ("c", res.contradicting)) for e in group]
+        rows += [{"url": r.url, "status": "rejected", "test": failed_test(r.reason), "reason": r.reason,
+                  "detail": r.detail or ""} for r in res.rejected]
+        if rows and hasattr(c.ctx.store, "evidence_considered_put"):
+            c.ctx.store.evidence_considered_put(req.key(), c.deduction.dispute_key, c.ctx.run_id, rows)
+    except Exception as err:  # noqa: BLE001 - the log is a record, not a rule
+        log.warning("could not save considered sources: %r", err)
+
+
 # ----------------------------------------------------------------------------- the check
 
 @check(stage=Stage.evidence_searched, needs_terms=["force_majeure", "notice", "penalty_rule"],
@@ -271,6 +297,7 @@ def evidence_search(c: CheckContext):
                       missing_item=f"search not economical: Rs {at_stake} recoverable vs estimated Rs {cost_inr.quantize(Decimal('0.01'))} "
                                    f"({est} credits); a person can force it")
     res = get_evidence(req, c.ctx)
+    save_considered(c, req, res)
     log_note = _search_note(res)
     sup = keep(c, res.supporting)
     con = keep(c, res.contradicting)

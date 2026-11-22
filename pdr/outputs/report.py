@@ -216,6 +216,17 @@ def _actions_for(store: Any, key: str) -> list[Action]:
     return sorted(acts, key=lambda a: (order.get(ActionStatus(a.status).value, 9), a.action_id))
 
 
+def _decision_log(store: Any, key: str, v: Verdict | None) -> dict:
+    """Entries of the current verdict's decision log (add-on E1) and its version number."""
+    try:
+        if v is None or not hasattr(store, "decision_log"):
+            return {"entries": [], "version": None}
+        entries = store.decision_log(key, v.verdict_id)
+        return {"entries": entries, "version": entries[0]["version"] if entries else None}
+    except Exception:  # noqa: BLE001 - the log section never breaks the case page
+        return {"entries": [], "version": None}
+
+
 def case_context(store: Any, ded: Deduction, settings: Any) -> dict:
     v = _current_verdict(store, ded.dispute_key)
     bundle = letter.gather(store, v) if v else {"evidence": [], "terms": [], "agreements": {}, "client": None}
@@ -242,6 +253,7 @@ def case_context(store: Any, ded: Deduction, settings: Any) -> dict:
         "supporting": supporting, "contradicting": contradicting, "conflict": bool(supporting and contradicting),
         "actions": [_action_view(store, a, _outbox_names(settings)) for a in _actions_for(store, ded.dispute_key)],
         "ledger": _ledger(store, ded.dispute_key),
+        "decision_log": _decision_log(store, ded.dispute_key, v),
     }
     ctx.update(_trip_view(trip, ded, settings))
     return ctx

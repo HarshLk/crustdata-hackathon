@@ -53,6 +53,7 @@ class State:
     hashes: list = field(default_factory=list)  # results hashes of completed stages, in order
     executed: list = field(default_factory=list)  # stages actually run (not memo hits)
     stopped: Optional[Stage] = None  # stage where the deadline stopped the run
+    stage_hashes: dict = field(default_factory=dict)  # Stage -> inputs hash used (decision log times)
 
 
 def _ctx_for(c: RunContext, key: str) -> RunContext:
@@ -88,6 +89,7 @@ def stage_hash(st: State, stage: Stage, ctx: RunContext) -> str:
 def run_stage(st: State, stage: Stage, ctx: RunContext) -> list[CheckResult]:
     """Run one stage, or reuse its stored results when its inputs are unchanged."""
     h = stage_hash(st, stage, ctx)
+    st.stage_hashes[stage] = h
     stored = ctx.store.load_stage(st.key, stage, h)
     if stored is not None and not any(r.reason in TRANSIENT for r in stored):
         results = stored
@@ -389,15 +391,32 @@ def decide(st: State, ctx: RunContext) -> Verdict:
         "run_cost_credits": cr, "run_cost_inr": inr, "superseded_by": None,
     })
     verdict = explain(verdict, checks, st)
+    entries = _log_entries(st, verdict, checks, store, ctx)
     crashpoint("stage.before_save.verdict")
     with store.tx():
         if store.get(Verdict, vid) is None:
             store.put(verdict)
+        if entries:
+            try:
+                from pdr.engine import decision_log
+                decision_log.write(store, st.key, verdict, entries)
+            except Exception as err:  # noqa: BLE001 - the log never blocks the verdict
+                log.error("decision log not written for %s: %r", st.key, err)
         _supersede_others(store, st.key, vid)
         if st.stopped is None:
             store.save_stage(st.key, stage, h, [])
     crashpoint("stage.after_save.verdict")
     return store.get(Verdict, vid) or verdict
+
+
+def _log_entries(st: State, verdict: Verdict, checks, store, ctx: RunContext) -> list[dict]:
+    """Decision-log entries for this verdict (add-on E1); a failure here never blocks the verdict."""
+    try:
+        from pdr.engine import decision_log
+        return decision_log.build(st, verdict, checks, store, ctx.settings.version, st.stage_hashes)
+    except Exception as err:  # noqa: BLE001
+        log.error("decision log not built for %s: %r", st.key, err)
+        return []
 
 
 def _supersede_others(store, key: str, vid: str) -> None:
@@ -417,6 +436,7 @@ def budget_verdict(dispute_key: str, ctx: RunContext, stage: Stage = Stage.evide
         stored = ctx.store.load_stage(st.key, s, h)
         if stored is None:
             break
+        st.stage_hashes[s] = h
         st.prior[s] = stored
         st.hashes.append(results_hash(stored))
     _mark_stopped(st, stage)

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import contextlib
+import json
 from datetime import datetime, timezone
 from typing import Any, Iterator
 
@@ -62,6 +63,7 @@ class MemStore:
         stage = Stage(stage)
         with self.tx():
             self._stages[(dispute_key, stage.value, inputs_hash)] = [r.model_copy(deep=True) for r in results]
+            self.__dict__.setdefault("_saved_at", {})[(dispute_key, stage.value, inputs_hash)] = datetime.now(timezone.utc).isoformat()
             ded = self._entities.get(("Deduction", dispute_key))
             if ded is not None and STAGE_ORDER.index(stage) > STAGE_ORDER.index(Stage(ded.stage)):
                 self._entities[("Deduction", dispute_key)] = ded.model_copy(update={"stage": stage})
@@ -73,6 +75,34 @@ class MemStore:
     def unfinished(self) -> list[Deduction]:
         decided = {v.dispute_key for v in self.find(Verdict) if v.superseded_by is None}
         return [d for d in self.find(Deduction) if d.dispute_key not in decided]
+
+    def stage_saved_at(self, dispute_key: str, stage: Stage, inputs_hash: str) -> str | None:
+        return getattr(self, "_saved_at", {}).get((dispute_key, Stage(stage).value, inputs_hash))
+
+    # ------------------------------------------------------------- decision log (add-on E1)
+    def evidence_considered_put(self, group_key: str, dispute_key: str, run_id: str, rows: list[dict]) -> None:
+        store = self.__dict__.setdefault("_considered", {})
+        for r in rows:
+            store.setdefault((group_key, r.get("url") or ""), {
+                "group_key": group_key, "url": r.get("url") or "", "status": r.get("status"), "test": r.get("test"),
+                "reason": r.get("reason"), "detail": r.get("detail"), "saved_at": datetime.now(timezone.utc).isoformat()})
+
+    def evidence_considered(self, group_key: str) -> list[dict]:
+        return [{k: v for k, v in r.items() if k != "group_key"}
+                for (g, _), r in self.__dict__.get("_considered", {}).items() if g == group_key]
+
+    def decision_log_append(self, entries: list[dict]) -> None:
+        log = self.__dict__.setdefault("_log", {})
+        for e in entries:
+            log.setdefault(e["entry_id"], json.loads(canonical_json(e)))
+
+    def decision_log(self, dispute_key: str, verdict_id: str | None = None) -> list[dict]:
+        rows = [dict(e) for e in self.__dict__.get("_log", {}).values()
+                if e["dispute_key"] == dispute_key and (verdict_id is None or e["verdict_id"] == verdict_id)]
+        return sorted(rows, key=lambda e: (e["version"], e["seq"]))
+
+    def decision_log_versions(self, dispute_key: str) -> list[str]:
+        return list(dict.fromkeys(e["verdict_id"] for e in self.decision_log(dispute_key)))
 
     # ------------------------------------------------------------- actions and trail
     def actions_in(self, status: ActionStatus) -> list[Action]:

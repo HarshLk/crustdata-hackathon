@@ -41,6 +41,13 @@
 {% if v %}
 <h2>Verdict</h2>
 <p>{{ explanation or "No explanation recorded." }}</p>
+{% if decision_log.entries %}<details id="how-we-decided"><summary>How we decided (version v{{ decision_log.version }})</summary>
+<ol class="small">{% for e in decision_log.entries %}<li><strong>{{ e.step }}</strong> · {{ e.check }}: <em>{{ e.result }}</em>: {{ e.reason }}
+{% if e.inputs %}<div class="muted">inputs: {{ e.inputs|join(", ") }}</div>{% endif %}
+{% if e.evidence_considered %}<ul>{% for c in e.evidence_considered %}<li>{{ c }}</li>{% endfor %}</ul>{% endif %}
+{% if e.numbers %}<ul>{% for n in e.numbers %}<li>{{ n }}</li>{% endfor %}</ul>{% endif %}
+<div class="muted">rules {{ e.rule.rule_version }} · settings {{ e.rule.settings_version }} · {{ e.at }}{% if e.cost %} · ledger {{ e.cost|join(", ") }}{% endif %}</div></li>{% endfor %}</ol>
+</details>{% endif %}
 {% else %}
 <h2>Verdict</h2><p class="muted">Not decided yet (stage {{ ded.stage }}).</p>
 {% endif %}

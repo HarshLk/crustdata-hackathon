@@ -13,3 +13,9 @@ CREATE TABLE IF NOT EXISTS throttle      (provider TEXT, at REAL);
 CREATE TABLE IF NOT EXISTS runs          (run_id TEXT PRIMARY KEY, settings_version TEXT, started_at TEXT, ended_at TEXT, body TEXT);
 CREATE TABLE IF NOT EXISTS settings_versions (settings_version TEXT PRIMARY KEY, body TEXT, loaded_at TEXT);
 CREATE TABLE IF NOT EXISTS pii_access_log (id INTEGER PRIMARY KEY, at TEXT, who TEXT, trip_id TEXT, purpose TEXT);
+-- Add-on E1: decision log (append-only) and the sources the evidence stage considered (ADDON spec 1).
+CREATE TABLE IF NOT EXISTS evidence_considered (group_key TEXT, url TEXT, dispute_key TEXT, run_id TEXT, status TEXT, test TEXT, reason TEXT, detail TEXT, saved_at TEXT, PRIMARY KEY(group_key, url));
+CREATE TABLE IF NOT EXISTS decision_log (entry_id TEXT PRIMARY KEY, verdict_id TEXT NOT NULL, dispute_key TEXT NOT NULL, run_id TEXT, version INTEGER, seq INTEGER, step TEXT, body TEXT NOT NULL, at TEXT);
+CREATE INDEX IF NOT EXISTS decision_log_key ON decision_log(dispute_key, version, seq);
+CREATE TRIGGER IF NOT EXISTS decision_log_no_update BEFORE UPDATE ON decision_log BEGIN SELECT RAISE(ABORT, 'decision_log is append-only'); END;
+CREATE TRIGGER IF NOT EXISTS decision_log_no_delete BEFORE DELETE ON decision_log BEGIN SELECT RAISE(ABORT, 'decision_log is append-only'); END;

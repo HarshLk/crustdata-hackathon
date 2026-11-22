@@ -201,6 +201,45 @@ class SqliteStore:
         decided = {v.dispute_key for v in self.find(Verdict) if v.superseded_by is None}
         return [d for d in self.find(Deduction) if d.dispute_key not in decided]
 
+    def stage_saved_at(self, dispute_key: str, stage: Stage, inputs_hash: str) -> str | None:
+        rows = self.query("SELECT saved_at FROM stage_results WHERE dispute_key=? AND stage=? AND inputs_hash=?",
+                          (dispute_key, Stage(stage).value, inputs_hash))
+        return rows[0]["saved_at"] if rows else None
+
+    # ------------------------------------------------------------- decision log (add-on E1)
+    def evidence_considered_put(self, group_key: str, dispute_key: str, run_id: str, rows: list[dict]) -> None:
+        """Save the sources one evidence group considered; repeats of (group, url) are ignored."""
+        with self.tx() as c:
+            for r in rows:
+                c.execute("INSERT OR IGNORE INTO evidence_considered(group_key,url,dispute_key,run_id,status,test,reason,detail,saved_at) "
+                          "VALUES(?,?,?,?,?,?,?,?,?)", (group_key, r.get("url") or "", dispute_key, run_id, r.get("status"),
+                                                        r.get("test"), r.get("reason"), r.get("detail"), _now()))
+
+    def evidence_considered(self, group_key: str) -> list[dict]:
+        return self.query("SELECT url,status,test,reason,detail,saved_at FROM evidence_considered WHERE group_key=? "
+                          "ORDER BY rowid", (group_key,))
+
+    def decision_log_append(self, entries: list[dict]) -> None:
+        """Insert log entries (append-only; an entry id already present is ignored)."""
+        with self.tx() as c:
+            for e in entries:
+                c.execute("INSERT OR IGNORE INTO decision_log(entry_id,verdict_id,dispute_key,run_id,version,seq,step,body,at) "
+                          "VALUES(?,?,?,?,?,?,?,?,?)", (e["entry_id"], e["verdict_id"], e["dispute_key"], e.get("run_id"),
+                                                        e["version"], e["seq"], e["step"], canonical_json(e), e.get("at")))
+
+    def decision_log(self, dispute_key: str, verdict_id: str | None = None) -> list[dict]:
+        sql, params = "SELECT body FROM decision_log WHERE dispute_key=?", [dispute_key]
+        if verdict_id is not None:
+            sql += " AND verdict_id=?"
+            params.append(verdict_id)
+        return [json.loads(r["body"]) for r in self.query(sql + " ORDER BY version, seq", params)]
+
+    def decision_log_versions(self, dispute_key: str) -> list[str]:
+        """Verdict ids with log entries, oldest version first."""
+        rows = self.query("SELECT verdict_id, MIN(version) AS v FROM decision_log WHERE dispute_key=? GROUP BY verdict_id "
+                          "ORDER BY v", (dispute_key,))
+        return [r["verdict_id"] for r in rows]
+
     # ------------------------------------------------------------- actions and trail
     def actions_in(self, status: ActionStatus) -> list[Action]:
         return self.find(Action, status=ActionStatus(status))
