@@ -115,7 +115,10 @@ def _check_identify(payload: Any) -> list[str]:
 
 
 def _check_urls(payload: Any) -> list[str]:
-    urls = _names(payload) if not isinstance(payload, dict) else [str(u) for u in (payload.get("urls") or [payload.get("url", "")])]
+    if isinstance(payload, dict):
+        urls = [str(u) for u in (payload.get("urls") or ([payload["url"]] if payload.get("url") else []))]
+    else:
+        urls = _names(payload)
     return [f"not a public URL: {u[:60]}" for u in urls if not re.match(r"^https?://", u.strip())]
 
 
