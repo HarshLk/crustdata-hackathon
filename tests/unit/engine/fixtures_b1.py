@@ -116,3 +116,57 @@ def world(store=None, terms=None, trips=None, deds=None, clients=None, agreement
         store.put(d)
         keys.append(d.dispute_key)
     return store, keys
+
+
+def stub_free_checks():
+    """Register no-op stage 3/4 checks when lane B's real ones are not loaded; returns ids to remove."""
+    from pdr.codes import CheckStatus, Stage
+    from pdr.engine import registry
+    from pdr.models import CheckResult
+    import sys
+    import types
+    added = []
+    for stage, mod in ((Stage.terms_checked, "pdr.engine.checks_terms"), (Stage.records_checked, "pdr.engine.checks_records")):
+        if mod in sys.modules and registry.checks_for(stage):
+            continue
+        if mod not in sys.modules:
+            sys.modules[mod] = types.ModuleType(mod)
+            added.append("module:" + mod)
+        cid = f"stub_{stage.value}"
+
+        def fn(c, _s=stage, _id=cid):
+            return CheckResult(check_id=_id, stage=_s, status=CheckStatus.NOT_APPLICABLE, note="test stub")
+        registry.check(stage=stage, check_id=cid)(fn)
+        added.append(cid)
+    return added
+
+
+def unregister(ids):
+    import sys
+    from pdr.engine import registry
+    for i in ids:
+        if i.startswith("module:"):
+            sys.modules.pop(i[7:], None)
+        registry._REGISTRY.pop(i, None)
+
+
+class FakeFinder:
+    """Stands in for pdr.evidence.find_evidence; counts calls."""
+
+    def __init__(self, result_fn):
+        self.calls = []
+        self.result_fn = result_fn
+
+    def __call__(self, req, ctx):
+        self.calls.append(req)
+        return self.result_fn(req)
+
+
+def kini_evidence(eid="ext-kini-1", place="Kini toll plaza", stance="supports"):
+    from datetime import date as _d
+    from pdr.models import Evidence
+    return Evidence(evidence_id=eid, kind="external_news", url="https://example.org/kini-blockade",
+                    passage="Over 1,500 trucks stranded near Kini toll plaza as the blockade halted traffic on NH-48",
+                    published_at=ist(6, 9), event_from=_d(2026, 11, 3), event_to=_d(2026, 11, 6), place_named=place,
+                    retrieved_at=ist(22, 9), fetch_status="ok", content_hash="abc", stance=stance,
+                    link="https://example.org/kini-blockade#:~:text=Over")

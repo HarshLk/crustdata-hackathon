@@ -20,6 +20,26 @@ TRANSIENT = {Reason.BUDGET_REACHED, Reason.PROVIDER_FAILED}
 DELAY_CODES = {ReasonCode.late_delivery, ReasonCode.late_placement, ReasonCode.non_placement,
                ReasonCode.late_reporting, ReasonCode.late_paperwork}
 VOID_GROUNDS = {Ground.NO_CONTRACTUAL_BASIS, Ground.DUPLICATE, Ground.NO_DELAY}
+REQUIRED_STAGES = {Stage.received, Stage.matched, Stage.terms_checked, Stage.records_checked}
+# stage -> check module that must be loaded before the stage may finish (valid needs every check to run)
+REQUIRED_MODULES = {Stage.matched: "pdr.engine.gate", Stage.terms_checked: "pdr.engine.checks_terms",
+                    Stage.records_checked: "pdr.engine.checks_records", Stage.notice_checked: "pdr.engine.checks_notice",
+                    Stage.evidence_searched: "pdr.engine.evidence_stage"}
+
+
+def missing_check_modules(stage: Stage) -> list[CheckResult]:
+    """INCOMPLETE/INTERNAL_ERROR when a stage's check module failed to load or the stage has no checks."""
+    import sys
+    mod = REQUIRED_MODULES.get(stage)
+    if mod and mod not in sys.modules:
+        return [CheckResult(check_id=f"{stage.value}_checks", stage=stage, status=CheckStatus.INCOMPLETE,
+                            reason=Reason.INTERNAL_ERROR,
+                            missing_item=f"check module {mod} failed: ModuleNotLoaded")]
+    if stage in REQUIRED_STAGES and not checks_for(stage):
+        return [CheckResult(check_id=f"{stage.value}_checks", stage=stage, status=CheckStatus.INCOMPLETE,
+                            reason=Reason.INTERNAL_ERROR,
+                            missing_item=f"check {stage.value} failed: NoChecksRegistered")]
+    return []
 _RANK = {Outcome.valid: 0, Outcome.cannot_verify: 0, Outcome.disputable: 1}
 
 
@@ -58,6 +78,8 @@ def load_state(key: str, ctx: RunContext) -> State | None:
 
 def stage_hash(st: State, stage: Stage, ctx: RunContext) -> str:
     extra = None if stage == Stage.received else st.identity.summary()
+    if stage == Stage.verdict:  # a new settings version always yields a newly stamped verdict (no checks re-run)
+        extra = {"identity": extra, "settings_version": ctx.settings.version}
     trip = None if stage == Stage.received else st.c.trip
     terms = [] if stage == Stage.received else st.c.terms + st.identity.unconfirmed
     return inputs_hash(stage, st.deduction, trip, terms, ctx.settings, st.hashes, extra=extra)
@@ -72,6 +94,7 @@ def run_stage(st: State, stage: Stage, ctx: RunContext) -> list[CheckResult]:
     else:
         st.c.prior = dict(st.prior)
         results = []
+        results.extend(missing_check_modules(stage))
         for spec in checks_for(stage):
             for r in run_check(spec, st.c):
                 if r.stage != stage:
@@ -328,7 +351,7 @@ def _run_cost(store, key) -> tuple[Decimal, Decimal]:
     try:
         from pdr.broker import ledger
         rows = ledger.rows(store, dispute_key=key)
-        cr = sum((Decimal(str(getattr(r, "credits", 0) or 0)) for r in rows), Decimal("0"))
+        cr = sum((Decimal(str(r.units or 0)) for r in rows if r.unit_kind == "credits"), Decimal("0"))
         inr = sum((Decimal(str(getattr(r, "cost_inr", 0) or 0)) for r in rows), Decimal("0"))
         return cr, inr
     except Exception:  # noqa: BLE001 - ledger not available yet
