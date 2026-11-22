@@ -41,7 +41,7 @@ recorded responses):
 | Part | State | How it was checked |
 | --- | --- | --- |
 | Verdict engine (match, terms, records, notice, evidence, penalty recompute, combine) | works; fails closed (a missing check module gives `cannot_verify`, never `valid`) | `tests/test_cases.py`, unit tests |
-| The PRD test cases as folders (1-23, 7b, 12a-12d: 28 folders) | all pass through the test loader with recorded Crustdata responses | `python -m pytest -q tests/test_cases.py` |
+| The PRD test cases as folders (1-23, 7b, 12a-12d: 27 folders) | all pass through the test loader with recorded Crustdata responses | `python -m pytest -q tests/test_cases.py` |
 | `pdr run` on a case folder | reads the folder, writes `out/verdicts.jsonl` (one line per deduction), drafts letters, renders the case file | `scripts/smoke.sh` |
 | Re-run and restart | stages are memoised; a second run on the same input recomputes nothing | `scripts/smoke.sh` |
 | Approve and send exactly once | a send killed at any crash point, then re-run, leaves exactly one outbox file | `tests/test_kill.py`, `scripts/smoke.sh` |
@@ -58,7 +58,7 @@ Honest limits:
 - **Google redirect-link resolution is being revised.** It worked 68 of 68 times early in the day and then Google
   began returning a verification page instead of a redirect (see section 5). Evidence still comes from direct
   publisher links in the search results.
-- `pdr run` was run offline on all 28 case folders: none crashed. The 15 cases that need web evidence (1, 2, 3, 7,
+- `pdr run` was run offline on all 27 case folders: none crashed. The 14 cases that need web evidence (1, 2, 3, 7,
   7b, 8, 11, 12a, 15, 17, 19, 21, 22, 23) give `cannot_verify / PROVIDER_FAILED`, because offline the CLI has no
   recorded responses (only the test loader plugs in each folder's `cassette/`). The free-check cases (4, 5, 6, 9, 10,
   12b, 12c, 12d, 13, 14, 16, 18, 20) give their verdict through the CLI.
