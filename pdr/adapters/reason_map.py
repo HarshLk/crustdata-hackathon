@@ -22,7 +22,7 @@ REASON_TABLE: list[tuple[ReasonCode, list[str]]] = [
                                  r"paperwork", r"delivery\s+receipts?\s+not", r"\bwcm\b"]),
     (ReasonCode.detention_charge, [r"detention", r"demurrage", r"halting\s+charge", r"waiting\s+charge"]),
     (ReasonCode.shortage, [r"shortage", r"short\s+(?:delivery|receipt|supply|quantity)", r"\bshort\b"]),
-    (ReasonCode.damage, [r"damage", r"breakage", r"leakage", r"broken", r"spoil"]),
+    (ReasonCode.damage, [r"(?<!liquidated )damage", r"breakage", r"leakage", r"broken", r"spoil"]),
     (ReasonCode.late_delivery, [r"late\s+delivery", r"delay(?:ed)?\s+(?:in\s+)?delivery", r"delivery\s+delay", r"transit\s+delay",
                                 r"delay(?:ed)?\s+(?:in\s+)?transit", r"liquidated\s+damages", r"\bld\b", r"late\s+arrival",
                                 r"delayed\s+(?:arrival|supply|transport)", r"delay\s+in\s+(?:supply|transport)", r"\bdelay(?:ed)?\b"]),
