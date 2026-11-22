@@ -55,9 +55,13 @@ recorded responses):
 Honest limits:
 
 - **No model key was available**, so no model call has been made live. Every model read in tests is a recorded fake.
-- **Google redirect-link resolution is being revised.** It worked 68 of 68 times early in the day and then Google
-  began returning a verification page instead of a redirect (see section 5). Evidence still comes from direct
-  publisher links in the search results.
+- **Google redirect links are resolved by a three-step fallback, and it can still miss.** About 80% of Crustdata
+  news results are `google.com/goto` links. For each one the service (1) uses the link as is when it already points
+  to the publisher, (2) asks for the redirect once with an 8-second limit, (3) fetches the link through Crustdata
+  with `human_mode` and cites the address the article page itself declares. If all three fail the result is logged
+  as `unresolved_redirect` and never cited. Google gates freshly issued links for the first few minutes, for us and
+  for Crustdata alike, so a fast first run may have only direct links to work with; the deduction then comes back
+  `cannot_verify`, never a guess. Measurements: `docs/redirect_resolution.md`.
 - `pdr run` was run offline on all 27 case folders: none crashed. The 14 cases that need web evidence (1, 2, 3, 7,
   7b, 8, 11, 12a, 15, 17, 19, 21, 22, 23) give `cannot_verify / PROVIDER_FAILED`, because offline the CLI has no
   recorded responses (only the test loader plugs in each folder's `cassette/`). The free-check cases (4, 5, 6, 9, 10,
@@ -133,6 +137,12 @@ D-41):
 | Alerts | "Verdict ready" and "approval needed" messages from their own alert outbox, sent at most once |
 | Live approval page (`pdr serve`) | A small local page to approve actions; the static case file stays the main interface |
 | Search deeper | A per-dispute evidence depth: a person can ask for the next rung of searches instead of repeating the same one |
+
+**Future work on source links.** The fallback above is a work-around, not a fix. The fix is on the provider's side:
+ask Crustdata to return the publisher's original URL in `/web/search/live` news results (or add it as a field), or to
+have `/web/enrich/live` follow the redirect, report the final URL, and not charge for Google's verification page.
+Until then, two improvements are planned: re-trying unresolved links a few minutes later in the same run (they
+redirect normally once the gate lifts), and official-source adapters that need no search-result links at all.
 
 Known gaps: official-source adapters (district orders, IMD, traffic police), stretch interpolation for GPS halts,
 retention deletion, event watch, and a second person's check of `fixtures/lanes.yaml`.
