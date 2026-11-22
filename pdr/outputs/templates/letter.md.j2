@@ -1,0 +1,60 @@
+# Request for reversal of deduction {{ ref }}
+
+**To:** {{ client_name }}
+**Our reference:** {{ ref }}
+**Date:** [[SENT_DATE]]
+
+Dear Sir or Madam,
+
+We have reviewed the deduction{{ "s" if deductions|length > 1 else "" }} listed below against our agreement and our trip records. On the evidence set out in this letter we request that {{ "they be" if deductions|length > 1 else "it be" }} reviewed and the amount shown be returned.
+
+## Deduction{{ "s" if deductions|length > 1 else "" }} concerned
+
+| Payment advice | Line | Deduction date | Amount deducted (INR) | Reason stated |
+| --- | --- | --- | --- | --- |
+{% for d in deductions -%}
+| {{ d.advice_no or d.client_deduction_no or "-" }} | {{ d.line_no or "-" }} | {{ d.deduction_date }} | {{ d.amount|inr }} | {{ d.reason_code }} |
+{% endfor %}
+## Grounds
+
+{% for g in grounds -%}
+- {{ g.sentence }}
+{% endfor %}
+## Clauses relied on
+
+{% for t in clauses -%}
+- **{{ t.doc }}**, page {{ t.page }}, clause {{ t.clause }}{% if t.effective %} (in force from {{ t.effective }}){% endif %}:
+  > {{ t.verbatim }}
+{% else -%}
+- None.
+{% endfor %}
+## Evidence
+
+{% for e in records -%}
+- Our record {{ e.record }}: {{ e.field }} = {{ e.value }}{% if e.timestamp %} at {{ e.timestamp }}{% endif %} (source: {{ e.source }}).
+{% endfor -%}
+{% for e in sources -%}
+- {{ e.url }}
+  Passage: "{{ e.passage }}"
+  Published: {{ e.published }}. Retrieved: {{ e.retrieved }}.{% if e.place %} Place named: {{ e.place }}.{% endif %}
+  Link to the passage: {{ e.link }}
+{% endfor -%}
+{% if not records and not sources %}- The clauses above and the calculation below.
+{% endif %}
+## Calculation
+
+{% for r in recomputation -%}
+{{ loop.index }}. {{ r.description }}: INR {{ r.value|inr }}
+{% else -%}
+- No recalculation applies.
+{% endfor %}
+Amount deducted: INR {{ amount_deducted|inr }}.
+Amount due under the agreement: INR {{ recomputed|inr }}.
+
+## Request
+
+We request the return of **INR {{ amount_claimed|inr }}**, by reversal of the deduction or by credit note, by [[RESPOND_BY]] ({{ response_days }} days from the date of this letter). If your records show something different, please send us the record and we will review it promptly.
+
+Yours faithfully,
+
+[[APPROVERS]]
