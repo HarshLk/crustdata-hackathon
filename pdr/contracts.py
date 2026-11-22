@@ -173,6 +173,9 @@ class SearchLogLine:
     credits: Decimal = Decimal("0")
     cache_hit: bool = False
     ledger_entry_id: str | None = None
+    # additive (a3): how this query's result links were resolved: direct / location / crustdata_fetch /
+    # unresolved_redirect -> count
+    redirects: dict[str, int] = field(default_factory=dict)
 
 
 EvidenceStatus = Literal["found", "none", "undated_only", "budget", "provider_failed", "no_route_places"]
