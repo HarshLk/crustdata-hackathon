@@ -120,8 +120,25 @@ def _step(label: str, fn, *args, missing: str = "", **kw):
 
 
 def _load(path: Path, ctx):
-    from pdr.adapters.reader import load_request
+    try:
+        from pdr.adapters.reader import load_request
+    except ImportError:
+        if not (Path(path) / "case.yaml").exists():
+            raise
+        return _load_case_folder(path, ctx)
     return load_request(path, ctx)
+
+
+def _load_case_folder(path: Path, ctx):
+    """Fallback while the request reader is absent: a test-case folder loads through tests.caselib."""
+    from tests.caselib import load_case  # only importable from the repository
+    from pdr.models import Deduction
+    from pdr.settings import with_overrides
+    _err("[read] pdr.adapters.reader (lane D) is not on main; loading the test-case folder with tests.caselib")
+    keys, _expected, overrides = load_case(path, ctx.store)
+    if overrides:
+        ctx.settings = with_overrides(ctx.settings, overrides)
+    return [d for d in (ctx.store.get(Deduction, k) for k in keys) if d is not None]
 
 
 def _engine_run(keys, ctx):
