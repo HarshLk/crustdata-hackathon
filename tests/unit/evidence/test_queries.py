@@ -54,5 +54,7 @@ def test_only_requested_event_types(settings):
 
 def test_plan_respects_max_searches_and_keeps_state_rung(settings):
     p = plan(_req(), settings)
-    assert len(p) == settings.evidence.max_searches_per_deduction
-    assert {q.rung for q in p} == {1, 2, 3}
+    assert len(p) == settings.evidence.max_searches_per_deduction == 3
+    assert [q.text for q in p] == ["Satara blockade", "Kini blockade", "Maharashtra blockade"]
+    settings.evidence.max_searches_per_deduction = 20
+    assert {q.rung for q in plan(_req(), settings)} == {1, 2, 3}

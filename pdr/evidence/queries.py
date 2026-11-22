@@ -86,8 +86,8 @@ def ladder(req: EvidenceRequest, settings: Any) -> list[Query]:
             seen.add(text.lower())
             qs.append(Query(text, rung, start, end))
 
-    for place in _place_order(req.route_places):
-        for w in words:
+    for w in words:  # first word across every place before the next word
+        for place in _place_order(req.route_places):
             add(f"{place} {w}", 1)
     for state in dict.fromkeys(req.route_states):
         for w in words:
@@ -100,24 +100,23 @@ def ladder(req: EvidenceRequest, settings: Any) -> list[Query]:
 
 
 def plan(req: EvidenceRequest, settings: Any) -> list[Query]:
-    """The ladder cut to max_searches_per_deduction, keeping one search for each later rung that exists."""
+    """The ladder cut to max_searches_per_deduction: one slot kept for the state rung, the rest to places.
+
+    The regional rung runs only when slots remain (live test, 22 Nov: regional results cannot pass the
+    English place test without regional place names, so a slot spent there is a slot lost to a place query).
+    """
     qs = ladder(req, settings)
     cap = int(settings.evidence.max_searches_per_deduction)
     if len(qs) <= cap:
         return qs
-    rungs = sorted({q.rung for q in qs})
-    keep: list[Query] = []
-    # one slot reserved per later rung, rest to rung 1 (most specific first)
-    reserved = {r: 1 for r in rungs[1:]} if cap > len(rungs) - 1 else {}
-    budget_first = cap - sum(reserved.values())
-    for q in qs:
-        if q.rung == rungs[0] and budget_first > 0:
-            keep.append(q)
-            budget_first -= 1
-        elif reserved.get(q.rung, 0) > 0:
-            keep.append(q)
-            reserved[q.rung] -= 1
-    return keep[:cap]
+    places = [q for q in qs if q.rung == 1]
+    states = [q for q in qs if q.rung == 2]
+    regional = [q for q in qs if q.rung == 3]
+    keep_state = 1 if states and cap >= 2 else 0
+    chosen = places[:cap - keep_state] + states[:keep_state]
+    rest = [q for q in places + states + regional if q not in chosen]
+    chosen += rest[:cap - len(chosen)]
+    return sorted(chosen, key=lambda q: (q.rung, qs.index(q)))
 
 
 __all__ = ["Query", "ladder", "plan", "search_window", "event_words", "regional_names"]

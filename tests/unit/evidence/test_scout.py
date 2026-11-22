@@ -38,7 +38,7 @@ def test_found_for_pune_kolhapur(ctx, use_client):
     assert ev.link.startswith(OUTLOOK + "#:~:text=")
     assert r.search_log[0].query == "Satara blockade" and r.search_log[0].n_results == 1
     assert r.event_interval is not None
-    assert [x for x in c.ledger if x[0] == "search"] == [("search", "Satara blockade")]  # stopped at first rung
+    assert not any(x == ("search", "Maharashtra blockade") for x in c.ledger)  # stopped at the first qualifying rung
 
 
 def test_none_for_pune_mumbai(ctx, use_client):

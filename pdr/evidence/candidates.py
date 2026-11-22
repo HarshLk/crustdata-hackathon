@@ -74,13 +74,16 @@ READ_WORDS: dict[EventType, list[str]] = {
 ROAD_NOUNS = r"(?:traffic|vehicles?|vehicular|trucks?|lorr(?:y|ies)|trailers?|buses|bus services|tankers?|highways?|roads?|nh[\s\-]?\d+|goods|transport(?:ation)?|movement|motorists|commuters|containers?|consignments?|carriers?)"
 EFFECT_WORDS = (r"(?:stranded|stuck|blocked|halted|halt|standstill|disrupted|disrupts?|diverted|diversions?|"
                 r"stopped|paralysed|paralyzed|crippled|off the roads?|did not ply|remained off|held up|"
-                r"came to a (?:halt|standstill)|jammed|backed up|queued|suspended|hit)")
+                r"came to a (?:halt|standstill)|deserted|jammed|backed up|queued|suspended|hit)")
 _EFFECT = re.compile(r"\b" + EFFECT_WORDS + r"\b", re.IGNORECASE)
 _ROAD = re.compile(r"\b" + ROAD_NOUNS + r"\b", re.IGNORECASE)
 _FUTURE = re.compile(r"\b(?:will|would|may|might|could|likely to|set to|plans? to|planning to|is to|are to|"
                      r"tomorrow|to observe|calls? for|called for|has called|have called|appeal(?:s|ed)? (?:to|for)|"
                      r"urged?|threaten(?:s|ed)?|warn(?:s|ed)?|announc(?:e|es|ed|ing)|proposed|scheduled|"
                      r"if the|ahead of)\b", re.IGNORECASE)
+_OCCURRED = re.compile(r"\b(?:continued|continues|began|entered|enters|staged|launched|observed|held|went on|"
+                       r"(?:was|were|is|are) (?:on|underway|being observed)|(?:remained|remains) (?:blocked|shut|closed))\b",
+                       re.IGNORECASE)
 _EVENT_GENERIC = r"(?:bandh|strike|hartal|protest|agitation|blockade|stir|shutdown|chakka jam|rasta roko)"
 _CALLED_OFF = re.compile(
     r"\b(?:called off|calling off|withdrawn|withdrew|withdrawing|postponed|deferred|suspended)\b[^.]{0,80}\b"
@@ -260,7 +263,8 @@ def propose(text: str, title: str, published: datetime | None, places: list[str]
             p.status, p.status_quote = "called_off", off
         else:
             happened = [s for s in cands if has_effect(s) and not is_future(s)] or \
-                [s for s in sentences if erx.search(s) and has_effect(s) and not is_future(s)]
+                [s for s in sentences if erx.search(s) and has_effect(s) and not is_future(s)] or \
+                [s for s in cands if _OCCURRED.search(s) and not is_future(s)]
             if happened:
                 p.status, p.status_quote = "happened", happened[0]
             elif any(is_future(s) for s in cands):
@@ -275,7 +279,8 @@ def propose(text: str, title: str, published: datetime | None, places: list[str]
                         p.places_affected.append(Claim(value=pl, quote=s))
         # effect
         eff = [s for s in cands if has_effect(s) and not is_future(s)] or \
-              [s for s in sentences if erx.search(s) and has_effect(s) and not is_future(s)]
+              [s for s in sentences if erx.search(s) and has_effect(s) and not is_future(s)] or \
+              ([s for s in sentences if has_effect(s) and not is_future(s)] if p.status == "happened" else [])
         if eff:
             p.effect_quote = eff[0]
         # statewide stop
