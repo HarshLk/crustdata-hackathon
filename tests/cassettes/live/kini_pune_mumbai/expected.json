@@ -1,0 +1,70 @@
+{
+ "request": {
+  "route_places": [
+   "Pune",
+   "Lonavala",
+   "Khopoli",
+   "Panvel",
+   "Navi Mumbai",
+   "Mumbai"
+  ],
+  "route_states": [
+   "Maharashtra"
+  ],
+  "window": [
+   "2026-11-04T08:00:00+05:30",
+   "2026-11-05T20:00:00+05:30"
+  ],
+  "event_types": [
+   "blockade"
+  ]
+ },
+ "status": "none",
+ "supporting_urls": [],
+ "contradicting_urls": [],
+ "queries": [
+  "Lonavala blockade",
+  "Khopoli blockade",
+  "Maharashtra blockade"
+ ],
+ "recorded": "2026-11-22 live run (a2)",
+ "supporting": [],
+ "rejected": [
+  {
+   "url": "https://www.google.com/goto?url=CAESogEBxCJF15MgAsn343GAPpevN9xfObe2CyYY5rlC_UDLWOlj0KJdz14RdvJFuSEv-Wr-yLtORXfcnnUC7Ieqm55hV19Y47GnsELhawQElMLyPiFYnWrcSkFQHeodhNykRx9-5A4efRxMtIkYOGlfpFpBgvi-HwmjYuunrjS7AR4MRy7XDwIUzJtTpwbbE-__J7SXaQ8ib0ASRggzc_DYStB_h90&gsessionid=Y_WJUPU3-EaK6bYHTKTCzRIAA3aj8n2vbEXZ4PCzVKYNl1gxq9dkNA",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAESywEBxCJF12iup3H9hJn4vD4RaYx-9dVaFnT8JGIz0T4d0qM0cmOsVhFHHvzzUec_p3VBsp3I4FT3ZxcxieBatv88imbjLvn2jGgmI13q3JW2M3Bvx2LUOwOTRLLPva1IXHclWBpkJyq7Y_k7AnxfPBYX9AWfLdxoYVsY2HKwIKVY2FmZoHDq5hUzZ-a5GWAGiczpE7CQn5lAwoKK2G2YebCPAk6uYePMJA-uwU8wORjMH0yJx4Ltrk4_J4RhWSF3eiJrGQDxE2xx0-X4SQ&gsessionid=Y_WJUPU3-EaK6bYHTKTCzRIAA3aj8n2vbEXZ4PCzVKYNl1gxq9dkNA",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAES0gEBxCJF1yJzTY2b0KqDh8Klp1bO_-EOuK3tcPU5kBIJuzd3AwvOSNCLiuYGwlxtu1VFmRrjltWriwdeXwhYWpd6y4zueVFvCqoH7-lwfJZ9dP2OVoLOzVnGPrmvioQB_G-s7qG_6hkFQKnRaDZ6ISwVgsLy7sH--xVNnOFijqk5kMuZDDOtsxtj8XztAfd7PtlYGjEPVJ_QtaavKQGZwHA-EWzC4M2zGOGMrqGxO-SIXUzTPGVNSMVar3jcDvfIxv8RBp2N6Q2SglIEGGFeltnUJ1I&gsessionid=Y_WJUPU3-EaK6bYHTKTCzRIAA3aj8n2vbEXZ4PCzVKYNl1gxq9dkNA",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAESrwEBxCJF19pgyVMYhpjevPiNSeYnQywjfOCUpiiNJkCniTgAKpLvVP02cZgswj3FZ2SUCneIvax4i0B36Hkzyzf0DdNxKRB2GjsmABF1tifqj1wueEVu6GySn-NAJnkHeFfhnDnxP-K-aI5y4yRgm7jrYkZNUzwnSZIUQx8SUkGb61n5j3gm70yt9CZEYktIPGsK07-AjQgsOLhKw0Hjg69VO9ixl8treab8FK6gXnM1&gsessionid=Y_WJUPU3-EaK6bYHTKTCzRIAA3aj8n2vbEXZ4PCzVKYNl1gxq9dkNA",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAES0wEBxCJF17ysl_YTLRTv8NdCVq6qkyRRHKM3-iyz9MUAJvJ-NLluF2rHxY4wU6WmwJ_ZPytuz3JIL3ZhhklAa_V6uyfZikKsxWAxynrM_Z2a1UmAZT2wqf-lYcEkOLgZUy29hk9XH7kUHcbjnqBje1Od5GtOQHtvttrdvueRqWjwFfux0loBLOIlVMdMrw50GofoOcuyClHZEkFd0eXWS4Towczx7t9c_g4FGXa6JMXgii3hr31w40GbFi32kH4cU0gZqPm5_49KvrK2UtsrerT1P-9R&gsessionid=Y_WJUPU3-EaK6bYHTKTCzRIAA3aj8n2vbEXZ4PCzVKYNl1gxq9dkNA",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAESvAEBxCJF1-6kL1vgUFazEJZ-hIARmAFcmPQ-1zQncFxAvLsRwgTjHKIl31P_7yDwjXxuhfi_iRrpzoSqKEA6UcvoF_IM8v661TtVsn7WwI_zrMkgYTNadWyzUFFj0Qvi4MD2QpKZRWfyQT5Qy_gLmd98DueF6zV5m4-lJnVIX8Nr8eTRu_Is9rVTjblyQSi3nqvC2uh1qikDBorKCU2l2-i3rIhx-JtxrqNFTBQ7KH-aA0-KhiMocpB_AfSHeQ&gsessionid=Y_WJUPU3-EaK6bYHTKTCzRIAA3aj8n2vbEXZ4PCzVKYNl1gxq9dkNA",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAESyQEBxCJF13G0tBbE2DeNDfmdGl26NM4Xl73sa5TpjFTuHPb9jiYpM2PDRZvcl_zNCWgCXzQCGFtaJSlbeYvyW0hoqPvINbBK5M0cEi2kaCHuwFjHYLV7jdMA9fS0aowsOwvYAtog8zTJ2EgkcQOUYg3MKV9Gh8GEnQcwtgURG26_dC5zNtJEBRjxwTXD3y9-rS_R_CJq0RcXvsV86JgjzKoSj4cZQjyYRF8DWGWisXbb69o8HBZPsQbOWETzkMHXOUrno-9Ta-6vSYs&gsessionid=Y_WJUPU3-EaK6bYHTKTCzRIAA3aj8n2vbEXZ4PCzVKYNl1gxq9dkNA",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.etvbharat.com/en/state/maharashtra-sugarcane-price-protest-enn26110502376",
+   "reason": "no_candidates"
+  },
+  {
+   "url": "https://www.outlookindia.com/national/maharashtra-farmers-protest-blocks-nh-48-strands-1500-trucks",
+   "reason": "place_not_on_route"
+  }
+ ]
+}

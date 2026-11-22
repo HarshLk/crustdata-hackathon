@@ -1,0 +1,138 @@
+{
+ "request": {
+  "route_places": [
+   "Cuttack",
+   "Bhubaneswar"
+  ],
+  "route_states": [
+   "Odisha"
+  ],
+  "window": [
+   "2026-10-08T06:00:00+05:30",
+   "2026-10-08T20:00:00+05:30"
+  ],
+  "event_types": [
+   "bandh"
+  ]
+ },
+ "status": "found",
+ "supporting_urls": [
+  "https://www.indiatoday.in/india/story/odisha-bandh-disrupts-transport-shops-india-bloc-protests-mining-law-ptag-3012135-2026-10-08"
+ ],
+ "contradicting_urls": [],
+ "queries": [
+  "Cuttack bandh",
+  "Bhubaneswar bandh",
+  "Odisha bandh"
+ ],
+ "recorded": "2026-11-22 live run (a2)",
+ "supporting": [
+  {
+   "url": "https://www.indiatoday.in/india/story/odisha-bandh-disrupts-transport-shops-india-bloc-protests-mining-law-ptag-3012135-2026-10-08",
+   "published_at": "2026-10-08T10:53:46+05:30",
+   "event_from": "2026-10-08",
+   "event_to": "2026-10-08",
+   "place_named": "Cuttack",
+   "passage": "Supporters of the Congress, CPI, CPI(M), CPI(ML) Liberation, Forward Bloc, NCP (Sharad Pawar), Samajwadi Party, RJD and JMM staged demonstrations and blocked roads at several places, including Bhubaneswar, Cuttack, Bargarh, Bhadrak, Balasore, Rayagada, Kendrapara, Bolangir, Berhampur and Sambalpur.",
+   "link": "https://www.indiatoday.in/india/story/odisha-bandh-disrupts-transport-shops-india-bloc-protests-mining-law-ptag-3012135-2026-10-08#:~:text=Supporters%20of%20the%20Congress%2C%20CPI%2C%20CPI%28M%29%2C,Rayagada%2C%20Kendrapara%2C%20Bolangir%2C%20Berhampur%20and%20Sambalpur."
+  }
+ ],
+ "rejected": [
+  {
+   "url": "https://www.google.com/goto?url=CAESzwEBxCJF19k7CLXX03UVDAqpBUWVTVhdG7WqX9Upi8o4HUT8L1ANUjvLVHlh__taILGCW7qeUvSUOSMbomixoQ8fDI2a0QmQ6TsdqsZBw9Z7Dsg3BCLIMwSVInKrKfiRK3uefMb0-9HBvSm2sdbej127ntJQ6P9gbaeVOiE0YEMnrw2UeRV0wmu_9UBUkARaMsMhT1mUxLkxbEvR3_QE3cediUhqAuyS1ZgbIt9XZeK_eDE-wcQrplbkZg8pRxryLS4-2I5mfcsm7_-kPsVGAcI&gsessionid=o4w9MfoOm9LcuWUGd9SPNbaycYxgQE7cc5xWuSDf6COWe5ugIFZl1w",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAESvQEBxCJF19PMf4I3TKqyV8KwKGJzQYvSWOt8hfFwUpoADRE3GmneLyW06-Iy4hY243rj3jM7SpmlkZi1M7E24qucMAkWNnYdHMIE4GLKopiGXD35NPUWqiDw13ujndOUMaM_U3pgpPkWlinm63HOMaKvENaID945DrT7kxNnfAfgE-wDIAl19vhkjgqkSRlNY57LiJE25FkAGOwmH4HkAbZUKf5iQf2O15k8xtMGuQYypHgPIYh3zNTCmjnUZFQ&gsessionid=o4w9MfoOm9LcuWUGd9SPNbaycYxgQE7cc5xWuSDf6COWe5ugIFZl1w",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAEShgEBxCJF15ue10UTbf3X9kn4mV3ilwDqqOpCRSGynIEhJGJhxe8bLdZf1Kz1zhSKbsNXuEAKR43G_DketwB30RbZtCknELIBq3nnb2cFfNK2FJ_eNacnKyoa5gesQTfgifKg4TwIPE9hJ5TP91qB5hM9V65ymTKTpVCicoJaXhxnkR5u4P7AOw&gsessionid=o4w9MfoOm9LcuWUGd9SPNbaycYxgQE7cc5xWuSDf6COWe5ugIFZl1w",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAESrwEBxCJF16iwjmG2u1zrOufFhHRaxxMWZqN4bvbspwDiG0MdarqI-985ohVXLkNRNypa4wOPPetiWEbu61XvOtpjNlElQSXv6low5CrqYmHImbSvXQY61vaMd5YjCTn2jRzh-562bLWr1yXrdWziT9JFuyL2nHFJgjMMv0Dcnly3ObdhCdM84crKRVne49tl9KKtSa1r-3MctfEWiig_jzTPHmw9b4wdc0BnZviL9VF6&gsessionid=o4w9MfoOm9LcuWUGd9SPNbaycYxgQE7cc5xWuSDf6COWe5ugIFZl1w",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAESmwEBxCJF16IjSu7uamnjw5tuPvBP6-I80iFMMQJmfvYg3TVBBgFn9jLUGqD08lbFvEiTX1wVIbODOQZrb1eZOVhWxBOStj3lxX1kQk4LP9aAQrGXDy7yKJnpm6xXQDwjVrp9VcxFizcucvodC4sEMWcZrC8N9PPPUcr3ezdw-ID47XQwdcqKh3CCWgOmADNcGs1rFnYgTOWOjBHOqw&gsessionid=o4w9MfoOm9LcuWUGd9SPNbaycYxgQE7cc5xWuSDf6COWe5ugIFZl1w",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAESoQEBxCJF1_t_opiPhTS4YIYpdyYPQfLfZ-lrSarheYZTvdI116FOhYUs78oJF_3RQC8GC7-tTG65_yPlw31YxoF2vTAOC1USR08c5aU0nV66Kdj0oz3QANabaw_PWyp6RVhlyHNCZcWlx9o36n6QwmNmWiCMors9qNFpn7GFb3IumgcciMBGIdmAhfGzpdAcHDUQq83PkBwgYEB_7LsdDeNszQ&gsessionid=o4w9MfoOm9LcuWUGd9SPNbaycYxgQE7cc5xWuSDf6COWe5ugIFZl1w",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAESpwEBxCJF13WoMLNUwtqiPj0-AmiQBpcALKfkF6wUzsHKS1SmxcCGmJKlxh70-75cn6l4ZcdCE10IVmKTiYBwDtg7ktHWJDtTikDnpolCPvIW2KK53RfxuEkBkjspp-AZldKjjGKBUFioIjvbLsft3YDf3UAg2D4xWttfUmHPZ0iBVMxy5HHAhNxUiqL2SAyq5e3hZTEcinTtk7xho7ERRh5c6lVd8rjkrg&gsessionid=o4w9MfoOm9LcuWUGd9SPNbaycYxgQE7cc5xWuSDf6COWe5ugIFZl1w",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.aninews.in/news/national/general-news/odisha-bandh-congress-holds-torch-rally-ahead-of-bandh-police-deploy-150-officers-for-security20261008081352",
+   "reason": "announced"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAESvAEBxCJF12AE13aV04nEeAHshOD6u80dFgCYioQ5oD08SYvt9DtuwXAoNg4r_cyLxea877Ls0LeVSh8JeUy2_grgz_jHsQf6GJ9IXlgASdjR8tbfEY2tzOSC6ItheBXWTxARDVnwzXbEgD3eB7bpm9NF8Nmi5KivYJAYtQLTWtxq7ZSUqcmXOnPG1Op6wiAXntJvwPIpCRmytLBhCSm33WxC56-9MxPPlHtZa-RWjwFWBg2YmoxTJrimLJZS0g&gsessionid=HYXwTtXJ0-OvB64i6fdFKJWG1X-r-DdCx-CY2CQ28heHsZ0xpOQqpw",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAESygEBxCJF1wuybPwLPvQyulezvRsJGpouTmj7hg3Hwj5JNxAwzMO_svbCisHXiL31WD3ayEdJcnJ78reDgIKIlkVlDeNdfBrRJHZRB9LfA8720lXtJXr4ceX9-PO9T7v9ak6tWDkYwEeCx7tYJuAV3uRUocXJuUyscKDb1beoJXtRK4jSNGxAvf85OAOS4z8KW8SDZ8Cp-2I4Bh642PdHnaPfj2HTKVg3xGgiQOwVnQGnkU3-_wYxqliL5jG67i_fabGsmZL-BNTjihAp&gsessionid=HYXwTtXJ0-OvB64i6fdFKJWG1X-r-DdCx-CY2CQ28heHsZ0xpOQqpw",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAESvwEBxCJF1-tl-zDFa5gm1rlYxlzg65MQXTZc7NEEfr63-hZxCOuwnK0j611eBxLzs9bPt4iMsFSTkvmovKNs9Gxte7qg2iDcNmQl_Uxv2YsHV9djej6ZygBtuTwULeLnWHUWna-gr24VKsScsRu7wIOprpvbGXmmBTwSAjOqKRX1BTUzqbOYqTUdamlkO5uoALEvhdAb1yXo86Lz1MuGbFosq-0kYxehIOHW_VV2wmuxF_W6iux158Pvl9JVC7u9Kw&gsessionid=HYXwTtXJ0-OvB64i6fdFKJWG1X-r-DdCx-CY2CQ28heHsZ0xpOQqpw",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAES3AEBxCJF19sT0JtqKcXYnOwpARvC96150OnRlmRrEInfp2mnkqqOTrUVw0ehh5ScxzVegO5OFzUCe3I1Tv2ge_td1qsQsx0kS7sb6Bnfj_FaalSttclHlmYz8oWd-3PR5Tfe8PAp04SOUn-ojEWIjEAnFuOtYOEN0c7SlCIl1i_c0OF8nFv3tR4O5SQQAlgbp3bu_FSiQWnoHJ0zGSBP0WI5E9DwBkT8YAFir0lNN1Qz3j1xAxVFy2RWOgJ7SHziBJBjNlVa4vwQGsYr9lOhaLBcRrar2C6UDxGh_hPb&gsessionid=HYXwTtXJ0-OvB64i6fdFKJWG1X-r-DdCx-CY2CQ28heHsZ0xpOQqpw",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAESqAEBxCJF18y2l-3ngdYkYVdJjLdMdXpYBszO4aTf5RbAT3TvraiarE3ktseXpcFuAdr89eEV7eddd00gHWyLTzbTiFxGTrz1XmTVaVwiNEzUYLMLUh5cmX8p3y7UcLvRoFXTYMW2DlLD4NWuR6QM3eml12OwYPJlnHBsu1_w0wv6tBzHCV_C9B5UqGB3zMzxTdPoGMwnB4OvH1naEE47jIR84HOyHSuGbB4&gsessionid=HYXwTtXJ0-OvB64i6fdFKJWG1X-r-DdCx-CY2CQ28heHsZ0xpOQqpw",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAESmgEBxCJF1zoBPFLDNe7SPaahPExt0E3V7bdu5BMIYtAHIuFr4jWyy2WvrUhN6LrcdaWnP-hCFX8o28f-MJPbYJAdi2R4JSMr6JKROOVyJRo8sKVXOFAokAjonWUzluv2En0GfijmUSEruXZiOH3H8bemRah9aQgW2V1ICNKp1PXdKv72gYTpz01OoeP1YGqsmQKfbDsjf_njma99&gsessionid=HYXwTtXJ0-OvB64i6fdFKJWG1X-r-DdCx-CY2CQ28heHsZ0xpOQqpw",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAESrQEBxCJF1_Jk-rD7JGvFcG71MH1Tf5bolV1C1NEFxRPIMNBliVVLkZcEOvGkm0hYlVYd9bd3qNqwfa8t8_7_b6tidRpv7D6WEAbd_tbe2inw09o7StQuD-APFgM3ePaTBwr3NrCsq0UUNFpyPr44sNJjAClreMgktySEmsuVbHRdSS9BTwd9DiIJy9RHcLZT25GNDGaxMN2CMExKT6S7Igr528eSSqca1PvUZMf94A&gsessionid=HYXwTtXJ0-OvB64i6fdFKJWG1X-r-DdCx-CY2CQ28heHsZ0xpOQqpw",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAEShwEBxCJF17FnGZuZbRUWsOTusQmjfv4C3yW6_DoHBHkuQBkY4znKALaRrhUyY-BXq7ccl1FCacs6m53cIt6p5uj_OI-D-H4M-25SmshwSi6GzxgVp89PnPiGGxmdiIKYp6ODuOgocoAXS3SlpNUpBhy_cNjj8CWBdyVe6x2J9AQiEBNZcwj3SUo&gsessionid=HYXwTtXJ0-OvB64i6fdFKJWG1X-r-DdCx-CY2CQ28heHsZ0xpOQqpw",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.deccanchronicle.com/nation/bhubaneswar-bjd-backs-off-congress-bandh-call-after-brief-support-1993966",
+   "reason": "announced"
+  },
+  {
+   "url": "https://www.thehindu.com/news/national/odisha/normal-life-hit-in-odisha-as-india-bloc-parties-observe-bandh-over-new-mining-law-other-issues/article71558469.ece",
+   "reason": "no_effect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAES3QEBxCJF18QxvnU2c0HqhqFh10pOwEtJlEdaqVJ0GdauiW775KA6EojqEqbYy4UtvjX27b5rc4IYTHMuTW2gGkxzAiGOUViH-ESFyoOQQHb7zehQSzB-MTeCVdCq-f-iY2JYxgSCj3NI8iPO9d1pCEkAF3TDBiATaLn2piyoG1Cfcd_cfVCTewjoqaWp3EV5-aqQg-fmAjpLFHO8s4y-bCg8GHelNmXPJJDDhHmM5LTv0v4YXHKip2GPm9b6baWBR4s2bl9QrgnPUndsEddesRew-lZLsEtQgE-tAjTriA&gsessionid=nYqNcVzTSVEQ_YTpsvBeyrnDKmiGLNHK5veeEVHCMOoVRYzNCP-eug",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAESrAEBxCJF11NZhg_I6uBbKsJpRqX2o7AcxRsm8ZG-8rfWwvvYTi0tO5wuOT_NuHVLJSqXMAcI5wLGzy8AZatcnd1bh19KvlwNOXIVZN3VH9PK77sQtlhUKnTGRjtJIrdLh5weHyPlZY6tg5DZsTqxUAMgRdaKhMiVYfo4fsJa0vx4-iDRMGr2rmEdYUvBIOESDjPggYprzQ_qsQqz44-jBAZ47E74cqFOuNyaJTU_&gsessionid=nYqNcVzTSVEQ_YTpsvBeyrnDKmiGLNHK5veeEVHCMOoVRYzNCP-eug",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAESuwEBxCJF15etyHe-FYAXcyDvXWwxi-EYNXOTr5RDQJVSWN5RPOMl91bhZJrX-Lnkdtlp0arxK6FRwDPBc5iTZtYDF_k1OL2KXjg8g1gUoLrdaLnD3ZNHGw0tqaBgPIE_KcIvLqFw9Carxk_EsjF5KmGVZ1-oOSN7Fg6XElCI_Cnys81IFGaHTMNgBWdN6DQ2MfLuJZzdwKJ-rOGUJejOHhBTZJUtEao4mm9lMW_CqR7JXxuYT3cLhhV4pQCS&gsessionid=nYqNcVzTSVEQ_YTpsvBeyrnDKmiGLNHK5veeEVHCMOoVRYzNCP-eug",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAESyQEBxCJF11KMtKuk-Z3D-v60IEGLkjmPTaATV9reKO6QBZNb8pVP_UA4KEwEIxrUkB-Y-qVEBwpxBDRj5gAXNxGduK-nlTRbNce9J3FwIBWu6kczwWwnuZnUIWs-WSos7NgmkCt5QTbmuy4M6dIwC23f2dfe_jDSO8E92ecS9Gsew1qE_6eF3XElqoa2B5ZK5aE2nWmNxKBueqf3e4nV1JQoUf2idm93G8TUkQkA2zVWIgNgDmEqOwylTAPOeqI9si4He6kioHysBE0&gsessionid=nYqNcVzTSVEQ_YTpsvBeyrnDKmiGLNHK5veeEVHCMOoVRYzNCP-eug",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAEStQEBxCJF16EG5AQIHqs6NcOMGRFoq17ejpMBDSEqN8lf_MLs2ovfFZRXzwB-V31XqWiYLVY3la37Mr2UZA796sdzzoR8Dwd4GGIO95pBxvp5B1ejieisvnGHxK0hTnjdd9-GDt5l0cr0k0o8eC0UByqq8mFJ63ulzWUdo1i7KoLehTcAXHebob3yL01YoeuGSESHeWbbNVTbhMmS5to8ghJ6THZvlmLsKH4dDcQu2ZIfTSjADs3Y&gsessionid=nYqNcVzTSVEQ_YTpsvBeyrnDKmiGLNHK5veeEVHCMOoVRYzNCP-eug",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://theprint.in/india/bjd-keeps-away-from-thursdays-odisha-bandh-called-by-india-bloc-parties/3064657/",
+   "reason": "announced"
+  }
+ ]
+}

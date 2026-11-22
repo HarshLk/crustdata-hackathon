@@ -1,0 +1,137 @@
+{
+ "request": {
+  "route_places": [
+   "Pune",
+   "Satara",
+   "Karad",
+   "Kini",
+   "Kolhapur"
+  ],
+  "route_states": [
+   "Maharashtra"
+  ],
+  "window": [
+   "2026-11-04T08:00:00+05:30",
+   "2026-11-05T20:00:00+05:30"
+  ],
+  "event_types": [
+   "blockade"
+  ]
+ },
+ "status": "found",
+ "supporting_urls": [
+  "https://www.outlookindia.com/national/maharashtra-farmers-protest-blocks-nh-48-strands-1500-trucks"
+ ],
+ "contradicting_urls": [],
+ "queries": [
+  "Satara blockade",
+  "Karad blockade",
+  "Maharashtra blockade"
+ ],
+ "recorded": "2026-11-22 live run (a2)",
+ "supporting": [
+  {
+   "url": "https://www.outlookindia.com/national/maharashtra-farmers-protest-blocks-nh-48-strands-1500-trucks",
+   "published_at": "2026-11-06T12:38:46+05:30",
+   "event_from": "2026-11-03",
+   "event_to": "2026-11-06",
+   "place_named": "Satara",
+   "passage": "The blockade has disrupted traffic along nearly 120 km between Nagthane in Satara district and Sangli Phata in Kolhapur district.",
+   "link": "https://www.outlookindia.com/national/maharashtra-farmers-protest-blocks-nh-48-strands-1500-trucks#:~:text=The%20blockade%20has%20disrupted%20traffic%20along,and%20Sangli%20Phata%20in%20Kolhapur%20district."
+  }
+ ],
+ "rejected": [
+  {
+   "url": "https://www.google.com/goto?url=CAESgwIBxCJF13zEabDn6En8O6E3spbzItTvmypftbN75NiHGoBxTvCDH1AGM1vSECIMUQSHIexKni_6wpmMFPQJlYtjtrZOFvhVYS1ArFLwtP2cNU0L_EpBzTeawtOpZD-EREwT91jasswYNkHPIO6tvWeJMbetQ21buNBYKfZy9kisYGi1jWe-EwZaOttRy2wJFdYwLkTy56GhXGA2ye8-9eUgXO5XU9gSPRhi8PLWXmyH8lgyteD8nJYtwwiC61WgYMPvLoGHm1Enugnft7uFThbquBVf0NavlyB1umZKLXYj-SaIdrdwBhkraCdXw_JyWyH0_mXitBDVtTE7p7_1hUUgjEcf&gsessionid=a-7TugSEXbBYVs4Uz_-4GwF15prlSSY9VVmBLL7fSpikEJqxL3wZpg",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAESxAEBxCJF1yXJ3xTyA2mQD0NP44_RFPRtJZnpIL8vZWW0FaCsPXnIZGYgElm-TcL5fuJB_y0pow70JdDCGGvQcQZxb3eRzZdF8km_ndeDRWEP4zQTE5ryxJGlJjt7E6yA38vRiAC9iviHBit_46AjL491wdqLmIa6xV_wHxp9SNmNQIejzWvWJEHF-QLl6Hli0c3UFJeUhBiN3_nJfeavIBo0pOk4dP9-4fSF7Ve38GvCZbcSDnaNcjq9LFidEIzIo1f0PVa2&gsessionid=a-7TugSEXbBYVs4Uz_-4GwF15prlSSY9VVmBLL7fSpikEJqxL3wZpg",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAEShwIBxCJF15om2mQBEKLf-hpNzRwS4QIBKjd_FquI2-4ARssINjIpZDBkv_C5rS5LTYwFk47A7ln9ZPbKAC6NvGAuqu2rIczf4iRzChEZW-v6MdH_opj3hCJ9awgOvxdCeZPogCNEkoT6lnuq2P4ysqimBU_P2NYfLfIh6PR54DGO41cMex4FEOd7msDsZWSO2lQWGI906kW3fI93H5uZ57oqxI1uQ0fO5Cnm3_mxbaDcZJP0bEYrynw9vVZ7_0b7NRBkDmWy0hTDyBaOA2quD9I_0hCfExaUTk75-yeVCDvaPwTIo0aPZJKy7X0jahT4_QwSF0358Jo9d09-HKJui-fydKYwMThL2g&gsessionid=a-7TugSEXbBYVs4Uz_-4GwF15prlSSY9VVmBLL7fSpikEJqxL3wZpg",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAES0QEBxCJF10TVYKEEY8-z7qSf_CCXmOWUxSHuorUiYA667m5YTXVEbNaayTDU37BtBONzyPogLv89sm186n1cLXDGtm0eNUkP79rWlK6SrzXlaEDPGxX1KLEL0SaxUTFdlZV6OhOc7E1_JOJz0lEEClBZYG88ibCxKI7mHbGL6gzkZAxmRFIxcV4QnOaKGNUoD_mPiA5bLJVvfQIRTFtZ5qAHRzkaogbvsli8pYR4b8HcJHnVVawLxa0a3ZY27LnfEkjQuF8ZVPQrOR3xxllyXabL9Q&gsessionid=a-7TugSEXbBYVs4Uz_-4GwF15prlSSY9VVmBLL7fSpikEJqxL3wZpg",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAESrgEBxCJF12rvnVr6y8PKiBozQne9x2bAscDg4trGnR7QFv_iMzt7_UcKuakHOiAvQzIJmkohodVquiuHS1gnMJZ8Bp7NTNWf2sQqFzwpbr-EYjr3CkfE6a4uVaMkEp4sPMxy7zs5VZdfFeNooKiASvbxlWbp6lSH1D7dYzJ87hggZjeGoWYRnKXEfTH_bBM7hWxV2khfBrS0X2C1K7vheUC5t4-TJ_s0bC8Xo9Hkdb4&gsessionid=a-7TugSEXbBYVs4Uz_-4GwF15prlSSY9VVmBLL7fSpikEJqxL3wZpg",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAES-AEBxCJF181Vphkz7EQgdK844rgQgfkJ7xRNf5b4mSu8eeqQmXfxd2LdU2IJNUxltXcdS-ODBEkyH5i5V0BpLnMlmLIhnpr0H_JyRHymyWdSBAaAAH5vJMm1wXT1IoKALabuKmuhEDlJr_64MHgymoBYvrgQQkZIb5s9YB0KfImcAZAmNsR0jJqsbNBQjJCwJ7RkgV0-LMkFioSBz_HOC6cJ4LwvQjIiT3vubyDBe6OO8AVhdKfpqxqPLaW5so6PNV16p27ylv4Rn7F-fhjb6D7JNekydEcGiZjvDppk1y8uqHbKvtfBRIV9FRd-jV6kVM7pDrIxd3EwOw&gsessionid=a-7TugSEXbBYVs4Uz_-4GwF15prlSSY9VVmBLL7fSpikEJqxL3wZpg",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAESkQEBxCJF15UALGuWqBzBvaeYMRfy8hoAc5etXdoyDpmaVjupyD6bMBu3slGiw2u8PiGfiwFdLlaz3nhtNQq1T8H83z5CzTDTLUTbiY6OBfEzmnvhyFQ_STuzVznlCCzubPv6e2efCGCJaDIO-a-0JI_ml5Ew5PLkfzplUleyA9hutz4qt41Xox80K5cb_yoAc-fO&gsessionid=a-7TugSEXbBYVs4Uz_-4GwF15prlSSY9VVmBLL7fSpikEJqxL3wZpg",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAESngEBxCJF18Rf1IdQDWchdkggOQ5dYz04LIeIRzb2uHuMZexx1U8_-xssq1AjNc81hk3wdhzBYj6-drMnCheqNyvEJv9hhs9hdpSJU6HIyb9Mkc68hykW1FIsa4y56gyqgTsnKACsUiMdskfdJ8yOVCreaF55wdbWGTaq2dheHcGeTzIYWBjeYy93M3k4cGT7jm9STb9Y_ChfaPv4yStZdw&gsessionid=a-7TugSEXbBYVs4Uz_-4GwF15prlSSY9VVmBLL7fSpikEJqxL3wZpg",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://thefederal.com/category/states/west/maharashtra/maharashtra-farmers-end-nh-48-blockade-as-sugar-mills-accept-rs-4200-per-tonne-formula-262019",
+   "reason": "called_off"
+  },
+  {
+   "url": "https://timesofindia.indiatimes.com/city/kolhapur/dont-want-to-inconvenience-travellers-shetti-calls-off-pune-bengaluru-highway-blockade-after-millers-sweeten-cane-price-offer/articleshow/135585737.cms",
+   "reason": "called_off"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAESogEBxCJF1_mcVtPavGvgSgJwYcMJH3bs1oCqNZi3FQx5e86lQ_7-ptfbmENuvbAd5Q9O5UJhTj19XipJRR8SvmQTOnA8L1a_brn8issv3PHJ67U9VYUeF7b_JIRQdl23T7m4C3VLkWA4cWMIg9qG9ATQXyapax9l47OjkV6UEDyPf6tv09mDppqOQn38VWWzotySHE4AeuJA8WoQph7YNQ5ijRk&gsessionid=ki2Eeq78YYji4N0xKSQK9i1jMXwWPvgALTopothmW_QfkKcSWyZhZA",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAESywEBxCJF1xhU1nAQKXDsxtLgkOJc4pkAdObFicXmyaHuCbBld_qNg9Pyq6GzEnvMXhVaoCUiAs4mKpS-kcQ4MDUXdrblFT-7trB5QddB_E0U8vY5fqVN_QKwjKnt-tm2nWylV-0z3GVUvhPQlpuGLv0L4ZK3YrjRoeJ9kwRfVjbnFMrUgFZyXuSpah-kEYyidiRtohXRaYjGWE0nG7MwoAUvfWyJhma2k1RNhGy3g73M5FeEZuuumxJuoOTim0nd_I0pLWH3RVutT-XBRQ&gsessionid=ki2Eeq78YYji4N0xKSQK9i1jMXwWPvgALTopothmW_QfkKcSWyZhZA",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAESpwEBxCJF16FOohkUOEJnuqA7a0rnGBaffVQ44e2IZiSLMMt8FufUFMTbuKjMt9o6Dv4t6uY2XpYp4nt8bWBlZKd1wGORvqavkthBelRCj-VOspcnubbdXfpXxzyF9jXXPCxwQA2_l_41fMqWVfnHuR_9X9eI9EbR9UsdeiWNB468E98OU32Nz6HCChSpqSyUnE7XFJyWlb1m1AszWosEdO-klMervbz_Kw&gsessionid=ki2Eeq78YYji4N0xKSQK9i1jMXwWPvgALTopothmW_QfkKcSWyZhZA",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAESoAIBxCJF10EL2bVuekHFBSjf9Gh2r3I_vqKKPOnf-x2_eT6jn0qey2RythVjUe5yAQWuQ9dfp8-yabDMZPnr_YdK5Hrdvh8rbqWmGo-7VUqWC2I6T0uZQB2boj9WLgVOixgxq90XF4VwmXFTT9_j4SI53MBdBMTPH4GKOv1nUDqj7oRjH-oHVNXetf0uTfPbRZPnpeK5JeotIROcd5Cethzodrg7W0bjnzkpbYpgjyE1I_jE2P_S5so00-osyrXoOXYWF3yMe9yTAy4yxbCuOyu0HiKRGQlRNHdhizX7FfIqcT-CTvZM0T-ellrjKzGINxVGhfZs_e8PnRdBCwhDZO5carhdTopEkMcYxVZKgK2PjN74OfFi0YOsFknuoqONcWY&gsessionid=ki2Eeq78YYji4N0xKSQK9i1jMXwWPvgALTopothmW_QfkKcSWyZhZA",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://timesofindia.indiatimes.com/city/kolhapur/shetti-led-blockade-reduce-traffic-to-a-crawl-on-pune-bengaluru-highway-stranded-midway-without-food-say-affected-truckers/articleshow/135508988.cms",
+   "reason": "region_not_named"
+  },
+  {
+   "url": "https://indianexpress.com/article/cities/pune/mumbai-bengaluru-highway-traffic-sugarcane-farmers-protest-10950597/",
+   "reason": "blocked"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAESogEBxCJF1_REjSDJIc-ElrtUJ65hkaLqEVG4F56nyf6BTfNwaSpLRd5-9RPrEeQtVZXjVkycu54c0rKk4UdD-N9jdNobOq3omsRE9_e3GKv7ohEbg6m8YY_Q6VRBvRJgqJ4PZpk6G6KCP7y6mTvCvNXkApnsXeWiNchy5o3EOJbOGdnXZ9Zve117fapZfms1xY4Y2HHygqZCMlHtZtOY2RwKj78&gsessionid=bL6n5b088oK7WOPUsO6txYWDbYR5sWGjPowEb3fuWnnY0yRvDJA_qw",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAESywEBxCJF13Mcft9OkyBLDt_g-zn_smUkJ-e-sSRhaNP4S_GFY-_lRccF1z3bol2fTHzhImyAL4iKgqmlkyzNfYw2ZFccVbDF7MaCWK2Tsqsj-Wb5DdOe1Kk0tAIJjtYLW7-nY8dkI4-O9JXEam7wAuBVAX9i6-94xdbJBjxg-fKzdI05_QQgzgdn4ePZkzUtyOPhTPNq50pfB7Frz3rbN2n_r8evtbRFfv7HeqpHY10TAUajWR67j0Xvu4Uy91mc7fx7MmkDSzPa9b6ktQ&gsessionid=bL6n5b088oK7WOPUsO6txYWDbYR5sWGjPowEb3fuWnnY0yRvDJA_qw",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAES0gEBxCJF19d1Sui2iWR3u-RM7ZhHiZiy_2SiBOuF2pzsRaK2e0n8SAaIAhsMd0U3fNGX_Yhi1eZ1yNusqFawVMf5p2KUNuYHNGDLi6AeQ0gkwFnvAAgRrAY0KjZ1M5HzzXqdeM7xie8CO7aDeIwd2B1ldD19s1M817y42nh6ailvwKUml-jWV_s6ZDmOKjLQgDDl3Pvj-L-Izdz2n9Gc2d9kxf0WQqDEJDPRZUq8rQz9gS4o3Zj61DIdrxaoDv7r_gBGs2L8_EiSnTmhb-l_ZV7-Vyk&gsessionid=bL6n5b088oK7WOPUsO6txYWDbYR5sWGjPowEb3fuWnnY0yRvDJA_qw",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAESrwEBxCJF184NQF7WqmygvYSoKS8p6l2MbuTo1T6uNebwzB_Xp4TbuhCrqWevUwMZY1yyH2UvsiTi2xwqKPy5XshNsJ6q22NyzLjtduFwMR5hll9lqs8TDlrdiLdizV2RCXGpc5VDFoHMf3e7i8zOh7r6_L4TkU4c-YHSxC1Mlvpyn08mM0stWkDQBv3cTbZzYn55UjVyPasB4QnQXOrYAHep4AhSPmNbpzISRDevLB1W&gsessionid=bL6n5b088oK7WOPUsO6txYWDbYR5sWGjPowEb3fuWnnY0yRvDJA_qw",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAES0wEBxCJF16uopF5DjAoEU-lhpZyg6_WQM0ST_CukL6SBFOivbj-FumcGO96KxvuXTdprnCPZizKPjvKsxAdmoHOElq5OoS6ggqwi0PRs369Qv_njOVDo6BaKX0JJU5LhGA3u0uCRiA1adACDZ-oE-cgu-fNJigpt3-95KsHOJH1u2h1sENhjzVgiUxwnX8LnWXI6YCcVqKBg3EDXU4uIsZDaQEUr4b4eeCXiCm6O5a-H_bTnuw6XVKGKpUHrKVtCSoKDyVJnO92yXb5hYIUpEsr-scIP&gsessionid=bL6n5b088oK7WOPUsO6txYWDbYR5sWGjPowEb3fuWnnY0yRvDJA_qw",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAESkgEBxCJF1y0OZnT7GAan1nVgUBB1BL2gcCz-1cJWmNbDym-VdSds3MZp46T64ZDuSte4ZFihwEB2i-iOdJZs-IqBwR5_443Obrdfli5vHw-MiJBoWtXwcEu6ULiyU61mTh0GVUD4UG8jcos3wNRffFcyiMCc9r3_gN11TrXINjmC1BuNUcDqzm8D39yH9lDDTQt2qw&gsessionid=bL6n5b088oK7WOPUsO6txYWDbYR5sWGjPowEb3fuWnnY0yRvDJA_qw",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAESvAEBxCJF1x14h6CgDlYu_ujrh-mwC-iO-8ZO96N8Gd-kcJHORIBJGn_GvTuoRUkDnfnxDpC4rIDQ16myBsgL_WJjmg5FB41t3CX1q84l1Z3uvi8SNc1SJ9xJUc9jf-ESJZwg293Pe-j4498jVq0xnvqvSVyogcA7E30kY41lZPI-PFCeVbVG9VgZ9XtcT6lp2TexPWnaXifQh_Digj-GaH2o67jxRZSiuL5H4tMB98RAP9NWrdvOsd8YhvwZHQ&gsessionid=bL6n5b088oK7WOPUsO6txYWDbYR5sWGjPowEb3fuWnnY0yRvDJA_qw",
+   "reason": "unresolved_redirect"
+  }
+ ]
+}

@@ -1,0 +1,45 @@
+{
+ "request": {
+  "route_places": [
+   "Pune",
+   "Satara",
+   "Karad",
+   "Kini",
+   "Kolhapur"
+  ],
+  "route_states": [
+   "Maharashtra"
+  ],
+  "window": [
+   "2026-10-27T08:00:00+05:30",
+   "2026-10-29T20:00:00+05:30"
+  ],
+  "event_types": [
+   "blockade"
+  ]
+ },
+ "status": "none",
+ "supporting_urls": [],
+ "contradicting_urls": [],
+ "queries": [
+  "Satara blockade",
+  "Karad blockade",
+  "Maharashtra blockade"
+ ],
+ "recorded": "2026-11-22 live run (a2)",
+ "supporting": [],
+ "rejected": [
+  {
+   "url": "https://www.google.com/goto?url=CAESugIBxCJF1xPH-pyEaH4K6IQttTsrvh4wUrjT6LXeTcWMeqdVxl6_4QtM82JzMqrjMC8oAMGexmnOQLK6qf6BYD-u8NHdDzMQwu2J3VfbVDEcseiLodO4pEgsqmlj-311ydReBG1YI3RgErkvSVewJQBDcnxx_dBatRmYu1GxD8r9n2EJ0-_TbhkzvtMLDSm0SMujTQzRXSZNcCBtOhZIfiTIkTOeO4ry8DfynvPBXSUA5HUHxkaoDz7nAzPIYZ9PIXE9O6FJ4l3rF8ELVIlayE5UCL2jyXbIgohEy_pJau1HpWUo50kUw1RzQjciUHqT_Ejx1bu6TSRJNp8ACXKtUWZ7N0cv45ID2zVzTJE6Bhp82IJfGfP7vKxuhuOJNwJ0RH3-TcUEqxT0DOBmbfZlRj1IQqSKCi3BhoHZvw&gsessionid=TM5Lsf-xFGVN337dxoOEMfb0BC_ZCMLG9iS-8WiZA6QDqvHmyfOTqQ",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.google.com/goto?url=CAES8gEBxCJF1wWmPeThP1fEeLi1hOgzwYrfJgV0JAIixGsAZbnTSayQrOGJ1xXOgT4cdiU3brcxviEJrHVo8N3R7w82Kp2j1K6d5wkaVxkdjgP6w6Z2QeeZ-LFO79XRc1SvFyCUxyGz0GNKITrF_tCpW6Ivqr1PC-5GCGVRZ31qY6z87nOFQ8u1vvfZDFQVSuEZL54cKWMoFHP_aEFRXIDxHas5YiIzrWaV_FwhUF_VPiZOu4k5Cq8iiSrVYmoAF9qecTO7k61tsgSPZVnJWUXIfgo70XDK0fn1fmiraNtE5SDXz6zjFKX40I9bzD3RJoSPZ88f8A&gsessionid=TM5Lsf-xFGVN337dxoOEMfb0BC_ZCMLG9iS-8WiZA6QDqvHmyfOTqQ",
+   "reason": "unresolved_redirect"
+  },
+  {
+   "url": "https://www.deccanchronicle.com/nation/politics/maharashtra-ubt-sena-plans-rasta-roko-agitation-over-drought-situation-2000239",
+   "reason": "not_happened"
+  }
+ ]
+}

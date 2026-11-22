@@ -67,7 +67,8 @@ READ_WORDS: dict[EventType, list[str]] = {
     EventType.landslide: ["landslide", "landslides", "landslip"],
     EventType.road_closure: ["closed", "closure", "shut"],
     EventType.curfew: ["curfew", "prohibitory orders"],
-    EventType.govt_detention: ["stranded", "detained", "held up", "check post", "checkpost", "held at"],
+    EventType.govt_detention: ["stranded", "detained", "held up", "check post", "checkpost", "held at", "been held",
+                               "being held", "were held", "stopped at", "not allowed"],
     EventType.riot: ["riot", "riots", "violence", "clashes"],
 }
 
@@ -151,7 +152,7 @@ def affected_place(sentence: str, place: str, places: Iterable[str] = ()) -> boo
         return True
     # a capitalised list after a locative word: 'in Bhubaneswar, Cuttack, Bargarh and Sambalpur'
     item = r"[A-Z][\w\-]*(?:\s+[A-Z][\w\-]*){0,2}"
-    lst = r"(?i:\b" + _LOCATIVE_BEFORE + r")\s+(?:" + item + r"\s*,\s*(?:and\s+)?|" + item + r"\s+and\s+){1,15}(?i:" + rx + ")"
+    lst = r"(?i:\b" + _LOCATIVE_BEFORE + r"|\bplaces?,?\s+including|\blocations?,?\s+including)\s+(?:" + item + r"\s*,\s*(?:and\s+)?|" + item + r"\s+and\s+){0,15}(?i:" + rx + ")"
     return bool(re.search(lst, s))
 
 
@@ -230,6 +231,8 @@ def dates_in(sentence: str, pub: date) -> list[date]:
         a = anchor or (max(out) if out else pub)
         out.append(a - timedelta(days=n - 1))
         out.append(a)
+    if re.search(r"\bsince\s+(?:\d{1,2}(?:st|nd|rd|th)?\s+)?" + _MON, sentence, re.IGNORECASE) and out:
+        out.append(pub)  # 'since September 17': the state continues to the publication date
     for m in _SINCE.finditer(sentence):
         wd = _WEEKDAYS.index(m.group(1).lower())
         back = (pub.weekday() - wd) % 7 or 7

@@ -1,0 +1,52 @@
+{
+ "request": {
+  "route_places": [
+   "Guwahati",
+   "Bongaigaon",
+   "Srirampur",
+   "Siliguri"
+  ],
+  "route_states": [
+   "Assam",
+   "West Bengal"
+  ],
+  "window": [
+   "2026-10-21T08:00:00+05:30",
+   "2026-10-23T20:00:00+05:30"
+  ],
+  "event_types": [
+   "govt_detention"
+  ]
+ },
+ "status": "found",
+ "supporting_urls": [
+  "https://www.logisticsinsider.in/trucks-stranded-assam-bengal-border-petroleum-coke/"
+ ],
+ "contradicting_urls": [],
+ "queries": [
+  "Bongaigaon trucks stranded",
+  "Srirampur trucks stranded"
+ ],
+ "recorded": "2026-11-22 live run (a2)",
+ "supporting": [
+  {
+   "url": "https://www.logisticsinsider.in/trucks-stranded-assam-bengal-border-petroleum-coke/",
+   "published_at": "2026-10-23T06:01:58+00:00",
+   "event_from": "2026-09-17",
+   "event_to": "2026-10-23",
+   "place_named": "Srirampur",
+   "passage": "The vehicles have reportedly been held around Srirampur and Bakshirhat since September 17.",
+   "link": "https://www.logisticsinsider.in/trucks-stranded-assam-bengal-border-petroleum-coke/#:~:text=The%20vehicles%20have%20reportedly%20been%20held,Srirampur%20and%20Bakshirhat%20since%20September%2017."
+  }
+ ],
+ "rejected": [
+  {
+   "url": "https://www.thehindu.com/news/national/andhra-pradesh/300-trucks-stranded-at-assam-bengal-border-andhra-lorry-owners-seek-centres-intervention/article71611005.ece",
+   "reason": "short_page"
+  },
+  {
+   "url": "https://indiashippingnews.com/logistics/over-300-trucks-reportedly-stranded-at-assam-wb-border-aploa-seek-centres-intervention/",
+   "reason": "place_not_on_route"
+  }
+ ]
+}

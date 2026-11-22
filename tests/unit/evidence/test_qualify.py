@@ -177,3 +177,10 @@ def test_detention_wording_is_an_effect_on_goods_movement():
     assert has_effect("The vehicles have reportedly been held around Srirampur and Bakshirhat since September 17.")
     assert has_effect("Over 300 trucks were detained at the check post.")
     assert not has_effect("The meeting was held at Srirampur.")
+
+
+def test_since_a_date_runs_to_publication_and_including_list_is_locative():
+    from datetime import date
+    assert set(dates_in("The vehicles have been held around Srirampur since September 17.", date(2026, 10, 23))) == \
+        {date(2026, 9, 17), date(2026, 10, 23)}
+    assert affected_place("Protesters blocked roads at several places, including Bhubaneswar, Cuttack and Puri.", "Cuttack")
