@@ -1,0 +1,19 @@
+{
+  "search_result": {
+    "position": 6,
+    "snippet": "Farmers' blockade at Kini toll plaza hits traffic on Pune-Bengaluru highway Heavy goods vehicles remained stranded and travellers faced major inconvenience...",
+    "source": "news",
+    "title": "Pune-Bengaluru National Highway blocked by farmers agitating for sugarcane prices",
+    "url": "https://www.google.com/goto?url=CAES1wEBxCJF1z_cWDaZw6jTEesvPgYS6tYoHWOM3jFuADdyL9dR_ttHhk_DIbmNVnICtUORNKmN0-MtRziKzx86FITKc-0Vqe9L3lI2-p2I1YmzvhB4pW8_cEkBFbggATZgLPmGnFP6I7Q5l1ofOAo5Mci50amDCO4fbAmqKTUmAiIiiOdhVhK-8gD2kluN3gCXPUbDcH0L_GRMpaouHH0GAyNgvDaRVL636bOHzE-Y8K8zNwpAxIJI1li8CFJ71EOt8wnG10zk0mAL26IqnbXfcrie6vBHeL6ZMQ&gsessionid=T9agHS-ZLFEFD7w-Ez9P11EZPgEfH8zzCvYMpkOmZ5vxC9jxbJ6roQ"
+  },
+  "resolved": "http://infra.economictimes.indiatimes.com/news/roads-highways/pune-bengaluru-national-highway-blocked-by-farmers-agitating-for-sugarcane-prices/135531083",
+  "page": {
+    "url": "http://infra.economictimes.indiatimes.com/news/roads-highways/pune-bengaluru-national-highway-blocked-by-farmers-agitating-for-sugarcane-prices/135531083",
+    "success": true,
+    "title": "Farmers Block Pune-Bengaluru Highway Over Sugarcane Price Demand, ETInfra",
+    "content": "<html><head><title>Farmers Block Pune-Bengaluru Highway Over Sugarcane Price Demand, ETInfra</title></head><body><article>\n<p>Heavy goods vehicles remained stranded and travellers faced major inconvenience on Tuesday after traffic diversions were enforced following a blockade of the Pune-Bengaluru National Highway by workers of Raju Shetti-led Swabhimani Shetkari Sanghatana at Kini toll booth, about 20km from Kolhapur towards Pune.</p>\n<p>Truck drivers complained of being caught unaware as the agitation brought traffic to a standstill. “I was unaware of the blockade. I left Kolhapur towards Pune and suddenly the blockade started and barricades were put. The police told us there is no diversion for heavy vehicles. We are stuck midway, have no food to eat,” a driver of a container truck said.</p>\n<p>Police said vehicles heading towards Pune were diverted via Ghunki, Talasande and Nivhale. “Traffic coming from Satara and Pune towards Kolhapur and Bengaluru is being rerouted through Bahadurwadi, Bagani, Shigaon and Peth Vadgaon before reconnecting with the national highway at Top. The blockade started at 12.15am. The road is blocked from both sides at the Kini toll booth,” Gorakh Chaudhar, inspector of Vadgaon police station, said.</p>\n<p>Shetti is demanding a sugar cane procurement rate of ₹4,500 per tonne. The agitation, which has continued for nearly a fortnight, has disrupted the ongoing sugar cane crushing season. Two rounds of discussions involving millers, farmers’ organisations and the administration have failed to break the deadlock.</p>\n<p>“The mills are selling sugar between ₹46 and ₹56 per kg. We have started an indefinite blockade. No representative of govt has approached us with a solution yet,” Shetti said on Tuesday evening.</p>\n<p>Former chief minister and Congress veteran Prithviraj Chavan visited Nagthane near Karad, where Swabhimani Shetkari Sanghatana workers launched a highway protest on Tuesday morning, and extended support to the agitating farmers.The former CM told the workers that he would raise the matter of sugarcane price with chief minister Devendra Fadnavis and also with Union ministers to ensure a good price for the cane.</p>\n</article></body></html>",
+    "timestamp": 1795339837,
+    "http_status": 200
+  },
+  "source_file": "crustdata_test/raw/s3.json + fetch"
+}

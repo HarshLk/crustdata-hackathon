@@ -2,7 +2,8 @@
 
 **Facts (identical to case 1, D-13 timings):** Pune -> Kolhapur on NH-48. Gate-out Pune 5 Nov 2026 01:00 (client
 gate log). Driver report 5 Nov 06:30: NH-48 blocked by sugarcane farmers' agitation at Kini toll plaza (event type
-`agitation`). GPS halt near Kini (Kolhapur district) 5 Nov 06:00 -> 6 Nov 04:00. Due 5 Nov 18:00; consignee gate-in
+`blockade`). GPS halt at Nagthane (Satara district, north end of the blocked Nagthane-Sangli Phata stretch)
+5 Nov 06:00 -> 6 Nov 04:00. Due 5 Nov 18:00; consignee gate-in
 6 Nov 07:00. Notice email to the client 5 Nov 11:00. Deducted Rs 2,000 (1 day @ Rs 2,000).
 
 **Terms:** fixtures/clients/client_d.yaml (stand-in).

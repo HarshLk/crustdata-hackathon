@@ -1,0 +1,7 @@
+id: case01_kini_blockade_fm
+prd_case: '1'
+title: Pune -> Kolhapur on NH-48, due 5 Nov 2026; Kini toll plaza blockade; GPS halt; notice sent
+clients:
+- CLA
+kind: evidence
+settings_overrides: {}

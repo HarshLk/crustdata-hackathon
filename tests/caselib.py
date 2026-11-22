@@ -69,8 +69,12 @@ def register_cassette(case_dir: str | Path, faults: list | None = None) -> Any |
         return None
     cdir = Path(case_dir) / "cassette"
     t = FakeTransport(cassette_dir=cdir if cdir.is_dir() else None, faults=faults or [])
-    for name in ("crustdata", "llm", "web"):
-        register_transport(name, t)
+    register_transport("crustdata", t)
+    register_transport("web", t)  # redirect resolution; never the real network in tests
+    if cdir.is_dir() and any(cdir.glob("llm*.json")):
+        register_transport("llm", t)  # otherwise llm_json returns None and the deterministic reader runs
+    else:
+        register_transport("llm", None)
     return t
 
 

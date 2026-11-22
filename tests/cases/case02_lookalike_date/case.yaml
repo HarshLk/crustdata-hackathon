@@ -1,0 +1,7 @@
+id: case02_lookalike_date
+prd_case: '2'
+title: Same route, due 28 Oct 2026, a day late; nobody claims a disruption
+clients:
+- CLA
+kind: evidence
+settings_overrides: {}

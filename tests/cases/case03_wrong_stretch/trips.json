@@ -1,0 +1,54 @@
+[
+  {
+    "trip_id": "LR-A-1103",
+    "client_id": "CLA",
+    "lr_no": "LR-A-1103",
+    "origin": "Pune",
+    "destination": "Mumbai",
+    "lane": "PUNE-MUMBAI",
+    "route_places": [
+      "Pune",
+      "Talegaon",
+      "Lonavala",
+      "Khopoli",
+      "Khalapur",
+      "Panvel",
+      "Navi Mumbai",
+      "Mumbai"
+    ],
+    "route_states": [
+      "Maharashtra"
+    ],
+    "source_ref": {
+      "file": "trips.json",
+      "field": "LR-A-1103"
+    },
+    "vehicle_no": "MH12ZZ1103",
+    "invoice_no": "INV-A-2026-1103",
+    "freight": "18000.00",
+    "driver_ref": "DRV-A1103",
+    "gate_out_at": [
+      {
+        "value": "2026-11-05T08:00:00+05:30",
+        "source": "client_gate_log",
+        "ref": {
+          "file": "gate_log.csv",
+          "row": 1,
+          "field": "gate_out_at"
+        }
+      }
+    ],
+    "delivery_due_at": "2026-11-05T14:00:00+05:30",
+    "arrival_at": [
+      {
+        "value": "2026-11-05T22:00:00+05:30",
+        "source": "consignee_gate_log",
+        "ref": {
+          "file": "gate_log.csv",
+          "row": 2,
+          "field": "arrival_at"
+        }
+      }
+    ]
+  }
+]

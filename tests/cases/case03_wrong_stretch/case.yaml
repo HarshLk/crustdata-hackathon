@@ -1,0 +1,7 @@
+id: case03_wrong_stretch
+prd_case: '3'
+title: Pune -> Mumbai (NH-48 north of Pune), late on 5 Nov 2026
+clients:
+- CLA
+kind: evidence
+settings_overrides: {}

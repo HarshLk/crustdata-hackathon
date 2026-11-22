@@ -1,0 +1,7 @@
+id: case12a_client_a_fm_names
+prd_case: 12a
+title: Case 1's facts, Client A (FM names road blockades and agitations; notice given)
+clients:
+- CLA
+kind: evidence
+settings_overrides: {}

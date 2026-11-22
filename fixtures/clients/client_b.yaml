@@ -1,7 +1,7 @@
 # Client B: stand-in, CWC style. FM covers war, riots, floods, unexpected government acts;
-# EXCLUDES strikes and agitations; notice within 48 hours.
+# EXCLUDES strikes, agitations and road blockades by any persons; notice within 48 hours.
 # Sources: CWC model tender cl.13 p.7 (rate) and cl.20.1-20.2 pp.41-42 (FM, 48 h) (D6);
-# exclusion wording extended to agitations for the stand-in (CWC excludes strikes).
+# exclusion wording extended to agitations and blockades for the stand-in (CWC excludes strikes).
 client:
   client_id: CLB
   legal_name: Bravo Demo Warehousing Ltd
@@ -43,10 +43,10 @@ terms:
     client_id: CLB
     term_type: force_majeure
     params: {events_named: [riot, flood, road_closure], general_words: [],
-             events_excluded: [strike, agitation], relief: excuse_delay}
+             events_excluded: [strike, agitation, blockade], relief: excuse_delay}
     page: 41
     clause_ref: "20.1-20.2"
-    verbatim: "Force majeure shall mean war, riots, floods and natural disasters (other than ordinary weather), fire and unexpected acts of Government. Strikes, agitations or lockouts, whether by the Service Provider's staff, its sub-contractors or any other persons, shall not be treated as force majeure."
+    verbatim: "Force majeure shall mean war, riots, floods and natural disasters (other than ordinary weather), fire and unexpected acts of Government. Strikes, agitations, road blockades or lockouts, whether by the Service Provider's staff, its sub-contractors or any other persons, shall not be treated as force majeure."
     effective_from: "2026-04-01"
     extraction_confidence: 1.0
     status: confirmed

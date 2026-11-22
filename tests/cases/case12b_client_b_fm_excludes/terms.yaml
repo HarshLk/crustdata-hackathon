@@ -50,12 +50,13 @@ terms:
     events_excluded:
     - strike
     - agitation
+    - blockade
     relief: excuse_delay
   page: 41
   clause_ref: 20.1-20.2
   verbatim: Force majeure shall mean war, riots, floods and natural disasters (other than ordinary weather), fire and unexpected
-    acts of Government. Strikes, agitations or lockouts, whether by the Service Provider's staff, its sub-contractors or any
-    other persons, shall not be treated as force majeure.
+    acts of Government. Strikes, agitations, road blockades or lockouts, whether by the Service Provider's staff, its sub-contractors
+    or any other persons, shall not be treated as force majeure.
   effective_from: '2026-04-01'
   extraction_confidence: 1.0
   status: confirmed

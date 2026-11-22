@@ -7,17 +7,17 @@
     "destination": "Kolhapur",
     "lane": "PUNE-KOLHAPUR",
     "route_places": [
-      "Pune, Pune, Maharashtra",
-      "Shirwal, Satara, Maharashtra",
-      "Satara, Satara, Maharashtra",
-      "Nagthane, Satara, Maharashtra",
-      "Umbraj, Satara, Maharashtra",
-      "Karad, Satara, Maharashtra",
-      "Kasegaon, Sangli, Maharashtra",
-      "Peth Naka, Sangli, Maharashtra",
-      "Kini, Kolhapur, Maharashtra",
-      "Sangli Phata, Kolhapur, Maharashtra",
-      "Kolhapur, Kolhapur, Maharashtra"
+      "Pune",
+      "Shirwal",
+      "Satara",
+      "Nagthane",
+      "Umbraj",
+      "Karad",
+      "Kasegaon",
+      "Peth Naka",
+      "Kini",
+      "Sangli Phata",
+      "Kolhapur"
     ],
     "route_states": [
       "Maharashtra"
@@ -62,17 +62,17 @@
     "destination": "Kolhapur",
     "lane": "PUNE-KOLHAPUR",
     "route_places": [
-      "Pune, Pune, Maharashtra",
-      "Shirwal, Satara, Maharashtra",
-      "Satara, Satara, Maharashtra",
-      "Nagthane, Satara, Maharashtra",
-      "Umbraj, Satara, Maharashtra",
-      "Karad, Satara, Maharashtra",
-      "Kasegaon, Sangli, Maharashtra",
-      "Peth Naka, Sangli, Maharashtra",
-      "Kini, Kolhapur, Maharashtra",
-      "Sangli Phata, Kolhapur, Maharashtra",
-      "Kolhapur, Kolhapur, Maharashtra"
+      "Pune",
+      "Shirwal",
+      "Satara",
+      "Nagthane",
+      "Umbraj",
+      "Karad",
+      "Kasegaon",
+      "Peth Naka",
+      "Kini",
+      "Sangli Phata",
+      "Kolhapur"
     ],
     "route_states": [
       "Maharashtra"

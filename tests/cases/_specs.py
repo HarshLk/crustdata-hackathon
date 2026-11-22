@@ -17,7 +17,8 @@ CANARY = "CANARY-7Q4X-DRIVER-PHONE-9000000001"  # must never appear in any outbo
 
 def route(lane: str) -> tuple[list[str], list[str]]:
     l = LANES[lane]
-    return [f"{p['name']}, {p['district']}, {p['state']}" for p in l["places"]], list(l["route_states"])
+    # plain place names: district and state stay in fixtures/lanes.yaml (a2's matcher reads plain names)
+    return [p["name"] for p in l["places"]], list(l["route_states"])
 
 
 def trip(trip_id: str, client_id: str, lane: str, origin: str, destination: str, **kw) -> dict:
@@ -132,21 +133,21 @@ def g_trip(n: str, due: str, arrival: str, freight: str = "30000.00", client_id:
 
 
 def kini_trip(client_id: str, letter: str, notice: bool = True, gps: bool = True, n: str = "1105") -> dict:
-    """Case 1 facts (D-13 timings): halt 5 Nov 06:00 -> 6 Nov 04:00 near Kini; due 5 Nov 18:00; gate-in 6 Nov 07:00."""
+    """Case 1 facts (D-13 timings): halt 5 Nov 06:00 -> 6 Nov 04:00 at Nagthane, the north end of the blocked stretch; due 5 Nov 18:00; gate-in 6 Nov 07:00."""
     tid = f"LR-{letter}-{n}"
     t = trip(tid, client_id, "PUNE-KOLHAPUR", "Pune", "Kolhapur", vehicle_no=f"MH12ZZ{n}",
              invoice_no=f"INV-{letter}-2026-{n}", freight="28000.00", driver_ref=f"DRV-{letter}{n}",
              gate_out_at=[obs("2026-11-05 01:00", "client_gate_log", "gate_log.csv", 1, "gate_out_at")],
              delivery_due_at=ts("2026-11-05 18:00"),
              arrival_at=[obs("2026-11-06 07:00", "consignee_gate_log", "gate_log.csv", 2, "arrival_at")],
-             assertions=[{"kind": "driver_report", "event_type": "agitation", "at": ts("2026-11-05 06:30"),
-                          "place": "Kini, Kolhapur, Maharashtra",
-                          "text": "Driver reports NH-48 blocked by sugarcane farmers' agitation at Kini toll plaza; "
-                                  "trucks not allowed to move towards Kolhapur.",
+             assertions=[{"kind": "driver_report", "event_type": "blockade", "at": ts("2026-11-05 06:30"),
+                          "place": "Nagthane, Satara, Maharashtra",
+                          "text": "Driver reports NH-48 blocked by sugarcane farmers' agitation from Nagthane towards Kini "
+                                  "toll plaza; trucks not allowed to move towards Kolhapur.",
                           "ref": {"file": "notes.csv", "row": 1, "field": "text"}}])
     if gps:
         t["halts"] = [{"start": ts("2026-11-05 06:00"), "end": ts("2026-11-06 04:00"),
-                       "place": "Kini, Kolhapur, Maharashtra", "source": "gps",
+                       "place": "Nagthane, Satara, Maharashtra", "source": "gps",
                        "ref": {"file": "gps.csv", "row": 14, "field": "halt"}}]
     if notice:
         t["notices"] = [{"sent_at": ts("2026-11-05 11:00"), "channel": "email", "addressee": "Client logistics desk",
@@ -548,7 +549,7 @@ for letter, cid, name, fx, slug, exp, rule in [
     ("B", "CLB", B_NAME, "b", "case12b_client_b_fm_excludes",
      {"outcome": "valid", "flags": ["CLIENT_ADMISSION_CHECK", SI_]},
      """**Rule:** PRD section 6 FM wording rule: the confirmed clause **excludes** the event (CWC style: "Strikes,
-agitations or lockouts ... shall not be treated as force majeure") -> valid, unless the client's own letters admit
+agitations, road blockades or lockouts ... shall not be treated as force majeure") -> valid, unless the client's own letters admit
 the delay: flag CLIENT_ADMISSION_CHECK for a person (DESIGN 5.5). No search (the clause settles it for free).
 
 **Hand arithmetic:** delay 5 Nov 18:00 -> 6 Nov 07:00 = 13 h; part day counts as a full day -> 1 day x Rs 2,000 =
@@ -584,7 +585,8 @@ settings.yaml has it false. So no evidence is attached and `max_paid_calls: 0`.
 
 **Facts (identical to case 1, D-13 timings):** Pune -> Kolhapur on NH-48. Gate-out Pune 5 Nov 2026 01:00 (client
 gate log). Driver report 5 Nov 06:30: NH-48 blocked by sugarcane farmers' agitation at Kini toll plaza (event type
-`agitation`). GPS halt near Kini (Kolhapur district) 5 Nov 06:00 -> 6 Nov 04:00. Due 5 Nov 18:00; consignee gate-in
+`blockade`). GPS halt at Nagthane (Satara district, north end of the blocked Nagthane-Sangli Phata stretch)
+5 Nov 06:00 -> 6 Nov 04:00. Due 5 Nov 18:00; consignee gate-in
 6 Nov 07:00. {"No notice record." if letter == "C" else "Notice email to the client 5 Nov 11:00."} Deducted Rs 2,000 (1 day @ Rs 2,000).
 
 **Terms:** fixtures/clients/client_{fx}.yaml (stand-in).
@@ -592,3 +594,162 @@ gate log). Driver report 5 Nov 06:30: NH-48 blocked by sugarcane farmers' agitat
 {rule}
 """,
     })
+
+
+# =============================================================================== evidence cases: cassettes
+import json as _json
+
+PAGES_DIR = Path(__file__).parent / "_pages"
+SEARCH_EP, FETCH_EP, IDENTIFY_EP = "/web/search/live", "/web/enrich/live", "/company/identify"
+
+
+def page(name: str) -> dict:
+    return _json.loads((PAGES_DIR / f"{name}.json").read_text(encoding="utf-8"))
+
+
+def cassette(*names: str, empty_search: bool = False) -> dict:
+    """Hand-written match-form cassette (a1's FakeTransport) from real saved responses in tests/cases/_pages/."""
+    ps = [page(n) for n in names]
+    entries: list[dict] = [{"endpoint": SEARCH_EP, "note": "any search query in this case",
+                            "response": {"success": True, "results": [] if empty_search else [p["search_result"] for p in ps]}},
+                           {"endpoint": IDENTIFY_EP, "response": []}]
+    for p in ps:
+        if p["search_result"]["url"] != p["resolved"]:
+            entries.append({"provider": "web", "url": p["search_result"]["url"], "status": 302,
+                            "headers": {"Location": p["resolved"]}, "response": ""})
+        entries.append({"endpoint": FETCH_EP, "url": p["resolved"], "response": p["page"]})
+    return {"crustdata.json": {"source": "real responses, trimmed: " + ", ".join(p["source_file"] for p in ps),
+                               "entries": entries}}
+
+
+EV_MAX = 12  # upper bound: 3 searches + 5 fetches + human-mode retries + identify
+KINI_SOURCES = """
+**Sources in the cassette (real responses from Crustdata on 22 Nov 2026, trimmed to the article text):**
+
+| Source | URL | Publication date (meta tag) | Retrieved (UTC) | Passage |
+| --- | --- | --- | --- | --- |
+| Outlook | https://www.outlookindia.com/national/maharashtra-farmers-protest-blocks-nh-48-strands-1500-trucks | 2026-11-06T12:38:46+05:30 | 2026-11-22T09:31:08Z | "The blockade has disrupted traffic along nearly 120 km between Nagthane in Satara district and Sangli Phata in Kolhapur district. Heavy vehicles remained stranded" |
+| Times of India | timesofindia.indiatimes.com/city/kolhapur/shetti-led-blockade-reduce-traffic-to-a-crawl-on-pune-bengaluru-highway-... | 2026-11-03T23:12:00+05:30 | 2026-11-22T09:19:41Z | "The blockade started at 12.15am. The road is blocked from both sides at the Kini toll booth" (TO CONFIRM exact wording in the page text) |
+| ETInfra | infra.economictimes.indiatimes.com/news/roads-highways/pune-bengaluru-national-highway-blocked-by-farmers-agitating-for-sugarcane-prices/135531083 | none machine-readable ("Published On Nov 05, 2026" only in text) | 2026-11-22T09:3x | rejected: no_date |
+
+The search results are google.com/goto links (as in the real response), resolved by the `web` redirect entries.
+"""
+KINI_PAGES = ("toi_kini_nov3", "etinfra_kini", "outlook_kini")
+
+# =============================================================================== case 1
+c1_trip = kini_trip("CLA", "A")
+c1_ded = kini_deduction("CLA", A_NAME, "A")
+C1_ARITH = """
+**Hand arithmetic (D-13 timings, robust to every reading of the excused interval)**
+
+| Step | Working | Value |
+| --- | --- | --- |
+| Delay | due 5 Nov 18:00 -> consignee gate-in 6 Nov 07:00 | 13 h |
+| Penalty as deducted | 13 h, part day counts as a full day -> 1 day x Rs 2,000 | Rs 2,000 |
+| Corroborated halt | GPS at Nagthane (Satara district), the north end of the blocked stretch, 5 Nov 06:00 -> 6 Nov 04:00 | 22 h |
+| Halt inside the event's dates | blockade from 3 Nov 00:15 (TOI); still on 5 Nov (Outlook "third day"); end date not stated, so count only to 5 Nov 24:00 | 18 h |
+| Allowance | `causation.allowance_hours` (settings.yaml) | 12 h |
+| Reading 1: union shifts the due time | 18:00 + 18 h + 12 h = 7 Nov 00:00 > gate-in 6 Nov 07:00 | delay 0 |
+| Reading 2: only halt hours inside the late window count | halt in [5 Nov 18:00, 6 Nov 00:00] = 6 h, + 12 h = 18 h >= 13 h | delay 0 |
+| Correct penalty | | Rs 0.00 |
+| **Disputable** | 2,000 - 0 | **Rs 2,000.00** |
+
+Notice: email 5 Nov 11:00, within 10 days of occurrence (clause 15(iv)). FM clause names "road blockades and
+agitations"; the driver report classes the event as `blockade` (settings.yaml has search words for
+`blockade` but none for `agitation`).
+"""
+SPECS.append({
+    "slug": "case01_kini_blockade_fm", "prd": "1", "kind": "evidence", "open_track": True,
+    "title": "Pune -> Kolhapur on NH-48, due 5 Nov 2026; Kini toll plaza blockade; GPS halt; notice sent",
+    "fixture_clients": ["a"], "trips": [c1_trip], "deductions": [c1_ded], "cassette": cassette(*KINI_PAGES),
+    "expected": {c1_ded["dispute_key"]: {"outcome": "disputable", "grounds": ["FORCE_MAJEURE"],
+                                         "amount_disputable": "2000.00", "flags": [SI_], "max_paid_calls": EV_MAX}},
+    "notes": "# Case 1: force majeure with a real dated source, own-record corroboration and notice\n\n"
+             "**Rule:** PRD section 6 stages 4-6: notice met; clause names the event; a qualifying dated source names a "
+             "place on the route (Kini, Nagthane/Satara, Sangli Phata/Kolhapur), the event, a date overlapping the "
+             "in-transit window and an effect on goods movement; our GPS halt places the truck at Nagthane during the "
+             "event (DESIGN 8.4). Next action: hold for the account manager's approval.\n" + C1_ARITH + KINI_SOURCES,
+})
+
+# =============================================================================== case 12a (case 1 under Client A, own folder)
+c12a_trip = kini_trip("CLA", "A", n="1206")
+c12a_ded = kini_deduction("CLA", A_NAME, "A", n="1206")
+SPECS.append({
+    "slug": "case12a_client_a_fm_names", "prd": "12a", "kind": "evidence",
+    "title": "Case 1's facts, Client A (FM names road blockades and agitations; notice given)",
+    "fixture_clients": ["a"], "trips": [c12a_trip], "deductions": [c12a_ded], "cassette": cassette(*KINI_PAGES),
+    "expected": {c12a_ded["dispute_key"]: {"outcome": "disputable", "grounds": ["FORCE_MAJEURE"],
+                                           "amount_disputable": "2000.00", "flags": [SI_], "max_paid_calls": EV_MAX}},
+    "notes": "# Case 12a: same blockade, Client A\n\nIdentical to case 1 (LR-A-1206 instead of LR-A-1105). Compare with "
+             "12b (valid: exclusion), 12c (notice missing) and 12d (wording arguable): no default rules, each "
+             "client's own terms decide.\n" + C1_ARITH + KINI_SOURCES,
+})
+
+# =============================================================================== case 2: lookalike date
+c2_trip = trip("LR-A-1028", "CLA", "PUNE-KOLHAPUR", "Pune", "Kolhapur", vehicle_no="MH12ZZ1028",
+               invoice_no="INV-A-2026-1028", freight="28000.00", driver_ref="DRV-A1028",
+               gate_out_at=[obs("2026-10-28 01:00", "client_gate_log", "gate_log.csv", 1, "gate_out_at")],
+               delivery_due_at=ts("2026-10-28 18:00"),
+               arrival_at=[obs("2026-10-29 12:00", "consignee_gate_log", "gate_log.csv", 2, "arrival_at")])
+c2_ded = deduction("CLA", A_NAME, "APA/2026/1028", "1", "LR-A-1028", "late_delivery",
+                   deduction_date="2026-11-04", received_date="2026-11-05", amount="2000.00",
+                   reason_text="Late delivery penalty 1 day(s) @ Rs 2,000 per day", invoice_ref="INV-A-2026-1028",
+                   client_calc={"rate": "2000", "unit": "flat_per_day", "units_counted": "1",
+                                "from_ts": ts("2026-10-28 18:00"), "to_ts": ts("2026-10-29 12:00")},
+                   source_ref={"file": "deductions.csv", "row": 1})
+SPECS.append({
+    "slug": "case02_lookalike_date", "prd": "2", "kind": "evidence", "open_track": True,
+    "title": "Same route, due 28 Oct 2026, a day late; nobody claims a disruption",
+    "fixture_clients": ["a"], "trips": [c2_trip], "deductions": [c2_ded], "cassette": cassette(*KINI_PAGES),
+    "expected": {c2_ded["dispute_key"]: {"outcome": "valid", "flags": [SI_], "max_paid_calls": EV_MAX}},
+    "notes": """
+# Case 2: lookalike date (must not stretch the blockade)
+
+**Rule:** D-03 discovery path: nobody at the 3PL asserts a disruption, the clause names event types, so a discovery
+search runs. Nothing qualifying -> `NO_GROUND` with the search log cited -> valid. A discovery hit could only ever be
+`INCOMPLETE`, never a ground.
+
+**Cassette design (deliberate):** the fake search returns the **Kini** reports for any query. Their publication dates
+(3 Nov and 6 Nov 2026) and the event start (3 Nov 00:15) are after the in-transit window widened by the 24 h allowance
+(27 Oct 01:00 -> 30 Oct 12:00), so the date test must reject them. Real Crustdata with the 27-29 Oct window would
+probably return nothing (zero-result searches are free); this cassette is the harder test. TO CONFIRM live by a2.
+
+**Hand arithmetic**
+
+| Step | Working | Value |
+| --- | --- | --- |
+| Delay | due 28 Oct 18:00 -> gate-in 29 Oct 12:00 | 18 h |
+| Penalty | part day counts -> 1 day x Rs 2,000 | Rs 2,000 = deducted |
+| Disputable | | 0 (valid) |
+""" + KINI_SOURCES,
+})
+
+# =============================================================================== case 3: same highway, wrong stretch
+c3_trip = trip("LR-A-1103", "CLA", "PUNE-MUMBAI", "Pune", "Mumbai", vehicle_no="MH12ZZ1103",
+               invoice_no="INV-A-2026-1103", freight="18000.00", driver_ref="DRV-A1103",
+               gate_out_at=[obs("2026-11-05 08:00", "client_gate_log", "gate_log.csv", 1, "gate_out_at")],
+               delivery_due_at=ts("2026-11-05 14:00"),
+               arrival_at=[obs("2026-11-05 22:00", "consignee_gate_log", "gate_log.csv", 2, "arrival_at")])
+c3_ded = deduction("CLA", A_NAME, "APA/2026/1103", "1", "LR-A-1103", "late_delivery",
+                   deduction_date="2026-11-12", received_date="2026-11-13", amount="2000.00",
+                   reason_text="Late delivery penalty 1 day(s) @ Rs 2,000 per day", invoice_ref="INV-A-2026-1103",
+                   client_calc={"rate": "2000", "unit": "flat_per_day", "units_counted": "1",
+                                "from_ts": ts("2026-11-05 14:00"), "to_ts": ts("2026-11-05 22:00")},
+                   source_ref={"file": "deductions.csv", "row": 1})
+SPECS.append({
+    "slug": "case03_wrong_stretch", "prd": "3", "kind": "evidence",
+    "title": "Pune -> Mumbai (NH-48 north of Pune), late on 5 Nov 2026",
+    "fixture_clients": ["a"], "trips": [c3_trip], "deductions": [c3_ded], "cassette": cassette(*KINI_PAGES),
+    "expected": {c3_ded["dispute_key"]: {"outcome": "valid", "flags": [SI_], "max_paid_calls": EV_MAX}},
+    "notes": """
+# Case 3: same highway number, same date, wrong stretch
+
+**Rule:** D-10 / DESIGN 8.3 place test: a highway name or number alone never satisfies the place test. The Kini
+reports call NH-48 the "Pune-Bengaluru highway" and name Nagthane (Satara), Kini and Sangli Phata (Kolhapur); none is
+on the Pune -> Mumbai route (Pune, Talegaon, Lonavala, Khopoli, Khalapur, Panvel, Navi Mumbai, Mumbai). "Pune" appears
+only inside the highway's name and as where traffic came from ("Traffic coming from Satara and Pune towards Kolhapur"),
+not as a physically affected place. Discovery path (nobody asserts a disruption) -> nothing qualifying -> valid.
+
+**Hand arithmetic:** due 5 Nov 14:00, gate-in 22:00 = 8 h -> 1 day x Rs 2,000 = Rs 2,000 = deducted. Disputable 0.
+""" + KINI_SOURCES,
+})
