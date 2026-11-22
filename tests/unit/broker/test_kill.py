@@ -76,3 +76,17 @@ def test_detached_normal_call_returns_result(tmp_path, monkeypatch):
     assert fake.calls == []  # executed by the child's own rebuilt transport
     assert ctx.spent_credits == Decimal(1)
     assert [e.outcome for e in ledger.rows(ctx.store)] == ["ok"]
+
+
+def test_detached_block_first_fires_once_across_processes(tmp_path, monkeypatch):
+    from pdr.evidence import crustdata
+    fake = FakeTransport(faults=["block_first"], entries=[
+        {"endpoint": "/web/enrich/live", "url": "https://p.in/a", "response": {"title": "A", "content": "real"}}])
+    monkeypatch.setitem(broker.TRANSPORTS, "crustdata", fake)
+    ctx = make_ctx(tmp_path / "pdr.db")
+    ctx.settings.providers.paidcall_mode = "detached"
+    first = crustdata.fetch(["https://p.in/a"], ctx)
+    retry = crustdata.fetch(["https://p.in/a"], ctx, human_mode=True)
+    assert "Verifying your request" in first[0]["content"]
+    assert retry[0]["content"] == "real"
+    assert fake.calls == []  # both ran in detached children

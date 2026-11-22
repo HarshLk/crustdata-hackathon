@@ -16,11 +16,18 @@ from __future__ import annotations
 
 import copy
 import json
+import os
+import tempfile
 import re
 import time
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
+
+try:
+    import fcntl
+except ImportError:  # Windows: inline mode only, a single process
+    fcntl = None
 
 from pdr.broker.transport import Response, TransportTimeout, cache_key as make_cache_key
 
@@ -42,14 +49,19 @@ class CassetteMiss(LookupError):
 
 class FakeTransport:
     def __init__(self, cassette_dir: Any = None, faults: list[str] | None = None, *,
-                 strict: bool = True, provider: str | None = None, entries: list[dict] | None = None):
+                 strict: bool = True, provider: str | None = None, entries: list[dict] | None = None,
+                 state_file: str | None = None):
         dirs = cassette_dir if isinstance(cassette_dir, (list, tuple)) else ([cassette_dir] if cassette_dir else [])
         self.cassette_dirs = [str(Path(d)) for d in dirs]
         self.faults = list(faults or [])
         self.strict = strict
         self.provider = provider
         self.calls: list[dict] = []
-        self._used: set[str] = set()
+        # one-shot faults already fired; a file so a detached child (rebuilt from spec()) sees the same state
+        if state_file is None:
+            fd, state_file = tempfile.mkstemp(prefix="pdr_fake_faults_", suffix=".json")
+            os.close(fd)
+        self.state_file = state_file
         self._extra: list[dict] = []
         self.by_key: dict[str, dict] = {}
         self.loose: list[dict] = []
@@ -104,7 +116,8 @@ class FakeTransport:
         """How a detached child process rebuilds this transport."""
         return {"factory": "tests.fakes.transport:FakeTransport",
                 "kwargs": {"cassette_dir": self.cassette_dirs, "faults": self.faults, "strict": self.strict,
-                           "provider": self.provider, "entries": self._extra}}
+                           "provider": self.provider, "entries": self._extra,
+                           "state_file": self.state_file}}
 
     # ------------------------------------------------------------------ faults
     def _fault(self, name: str, endpoint: str) -> str | None:
@@ -115,11 +128,25 @@ class FakeTransport:
         return None
 
     def _once(self, name: str, endpoint: str) -> bool:
+        """True the first time this fault fires, across every process sharing state_file."""
         f = self._fault(name, endpoint)
-        if f and f not in self._used:
-            self._used.add(f)
+        if not f:
+            return False
+        with open(self.state_file, "a+", encoding="utf-8") as fh:
+            if fcntl:
+                fcntl.flock(fh, fcntl.LOCK_EX)
+            fh.seek(0)
+            try:
+                used = set(json.loads(fh.read() or "[]"))
+            except ValueError:
+                used = set()
+            if f in used:
+                return False
+            used.add(f)
+            fh.seek(0)
+            fh.truncate()
+            fh.write(json.dumps(sorted(used)))
             return True
-        return False
 
     # ------------------------------------------------------------------ send
     def send(self, endpoint: str, request: dict, *, cache_key: str | None = None, timeout: float = 60) -> Response:
