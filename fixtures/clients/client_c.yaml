@@ -1,0 +1,68 @@
+# Client C: stand-in, BPCL style notice: force majeure must be notified within 24 hours.
+# FM wording names blockades and agitations here so that NOTICE is the only open item
+# (case 12c tests "notice before evidence").
+# Sources: BPCL Muzaffarpur tender cl.14 p.32 (24 h notice) and cl.8(d) p.31 (D10);
+# per-day rate kept equal to Client A so only the notice term differs.
+client:
+  client_id: CLC
+  legal_name: Charlie Demo Petro Products Ltd
+  aliases: ["Charlie Demo Petro"]
+  lanes: [PUNE-KOLHAPUR]
+  approvers: {kam: "kam.demo", finance: "finance.demo", legal: "legal.demo"}
+agreements:
+  - agreement_id: CLC-TSA-2026
+    client_id: CLC
+    doc_type: transport_contract
+    precedence_rank: 1
+    title: "Stand-in Road Transport Contract, Charlie Demo Petro (built from D10 clauses)"
+    file_ref: fixtures/terms/sample_agreement_client_c.txt
+    effective_from: "2026-04-01"
+    effective_to: "2027-03-31"
+    lanes: [PUNE-KOLHAPUR]
+    completeness: complete
+    is_stand_in: true
+    confirmed_by: kam.demo
+    confirmed_at: "2026-09-01T10:00:00+05:30"
+terms:
+  - term_id: CLC-PEN-1
+    agreement_id: CLC-TSA-2026
+    client_id: CLC
+    term_type: penalty_rule
+    params: {event: late_delivery, rate: "2000", unit: flat_per_day, base: none,
+             part_unit_counts_as_full: true, day_count: calendar,
+             measured_from: delivery_due_at, measured_to: arrival_at}
+    page: 31
+    clause_ref: "8(d)"
+    verbatim: "The Corporation shall levy penalty on the carrier @ Rs. 2000/- per day of delay, a part of a day being counted as a full day, recovered from the bills."
+    effective_from: "2026-04-01"
+    extraction_confidence: 1.0
+    status: confirmed
+    confirmed_by: kam.demo
+    confirmed_at: "2026-09-01T10:00:00+05:30"
+  - term_id: CLC-FM-1
+    agreement_id: CLC-TSA-2026
+    client_id: CLC
+    term_type: force_majeure
+    params: {events_named: [flood, riot, blockade, agitation], general_words: [],
+             events_excluded: [], relief: excuse_delay}
+    page: 32
+    clause_ref: "14"
+    verbatim: "Force majeure: floods, earthquakes, acts of God, riots, road blockades and agitations."
+    effective_from: "2026-04-01"
+    extraction_confidence: 1.0
+    status: confirmed
+    confirmed_by: kam.demo
+    confirmed_at: "2026-09-01T10:00:00+05:30"
+  - term_id: CLC-NOT-1
+    agreement_id: CLC-TSA-2026
+    client_id: CLC
+    term_type: notice
+    params: {deadline_hours: 24, immediate: false, method: "email or fax", addressee: "Location in-charge", applies_to: force_majeure}
+    page: 32
+    clause_ref: "14"
+    verbatim: "The carrier shall notify the occurrence of force majeure to the Corporation within 24 hours of its occurrence."
+    effective_from: "2026-04-01"
+    extraction_confidence: 1.0
+    status: confirmed
+    confirmed_by: kam.demo
+    confirmed_at: "2026-09-01T10:00:00+05:30"

@@ -1,0 +1,83 @@
+# Client G: stand-in public buyer on GeM.
+# Penalty and cap: GeM SLA Goods Transport Service, section 8 item 1 (D2):
+#   1% of trip cost per vehicle per day, "subject to the maximum of 15% of the trip cost for each vehicle".
+#   (D2's second cap, 10% of contract value in total, is left out of the stand-in: no contract
+#   value is held, and a per-contract cap would need every deduction under the contract.)
+# Buyer-caused delay: GeM GTC 4.0 cl.15(i) p.34 (D1) "delay attributable to the Buyer / Consignee";
+#   SOP loading time of 4 hours is a stand-in annex value.
+# Force majeure: D2 10.1 lists NO events (notify cause, evidence and effect; no deadline), so a
+#   delay for this client never triggers a discovery search (DESIGN 5.5: nothing named -> NOT_APPLICABLE).
+client:
+  client_id: CLG
+  legal_name: Golf Demo Public Sector Buyer
+  aliases: ["Golf Demo PSB", "GOLF DEMO PUBLIC SECTOR BUYER (GEM)"]
+  lanes: [PUNE-KOLHAPUR, PUNE-MUMBAI]
+  approvers: {kam: "kam.demo", finance: "finance.demo", legal: "legal.demo"}
+agreements:
+  - agreement_id: CLG-GEM-2026
+    client_id: CLG
+    doc_type: gem_bid_sla
+    precedence_rank: 1
+    title: "Stand-in GeM contract: SLA Goods Transport Service (D2) with GTC 4.0 (D1) excerpts"
+    file_ref: fixtures/terms/sample_agreement_client_g.txt
+    effective_from: "2026-04-01"
+    effective_to: "2027-03-31"
+    lanes: [PUNE-KOLHAPUR, PUNE-MUMBAI]
+    completeness: complete
+    is_stand_in: true
+    confirmed_by: kam.demo
+    confirmed_at: "2026-09-01T10:00:00+05:30"
+terms:
+  - term_id: CLG-PEN-1
+    agreement_id: CLG-GEM-2026
+    client_id: CLG
+    term_type: penalty_rule
+    params: {event: late_delivery, rate: "1", unit: pct_per_vehicle_day, base: trip_cost,
+             day_count: calendar, measured_from: delivery_due_at, measured_to: arrival_at}
+    page: 3
+    clause_ref: "8 item 1"
+    verbatim: "Delay of a vehicle: 1% of the trip cost per vehicle per day of delay, subject to the maximum of 15% of the trip cost for each vehicle."
+    effective_from: "2026-04-01"
+    extraction_confidence: 1.0
+    status: confirmed
+    confirmed_by: kam.demo
+    confirmed_at: "2026-09-01T10:00:00+05:30"
+  - term_id: CLG-CAP-1
+    agreement_id: CLG-GEM-2026
+    client_id: CLG
+    term_type: cap
+    params: {value: "15", kind: pct, base: trip_cost, scope: per_vehicle}
+    page: 3
+    clause_ref: "8 item 1"
+    verbatim: "subject to the maximum of 15% of the trip cost for each vehicle"
+    effective_from: "2026-04-01"
+    extraction_confidence: 1.0
+    status: confirmed
+    confirmed_by: kam.demo
+    confirmed_at: "2026-09-01T10:00:00+05:30"
+  - term_id: CLG-BD-1
+    agreement_id: CLG-GEM-2026
+    client_id: CLG
+    term_type: buyer_delay
+    params: {buyer_bears: true, free_loading_hours: 4}
+    page: 34
+    clause_ref: "GTC 15(i); SOP item 2"
+    verbatim: "Where the delay is attributable to the Buyer / Consignee, the delivery period shall be re-fixed without penalty. SOP item 2: loading at the Buyer's premises shall be completed within 4 hours of the vehicle reporting."
+    effective_from: "2026-04-01"
+    extraction_confidence: 1.0
+    status: confirmed
+    confirmed_by: kam.demo
+    confirmed_at: "2026-09-01T10:00:00+05:30"
+  - term_id: CLG-FM-1
+    agreement_id: CLG-GEM-2026
+    client_id: CLG
+    term_type: force_majeure
+    params: {events_named: [], general_words: [], events_excluded: [], relief: excuse_delay}
+    page: 4
+    clause_ref: "10.1"
+    verbatim: "The Service Provider shall notify the Buyer of the cause, evidence and nature of such effect, and the contract may be amended accordingly."
+    effective_from: "2026-04-01"
+    extraction_confidence: 1.0
+    status: confirmed
+    confirmed_by: kam.demo
+    confirmed_at: "2026-09-01T10:00:00+05:30"

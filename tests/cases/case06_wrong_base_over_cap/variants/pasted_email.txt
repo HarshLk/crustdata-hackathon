@@ -1,0 +1,16 @@
+From: Golf Demo Public Sector Buyer
+Subject: Deduction against your bill INV-G-2026-0612
+
+Dear Sir,
+
+Please note the following deduction made in our payment run.
+
+Payment Advice No: GPA/2026/0612   Line: 1
+Date: 05-10-2026
+LR No: LR-G-0612
+Invoice: INV-G-2026-0612
+Amount: Rs 54,000
+Reason: Late delivery penalty 1% per vehicle per day x 18 days on invoice value Rs 3,00,000
+
+Regards,
+Accounts Payable

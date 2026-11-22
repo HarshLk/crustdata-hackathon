@@ -1,0 +1,7 @@
+id: case06_wrong_base_over_cap
+prd_case: '6'
+title: 1% per vehicle-day applied to the whole invoice; over the cap
+clients:
+- CLG
+kind: free_check
+settings_overrides: {}

@@ -1,0 +1,14 @@
+{
+  "CLG|GPA20260612|1": {
+    "outcome": "disputable",
+    "grounds": [
+      "WRONG_BASE",
+      "OVER_CAP"
+    ],
+    "primary_reason": null,
+    "amount_disputable": "49500.00",
+    "flags": [],
+    "missing_item_contains": null,
+    "max_paid_calls": 0
+  }
+}

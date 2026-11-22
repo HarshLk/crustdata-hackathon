@@ -1,0 +1,71 @@
+# Lane geography used to build search queries and the place test (DESIGN 8.1, D-09).
+# STATUS: NEEDS A SECOND-PERSON CHECK before any real use. Written by agent d2 on 22 Nov 2026
+# from general road-map knowledge of the national highways named below; checked only against
+# the place names in the cited news reports (REFERENCE.md section 5). Verify each town's
+# district and the order of places against a map, e.g. OpenStreetMap (https://www.openstreetmap.org)
+# route Pune -> Kolhapur on NH-48, and the Census of India district lists.
+# No coordinates on purpose: none were measured, and the place test matches names, not points.
+# Each place carries its district and state so an ambiguous name (Srirampur, Assam vs
+# Shrirampur, Maharashtra) is matched only together with its state or district (DESIGN 8.3).
+confirmed_by: null          # set to the person who checked it
+confirmed_at: null
+lanes:
+  PUNE-KOLHAPUR:
+    highway: NH-48          # a highway number alone never satisfies the place test (D-10)
+    highway_names: ["Pune-Bengaluru highway", "Mumbai-Bengaluru highway"]
+    route_states: [Maharashtra]
+    regional_state_names: {Maharashtra: "महाराष्ट्र"}
+    stretches: ["Nagthane (Satara) to Sangli Phata (Kolhapur)"]   # as named in the Kini reports
+    places:                 # in route order
+      - {name: Pune, district: Pune, state: Maharashtra}
+      - {name: Shirwal, district: Satara, state: Maharashtra}
+      - {name: Satara, district: Satara, state: Maharashtra}
+      - {name: Nagthane, district: Satara, state: Maharashtra}
+      - {name: Umbraj, district: Satara, state: Maharashtra}
+      - {name: Karad, district: Satara, state: Maharashtra}
+      - {name: Kasegaon, district: Sangli, state: Maharashtra}     # TO CHECK
+      - {name: Peth Naka, district: Sangli, state: Maharashtra}    # TO CHECK
+      - {name: Kini, district: Kolhapur, state: Maharashtra, aliases: ["Kini toll plaza"]}
+      - {name: Sangli Phata, district: Kolhapur, state: Maharashtra}
+      - {name: Kolhapur, district: Kolhapur, state: Maharashtra}
+    districts: [Pune, Satara, Sangli, Kolhapur]
+  PUNE-MUMBAI:
+    highway: NH-48          # same number as PUNE-KOLHAPUR: case 3 must not match Kini
+    highway_names: ["Mumbai-Pune highway", "old Mumbai-Pune highway"]
+    route_states: [Maharashtra]
+    regional_state_names: {Maharashtra: "महाराष्ट्र"}
+    places:
+      - {name: Pune, district: Pune, state: Maharashtra}
+      - {name: Talegaon, district: Pune, state: Maharashtra}
+      - {name: Lonavala, district: Pune, state: Maharashtra}
+      - {name: Khopoli, district: Raigad, state: Maharashtra}
+      - {name: Khalapur, district: Raigad, state: Maharashtra}
+      - {name: Panvel, district: Raigad, state: Maharashtra}
+      - {name: Navi Mumbai, district: Thane, state: Maharashtra}    # TO CHECK (parts in Raigad)
+      - {name: Mumbai, district: Mumbai, state: Maharashtra}
+    districts: [Pune, Raigad, Thane, Mumbai]
+  CUTTACK-BHUBANESWAR:
+    highway: NH-16
+    highway_names: ["Cuttack-Bhubaneswar highway"]
+    route_states: [Odisha]
+    regional_state_names: {Odisha: "ଓଡ଼ିଶା"}
+    places:
+      - {name: Cuttack, district: Cuttack, state: Odisha}
+      - {name: Bhubaneswar, district: Khordha, state: Odisha}
+    districts: [Cuttack, Khordha]
+  ASSAM-HALDIA:
+    highway: NH-27 then NH-12 and NH-16   # TO CHECK the exact route a pet-coke truck takes
+    highway_names: []
+    route_states: [Assam, West Bengal, Bihar]  # Bihar: NH-27 passes Kishanganj between Siliguri and Dalkhola; TO CHECK
+    regional_state_names: {Assam: "অসম", West Bengal: "পশ্চিমবঙ্গ", Bihar: "बिहार"}
+    places:
+      - {name: Guwahati, district: Kamrup Metropolitan, state: Assam}
+      - {name: Bongaigaon, district: Bongaigaon, state: Assam}
+      - {name: Srirampur, district: Kokrajhar, state: Assam, aliases: ["Srirampur check gate", "Srirampur check point"]}  # Assam-West Bengal border gate
+      - {name: Bakshirhat, district: Cooch Behar, state: West Bengal}   # second check point named in reports; TO CHECK district
+      - {name: Siliguri, district: Darjeeling, state: West Bengal}
+      - {name: Kishanganj, district: Kishanganj, state: Bihar}
+      - {name: Dalkhola, district: Uttar Dinajpur, state: West Bengal}
+      - {name: Malda, district: Malda, state: West Bengal}
+      - {name: Haldia, district: Purba Medinipur, state: West Bengal}
+    districts: [Kamrup Metropolitan, Bongaigaon, Kokrajhar, Cooch Behar, Darjeeling, Kishanganj, Uttar Dinajpur, Malda, Purba Medinipur]
