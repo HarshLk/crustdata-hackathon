@@ -60,6 +60,37 @@ def _send(data_dir: Path) -> None:
     send.run(c, k7)
 
 
+PIPE_CASES = ["case06_wrong_base_over_cap", "case04_duplicate", "case10_instruction_in_input"]
+
+
+def _pipe_setup(data_dir: Path) -> None:
+    from pdr.store import SqliteStore
+    from tests.caselib import load_case
+    store = SqliteStore(data_dir / "state.db")
+    keys: list[str] = []
+    for case in PIPE_CASES:
+        keys += load_case(ROOT / "tests" / "cases" / case, store)[0]
+    (data_dir / "keys.json").write_text(json.dumps(keys))
+
+
+def _pipe_run(data_dir: Path) -> None:
+    """What `pdr run` does after reading: engine, K5 lines, draft actions, case file; then approve and send."""
+    from pdr import actions, approval, engine, send
+    from pdr.outputs import k5, report
+    c = _driver_ctx(data_dir)
+    send.startup(c)
+    keys = json.loads((data_dir / "keys.json").read_text())
+    verdicts = engine.run(keys, c)
+    k5.write_all(c.store, data_dir / "out", c.settings)
+    for v in verdicts:
+        actions.draft_for_verdict(v, c)
+    report.render(c.store, data_dir / "out", c.settings)
+    for a in c.store.actions_in("awaiting_approval"):  # stands in for the person at the approval screen
+        for role in approval.missing_roles(c.store, a):
+            approval.approve(c, a.action_id, role, "Kill Test Approver")
+    send.send_all(c)
+
+
 # --------------------------------------------------------------------------- test side
 
 def _run(args: list[str], crash_at: str | None = None, extra_env: dict | None = None) -> subprocess.CompletedProcess:
@@ -112,6 +143,44 @@ def test_crash_points_registered():
     assert set(SEND_POINTS) <= set(KNOWN)
 
 
+def _assert_pipeline(data_dir: Path) -> None:
+    from pdr.models import Action
+    from pdr.store import SqliteStore
+    keys = json.loads((data_dir / "keys.json").read_text())
+    lines = [json.loads(l) for l in (data_dir / "out" / "verdicts.jsonl").read_text().splitlines() if l.strip()]
+    got = collections.Counter(l.get("dispute_key") for l in lines)
+    assert sorted(got) == sorted(keys) and all(n == 1 for n in got.values()), got
+    assert (data_dir / "out" / "index.html").exists()
+    store = SqliteStore(data_dir / "state.db")
+    sent = [a for a in store.find(Action) if str(a.status) in ("sent", "sending")]
+    files = sorted((data_dir / "outbox").glob("*.json")) if (data_dir / "outbox").exists() else []
+    assert len(files) == len(sent) and all(str(a.status) == "sent" for a in sent)
+    per_key = collections.Counter(k for a in sent for k in a.dispute_keys)
+    assert all(n == 1 for n in per_key.values()), per_key
+    try:
+        from pdr.broker import ledger
+        paid = [r.cache_key for r in ledger.rows(store) if not r.cache_hit and r.outcome == "ok"]
+        assert len(paid) == len(set(paid)), "a cache key was paid twice"
+    except ImportError:
+        pass
+
+
+def _known_points() -> list[str]:
+    from pdr.crashpoints import KNOWN
+    return [p for p in KNOWN if not p.startswith("call.")]  # call.* points belong to a1's broker kill tests
+
+
+@pytest.mark.parametrize("point", _known_points())
+def test_kill_pipeline_at_every_point(tmp_path, point):
+    pytest.importorskip("tests.caselib")
+    assert _run(["pipe-setup", str(tmp_path)]).returncode == 0
+    first = _run(["pipe-run", str(tmp_path)], crash_at=point)
+    assert first.returncode in (0, 137), first.stderr[-2000:]  # 0: this point is not reached on this path yet
+    again = _run(["pipe-run", str(tmp_path)])
+    assert again.returncode == 0, again.stderr[-2000:]
+    _assert_pipeline(tmp_path)
+
+
 def test_random_sigkill(tmp_path):
     rng = random.Random(1123)
     interrupted = 0
@@ -141,5 +210,9 @@ if __name__ == "__main__":
         _setup(data, int(sys.argv[3]) if len(sys.argv) > 3 else 1)
     elif cmd == "send":
         _send(data)
+    elif cmd == "pipe-setup":
+        _pipe_setup(data)
+    elif cmd == "pipe-run":
+        _pipe_run(data)
     else:
         raise SystemExit(f"unknown command {cmd}")
