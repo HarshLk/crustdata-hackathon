@@ -501,6 +501,11 @@ class LedgerEntry(Entity):
     request_summary: str = ""
     started_at: AwareDatetime
     ended_at: Optional[AwareDatetime] = None
+    # model calls only (additive): token counts from the provider's usage block, and whether a price was set
+    model: Optional[str] = None
+    tokens_in: Optional[int] = None
+    tokens_out: Optional[int] = None
+    priced: Optional[bool] = None
 
 
 # --------------------------------------------------------------------------- ids
