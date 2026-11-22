@@ -29,9 +29,10 @@ def ctx(settings):
 import json
 
 RAW = CASSETTES / "raw"
-FILLER = ("<p>The district administration said it was monitoring the situation and that essential services such as "
-          "hospitals and ambulances were exempt. Officials held meetings with representatives of the organisers and "
-          "with traders' bodies to review arrangements. Schools announced their own decisions for the day.</p>") * 6
+FILLER = "".join(
+    f"<p>Paragraph {i}: the district administration said meeting number {i} reviewed arrangements with "
+    f"representatives of group {i}, and officials listed {i * 3} essential services, including hospitals, "
+    f"that remained exempt under order {i * 7}.</p>" for i in range(1, 14))
 
 
 def raw_item(fname: str, url_part: str) -> dict:

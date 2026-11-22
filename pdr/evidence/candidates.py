@@ -300,7 +300,7 @@ def propose(text: str, title: str, published: datetime | None, places: list[str]
         for s in sentences:
             if _UNAFFECTED.search(s) and _ROAD.search(s):
                 for pl in names:
-                    if mentions(s, pl) and not any(c.value == pl for c in p.unaffected):
+                    if mentions(s, pl) and not any(c.quote == s for c in p.unaffected):
                         p.unaffected.append(Claim(value=pl, quote=s))
         out.append(p)
     return out
