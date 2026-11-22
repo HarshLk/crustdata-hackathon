@@ -1,4 +1,35 @@
-"""The auditor (DESIGN 8.5, D-23): re-verify every cited fact; it can only downgrade."""
+"""The auditor (DESIGN 8.5, D-23): re-verify every cited fact; it can only downgrade.
+
+audit(verdict, evidence, ctx) checks each Evidence whose evidence_id is in verdict.evidence_ids
+(all of `evidence` if that list is empty). Everything is looked up in ctx.store. The trip date is
+penalty.trip_date(deduction, trip), with the deduction = store.get(Deduction, verdict.dispute_key) and
+the trip = store.get(Trip, ref), else a unique store.find(Trip, lr_no|invoice_no|eway_bill_no=ref), for ref in trip_refs.
+
+contract_term (rule "contract_term")
+  term_id set: store.get(Term, term_id) exists, status == "confirmed", in force on the trip date
+    (effective_from <= date <= effective_to), and Evidence.verbatim equals Term.verbatim (whitespace,
+    dashes and case normalised); Evidence.page (if set) == Term.page; Evidence.clause_ref (if set) == Term.clause_ref.
+    evidence_id starting "term-superseded-": same, except the term must NOT be in force on the trip date.
+  term_id None: evidence_id is "agr-<agreement_id>"; store.get(Agreement, id) exists with
+    completeness == "complete" and no missing_documents.
+internal_record (rule "internal_record")
+  record_type "deduction": store.get(Deduction, record_id) exists and its advice_no (or
+    client_deduction_no) appears in str(Evidence.value).
+  otherwise: store.get(Trip, record_id.split("#")[0]) exists; wanted = Evidence.timestamp, else Evidence.value.
+    If Evidence.field is a Trip attribute: a list field (reporting_at, arrival_at, halts, holds, notices,
+    assertions, ...) must hold an item whose value/start/sent_at/held_from/at equals wanted (and whose
+    source equals record_type when record_type is a TsSource value); a scalar field must equal wanted or value.
+    If field is not a Trip attribute (e.g. "start/end"), Evidence.ref is required: some item in any list field
+    must have ref.file, ref.row and ref.page equal to Evidence.ref's, and a time attribute equal to wanted.
+external_news / external_official (rules external_snapshot, external_passage, external_date, external_url)
+  snap = store.snapshot_get(Evidence.content_hash) must exist and sha256_hex(snap["text"]) == content_hash;
+  Evidence.passage (normalised) is a substring of snap["text"] (normalised);
+  Evidence.published_at is set, and if snap["html_path"] is an existing file, pdr.evidence.pubdate.published_at(html)
+  re-parses to exactly that value; Evidence.url is not a google.com redirect (pdr.evidence.redirect.is_redirect_link).
+  With with_refuter: pdr.evidence.refute(ev, [place_named or passage], ctx); any False fails ("refuter"),
+  None (did not finish) is recorded as passed with a note, keeping the mechanical result.
+Any rule that raises fails closed (rule "audit_error").
+"""
 from __future__ import annotations
 
 import re
