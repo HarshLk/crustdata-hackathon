@@ -108,6 +108,22 @@ class PaidCall(Protocol):
 
 # --------------------------------------------------------------------------- 3.3 evidence
 
+class PlaceRegions(dict):
+    """Hashable, read-only mapping place -> tuple of its regions (district, state, regional state name)."""
+
+    def __init__(self, data=None):
+        items = data.items() if isinstance(data, dict) else (data or ())
+        super().__init__((str(k), tuple(str(x) for x in (v or ()) if x)) for k, v in items)
+
+    def __hash__(self) -> int:  # type: ignore[override]
+        return hash(tuple(sorted(self.items())))
+
+    def _read_only(self, *a, **k):
+        raise TypeError("PlaceRegions is read-only")
+
+    __setitem__ = __delitem__ = update = pop = popitem = clear = setdefault = _read_only
+
+
 @dataclass(frozen=True)
 class EvidenceRequest:
     """Deliberately no deduction, trip id, client or amount: only places, dates, event words.
@@ -119,8 +135,11 @@ class EvidenceRequest:
     window: tuple[datetime, datetime]  # in-transit window, before allowance
     event_types: tuple[EventType, ...]  # only what the clause covers
     mode: Literal["asserted", "discovery"] = "asserted"
+    # additive (b1): place -> (district, state, ...) so an ambiguous place name must appear with its region (D-27)
+    place_regions: PlaceRegions = field(default_factory=PlaceRegions)
 
     def __post_init__(self) -> None:
+        object.__setattr__(self, "place_regions", PlaceRegions(self.place_regions))
         object.__setattr__(self, "route_places", tuple(self.route_places))
         object.__setattr__(self, "route_states", tuple(self.route_states))
         object.__setattr__(self, "window", tuple(self.window))
@@ -133,6 +152,8 @@ class EvidenceRequest:
             "window": [w.isoformat() for w in self.window],
             "event_types": [e.value for e in self.event_types],
             "mode": self.mode,
+            **({"place_regions": {k: list(v) for k, v in sorted(self.place_regions.items())}}
+               if self.place_regions else {}),
         }))[:16]
 
 
