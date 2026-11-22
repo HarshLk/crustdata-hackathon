@@ -47,7 +47,7 @@ def test_fm_case_page(c, tmp_path):
     fm, *_ , paths = _all(c, tmp_path)
     t = _text(tmp_path / "out" / report.case_page(fm.dispute_key))
     for s in [build.FM_CLAUSE, build.PASSAGE, "2026-11-06T09:00+05:30", "2026-11-22T09:41+05:30",
-              "https://www.outlookindia.com/kini-blockade#:~:text=", "abc123snap", "STAND-IN TERMS", "page 7, clause 14.1",
+              "https://www.outlookindia.com/kini-blockade#:~:text=", "Snapshot", "stored ", "STAND-IN TERMS", "page 7, clause 14.1",
               "Kini toll plaza", "gps_2026-11.csv, row 412", "client_gate_log", "pod_signed", "sent", "Asha Rao (kam)",
               "Delay excused by force majeure", "A report that the blockade ended before 5 Nov", "agreements/acme_ta.pdf#page=7"]:
         assert s in t, s

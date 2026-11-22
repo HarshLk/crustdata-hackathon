@@ -8,7 +8,7 @@ from pathlib import Path
 from pdr.codes import Flag, Ground, Outcome, Reason, ReasonCode, TsSource
 from pdr.contracts import RunContext
 from pdr.models import (Agreement, Assertion, Citation, Client, Deduction, Evidence, Halt, NoticeRecord, Observation,
-                        RecomputeLine, SourceRef, Term, Trip, Verdict, make_dispute_key, make_event_fp)
+                        RecomputeLine, SourceRef, Term, Trip, Verdict, make_dispute_key, make_event_fp, sha256_hex)
 from pdr.settings import load_settings, settings_from_dict
 from pdr.store_mem import MemStore
 
@@ -86,6 +86,14 @@ def base(store, *, client_id="ACME", advice="PA-2026-0412", line="3", amount="20
     return ded
 
 
+def snapshot(store, url: str, passage: str) -> str:
+    """Store an audit-valid page snapshot containing the passage; returns its content hash."""
+    text = f"Page text before the passage. {passage} Page text after the passage, long enough to read as an article."
+    h = sha256_hex(text)
+    store.snapshot_put(h, url, text, None)
+    return h
+
+
 def term(store, tid, ttype, params, clause, verbatim, page=7, client_id="ACME"):
     t = Term(term_id=tid, agreement_id=f"{client_id}-TA", client_id=client_id, term_type=ttype, params=params, page=page,
              clause_ref=clause, verbatim=verbatim, effective_from=date(2026, 4, 1), status="confirmed")
@@ -104,7 +112,7 @@ def fm_verdict(store, *, amount="2000.00", flags=(), reason_text="Late delivery 
                        passage=PASSAGE, published_at=datetime(2026, 11, 6, 9, 0, tzinfo=IST),
                        event_from=date(2026, 11, 4), event_to=date(2026, 11, 6), place_named="Kini toll plaza",
                        retrieved_at=datetime(2026, 11, 22, 9, 41, tzinfo=IST), retrieved_via="api", fetch_status="ok",
-                       content_hash="abc123snap", stance="supports",
+                       content_hash=snapshot(store, "https://www.outlookindia.com/kini-blockade", PASSAGE), stance="supports",
                        link="https://www.outlookindia.com/kini-blockade#:~:text=Over%201%2C500%20trucks,November%205", audit="passed"))
     v = Verdict(verdict_id=f"V-{ded.dispute_key}-1", deduction_id=ded.deduction_id, dispute_key=ded.dispute_key,
                 client_id="ACME", outcome=Outcome.disputable, grounds=[Ground.FORCE_MAJEURE],
@@ -145,11 +153,11 @@ def conflict_verdict(store):
     t = term(store, "T-FM", "force_majeure", {"events_named": ["bandh"]}, "14.1", FM_CLAUSE)
     store.put(Evidence(evidence_id="E-OP", kind="external_news", url="https://www.orissapost.com/bandh", passage="Trucks were stopped in several districts.",
                        published_at=datetime(2026, 10, 8, 20, tzinfo=IST), retrieved_at=datetime(2026, 11, 22, 10, tzinfo=IST),
-                       stance="supports", content_hash="snapop", link="https://www.orissapost.com/bandh#:~:text=Trucks%20were%20stopped"))
+                       stance="supports", content_hash=snapshot(store, "https://www.orissapost.com/bandh", "Trucks were stopped in several districts."), link="https://www.orissapost.com/bandh#:~:text=Trucks%20were%20stopped"))
     store.put(Evidence(evidence_id="E-POL", kind="external_official", url="https://police.example.gov.in/statement",
                        passage="The Bhubaneswar-Cuttack national highways were unaffected.",
                        published_at=datetime(2026, 10, 8, 18, tzinfo=IST), retrieved_at=datetime(2026, 11, 22, 10, 5, tzinfo=IST),
-                       stance="contradicts", content_hash="snappol", link="https://police.example.gov.in/statement#:~:text=unaffected"))
+                       stance="contradicts", content_hash=snapshot(store, "https://police.example.gov.in/statement", "The Bhubaneswar-Cuttack national highways were unaffected."), link="https://police.example.gov.in/statement#:~:text=unaffected"))
     v = Verdict(verdict_id=f"V-{ded.dispute_key}-1", deduction_id=ded.deduction_id, dispute_key=ded.dispute_key, client_id="ACME",
                 outcome=Outcome.cannot_verify, primary_reason=Reason.SOURCES_CONFLICT, reasons=[Reason.SOURCES_CONFLICT],
                 amount_deducted=ded.amount, terms_applied=[t.term_id], evidence_ids=["E-OP", "E-POL"],

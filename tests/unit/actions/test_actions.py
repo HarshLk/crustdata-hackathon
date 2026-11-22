@@ -241,3 +241,28 @@ def test_document_request_and_fm_notice(c):
 
 def test_inr_format():
     assert letter.inr(Decimal("123456.5")) == "1,23,456.50" and letter.inr(Decimal("800")) == "800.00"
+
+
+def test_tampered_snapshot_holds_at_send(c):
+    """The real auditor (pdr.engine.audit) re-checks the snapshot before an irreversible send."""
+    pytest.importorskip("pdr.engine.audit")
+    from pdr.models import Evidence
+    v = build.fm_verdict(c.store)
+    a = actions.draft_for_verdict(v, c)
+    approval.approve(c, a.action_id, "kam", "Asha Rao")
+    c.store.snapshot_put("f" * 64, "https://www.outlookindia.com/kini-blockade", "edited page text without the passage", None)
+    ev = c.store.get(Evidence, "E-NEWS")
+    c.store.put(ev.model_copy(update={"content_hash": "f" * 64}))
+    res = send.run(c)
+    assert res["send_held"] == [a.action_id] and outbox(c).files() == []
+    trail = c.store.trail() if hasattr(c.store, "trail") else []
+    assert any(r["event"] == "held" and "external_snapshot" in str(r["detail"]) for r in trail)
+
+
+def test_real_audit_passes_on_valid_fixture(c):
+    from pdr.engine.audit import audit
+    from pdr.models import Evidence
+    v = build.fm_verdict(c.store)
+    ev = [c.store.get(Evidence, i) for i in v.evidence_ids]
+    bad = [f for f in audit(v, ev, c, with_refuter=False) if not f.passed]
+    assert bad == []
