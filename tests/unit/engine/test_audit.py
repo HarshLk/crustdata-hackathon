@@ -143,3 +143,20 @@ def test_property_audit_never_upgrades():
             assert before.outcome == Outcome.disputable and after.amount_disputable <= before.amount_disputable
         if before.outcome != Outcome.valid:
             assert after.outcome != Outcome.valid
+
+
+def test_case13_superseded_version_citation_passes_audit():
+    from datetime import date as _d
+    old = rule(1, "pct_per_vehicle_day", "trip_cost", term_id="T-old", eff_to=_d(2026, 6, 30))
+    new = rule("0.5", "pct_per_vehicle_day", "trip_cost", term_id="T-new", eff_from=_d(2026, 7, 1))
+    tr = trip(delivery_due_at=ist(2026, 10, 10, 10), arrival_at=[obs(ist(2026, 10, 30, 10), S.consignee_gate_log)])
+    ded = deduction(8000, calc={"rate": "1", "unit": "pct_per_vehicle_day", "base_amount": "40000", "units_counted": "20"})
+    c = ctx_for(ded, tr, [old, new])
+    c.ctx.store.put(tr)
+    r = T.rate_version(c)
+    v = _verdict(c, [r])
+    f = audit(v, _evidence(c, v), c.ctx)
+    assert v.outcome == Outcome.disputable and f and all(x.passed for x in f)
+    # an "old version" that is in fact still in force fails
+    c.ctx.store.put(old.model_copy(update={"effective_to": None}))
+    assert not all(x.passed for x in audit(v, _evidence(c, v), c.ctx))

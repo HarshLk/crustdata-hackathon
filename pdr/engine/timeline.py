@@ -125,6 +125,8 @@ def cite(ev: Evidence) -> Citation:
         return Citation(kind="internal_record", evidence_id=ev.evidence_id, label=label, link=ev.link)
     if ev.kind == "contract_term":
         label = f"{ev.doc_title}, clause {ev.clause_ref}, p.{ev.page}: \"{ev.verbatim}\""
+        if ev.evidence_id.startswith("term-superseded-"):
+            label = "Superseded version (not in force on the trip date): " + label
         return Citation(kind="contract_term", evidence_id=ev.evidence_id, label=label, link=ev.link)
     return Citation(kind="external_source", evidence_id=ev.evidence_id, label=ev.url or "", link=ev.link)
 

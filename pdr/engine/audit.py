@@ -12,6 +12,7 @@ from pdr.engine import penalty as P
 from pdr.models import (Agreement, AuditFinding, CheckResult, Deduction, Evidence, Term, Trip, Verdict,
                         sha256_hex)
 
+SUPERSEDED = "term-superseded-"  # a superseded version cited for comparison (case 13): must NOT be in force
 NATURAL = {"contract_term": Reason.TERMS_UNCONFIRMED, "internal_record": Reason.RECORDS_CONFLICT,
            "external_source": Reason.EVIDENCE_PARTIAL}
 
@@ -55,8 +56,9 @@ def check_term(ev: Evidence, store, on: Optional[Any]) -> AuditFinding:
         return _f(ev, "contract_term", False, f"term {ev.term_id} no longer stored")
     if t.status != "confirmed":
         return _f(ev, "contract_term", False, f"term {ev.term_id} is {t.status}")
-    if on is not None and not P.in_force(t, on):
-        return _f(ev, "contract_term", False, f"term {ev.term_id} not in force on {on}")
+    superseded = ev.evidence_id.startswith(SUPERSEDED)
+    if on is not None and P.in_force(t, on) == superseded:
+        return _f(ev, "contract_term", False, f"term {ev.term_id} {'is' if superseded else 'not'} in force on {on}")
     if _n(t.verbatim) != _n(ev.verbatim) or (ev.page is not None and t.page != ev.page) or \
             (ev.clause_ref and t.clause_ref != ev.clause_ref):
         return _f(ev, "contract_term", False, "cited verbatim text, page or clause differs from the stored term")
@@ -77,11 +79,13 @@ def check_record(ev: Evidence, store) -> AuditFinding:
         d = store.get(Deduction, ev.record_id)
         ok = d is not None and (d.advice_no or d.client_deduction_no or "") in str(ev.value or "")
         return _f(ev, "internal_record", ok, "advice on file" if ok else "deduction record missing or changed")
-    trip = store.get(Trip, ev.record_id) if ev.record_id else None
+    trip = store.get(Trip, str(ev.record_id).split("#")[0]) if ev.record_id else None
     if trip is None:
         return _f(ev, "internal_record", False, f"record {ev.record_id} no longer stored")
-    cur = getattr(trip, ev.field or "", None)
     want = ev.timestamp if ev.timestamp is not None else ev.value
+    if not hasattr(trip, ev.field or "") and ev.ref is not None:
+        return _by_ref(ev, trip, want)
+    cur = getattr(trip, ev.field or "", None)
     if isinstance(cur, list):
         for item in cur:
             vals = [getattr(item, a, None) for a in ("value", "start", "sent_at", "held_from", "at")]
@@ -92,6 +96,21 @@ def check_record(ev: Evidence, store) -> AuditFinding:
         return _f(ev, "internal_record", False, f"{ev.field} no longer holds {want}")
     ok = _same(cur, want) or _same(cur, ev.value)
     return _f(ev, "internal_record", ok, f"{ev.field} {'unchanged' if ok else 'changed or missing'}")
+
+
+def _by_ref(ev: Evidence, trip: Trip, want: Any) -> AuditFinding:
+    """Find the cited row by its source file and row among the trip's records; its time must be unchanged."""
+    for name in type(trip).model_fields:
+        cur = getattr(trip, name)
+        if not isinstance(cur, list):
+            continue
+        for item in cur:
+            ref = getattr(item, "ref", None)
+            if ref is not None and ref.file == ev.ref.file and ref.row == ev.ref.row and ref.page == ev.ref.page:
+                vals = [getattr(item, a, None) for a in ("value", "start", "sent_at", "held_from", "at")]
+                ok = any(_same(v, want) for v in vals)
+                return _f(ev, "internal_record", ok, f"{ev.ref.file} row {ev.ref.row} " + ("unchanged" if ok else "changed"))
+    return _f(ev, "internal_record", False, f"{ev.ref.file} row {ev.ref.row} no longer on the trip")
 
 
 _TS = {"client_gate_log", "consignee_gate_log", "weighbridge", "pod_signed", "eway_bill", "gps", "fastag",

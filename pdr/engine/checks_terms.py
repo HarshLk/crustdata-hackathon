@@ -57,6 +57,15 @@ def term_cits(c: CheckContext, terms: Iterable[Term]) -> list[Citation]:
     return keep(c, [TL.term_evidence(t, agreement_of(c, t)) for t in terms])
 
 
+def superseded_cits(c: CheckContext, terms: Iterable[Term]) -> list[Citation]:
+    """Cite a version not in force on the trip date (for comparison); the auditor checks it is NOT in force."""
+    evs = []
+    for t in terms:
+        e = TL.term_evidence(t, agreement_of(c, t))
+        evs.append(e.model_copy(update={"evidence_id": "term-superseded-" + t.term_id}))
+    return keep(c, evs)
+
+
 def tdate(c: CheckContext) -> date:
     return P.trip_date(c.deduction, c.trip)
 
@@ -142,7 +151,7 @@ def rate_version(c: CheckContext) -> CheckResult:
     if Decimal(cc.rate) <= Decimal(p.rate):
         return res("rate_version", CS.NO_GROUND, deps=[rule.term_id], note=f"client rate {cc.rate} within the rate in force {p.rate}")
     others = [t for t in _all_versions(c) if t.term_id != rule.term_id and Decimal(t.typed_params().rate) == Decimal(cc.rate)]
-    cits = term_cits(c, [rule] + others[:1])
+    cits = term_cits(c, [rule]) + superseded_cits(c, others[:1])
     return res("rate_version", CS.GROUND, ground=Ground.WRONG_RATE, cits=cits, deps=[rule.term_id],
                corr=P.correction("rate", term_id=rule.term_id, citations=cits),
                note=f"client applied {cc.rate}; rate in force on {tdate(c).isoformat()} is {p.rate} (clause {rule.clause_ref}, "
@@ -175,7 +184,7 @@ def _rate_by_amount(c: CheckContext, rule: Term) -> CheckResult:
         except P.MissingFigure:
             continue
         if abs(fig - Decimal(c.deduction.amount)) <= TOL and fig > correct:
-            cits = term_cits(c, [rule, other])
+            cits = term_cits(c, [rule]) + superseded_cits(c, [other])
             return res("rate_version", CS.GROUND, ground=Ground.WRONG_RATE, cits=cits, deps=[rule.term_id],
                        corr=P.correction("rate", term_id=rule.term_id, citations=cits),
                        note=f"amount {c.deduction.amount} equals the figure at superseded version {other.clause_ref} "

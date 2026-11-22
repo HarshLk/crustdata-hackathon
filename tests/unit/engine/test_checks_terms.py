@@ -63,7 +63,7 @@ def test_case13_old_rate_cites_both_versions():
     c = ctx_for(ded, late_trip(), [old, new])
     r = T.rate_version(c)
     assert r.status == CS.GROUND and r.ground == Ground.WRONG_RATE
-    assert {x.evidence_id for x in r.citations} == {"term-T-new", "term-T-old"}
+    assert {x.evidence_id for x in r.citations} == {"term-T-new", "term-superseded-T-old"}
     v = verdict_of(c, [r])
     assert v.amount_disputable == D("4000.00")
 
