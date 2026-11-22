@@ -6,6 +6,7 @@ extracted by trafilatura (verbatim, nothing added), wrapped in minimal HTML. Out
 """
 from __future__ import annotations
 
+import os
 import html
 import json
 import re
@@ -13,7 +14,7 @@ from pathlib import Path
 
 import trafilatura
 
-RAW = Path("/projects/2022B4AA1300P/hackathon/harsh/crustdata_test/raw")
+RAW = Path(os.environ.get("PDR_RAW_DIR", "crustdata_test/raw"))  # folder of saved raw Crustdata responses
 OUT = Path(__file__).parent / "_pages"
 FETCH_FILES = ["fetch_domains_1.json", "fetch_domains_0.json", "fetch2_plain.json", "fetch0.json"]
 PAGES = {  # name -> (url substring, search file, title substring for the search result)

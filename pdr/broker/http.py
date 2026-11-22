@@ -13,7 +13,7 @@ import httpx
 
 from pdr.broker.transport import Response, TransportError, TransportOffline, TransportTimeout
 
-DEFAULT_ENV_FILE = "/projects/2022B4AA1300P/hackathon/harsh/.env"
+DEFAULT_ENV_FILE = ".env"
 UA = "Mozilla/5.0"  # the bare UA got 302s for 68 of 68 goto links; a full Chrome UA gets the "Verifying" page
 
 

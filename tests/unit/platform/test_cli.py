@@ -38,6 +38,10 @@ def test_doctor_fails_clearly_without_crustdata_key(tmp_path, monkeypatch):
     env = tmp_path / "empty.env"
     env.write_text("OTHER=1\nCRUSTDATA_API_KEY=\n")
     monkeypatch.setenv("PDR_ENV_FILE", str(env))
+    r = invoke("doctor")  # offline (the test session default): a missing key is a warning, free checks still run
+    assert r.exit_code == 0, r.output
+    assert "WARN  key CRUSTDATA_API_KEY" in r.output and "offline mode" in r.output
+    monkeypatch.delenv("PDR_OFFLINE", raising=False)  # doctor only reads the flag; it makes no network call
     r = invoke("doctor")
     assert r.exit_code == 1
     assert "FAIL  key CRUSTDATA_API_KEY" in r.output and "not set in the environment or" in r.output

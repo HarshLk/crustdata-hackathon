@@ -13,7 +13,7 @@ from urllib.parse import urlparse
 DEPS = ["pydantic", "httpx", "yaml", "typer", "trafilatura", "pypdf", "openpyxl", "jinja2"]
 REQUIRED_KEYS = ["CRUSTDATA_API_KEY"]
 OPTIONAL_KEYS = ["ANTHROPIC_API_KEY"]  # model calls degrade to "did not finish" without it
-DEFAULT_ENV_FILES = [Path(".env"), Path("/projects/2022B4AA1300P/hackathon/harsh/.env")]
+DEFAULT_ENV_FILES = [Path(".env")]
 
 
 @dataclass
@@ -73,8 +73,10 @@ def run_checks(settings_path: str | None = None, data_dir: str | None = None, on
     where = ", ".join(str(f) for f in env_files())
     for k in REQUIRED_KEYS:
         ok, src = key_present(k)
-        out.append(Check(f"key {k}", "ok" if ok else "fail",
-                         f"set ({src})" if ok else f"not set in the environment or {where}; paid evidence calls cannot run"))
+        offline = os.environ.get("PDR_OFFLINE") == "1"  # offline runs make no paid call, so a missing key is not fatal
+        out.append(Check(f"key {k}", "ok" if ok else ("warn" if offline else "fail"),
+                         f"set ({src})" if ok else f"not set in the environment or {where}; paid evidence calls cannot run"
+                         + (" (offline mode: free checks still run)" if offline else "")))
     for k in OPTIONAL_KEYS:
         ok, src = key_present(k)
         out.append(Check(f"key {k}", "ok" if ok else "warn",
