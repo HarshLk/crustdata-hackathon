@@ -26,6 +26,7 @@ evidence:
     road_closure: ["road closed", "highway closed"]
     curfew: ["curfew"]
     govt_detention: ["trucks stranded", "check post"]
+    agitation: ["agitation", "protest"]
   window_allowance_hours: 24
   max_searches_per_deduction: 3
   max_fetches_per_deduction: 5

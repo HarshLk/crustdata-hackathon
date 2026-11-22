@@ -156,3 +156,61 @@ def test_place_match():
     assert place_match("near Kini", ["Kini toll plaza"], ["Kini", "Satara"])
     assert not place_match("Lonavala", ["Kini toll plaza"], ["Kini"])
     assert not place_match(None, ["Kini"], ["Kini"])
+
+
+# ----------------------------------------------------------------------------- named stretches
+
+from pdr.engine.evidence_stage import in_stretch, stretches  # noqa: E402
+
+ROUTE = ["Pune", "Shirwal", "Satara", "Karad", "Kini", "Kolhapur"]
+KINI_STRETCH = "Traffic was halted on the 120 km stretch from Nagthane (Satara) to Sangli Phata (Kolhapur) on NH-48."
+
+
+def test_halt_inside_named_stretch_corroborates():
+    assert stretches(KINI_STRETCH, ROUTE) == [(2, 5)]
+    assert in_stretch("Karad bypass", [KINI_STRETCH], ROUTE)
+    assert in_stretch("Satara", [KINI_STRETCH], ROUTE)  # ends count
+
+
+def test_halt_outside_named_stretch_does_not():
+    assert not in_stretch("Shirwal", [KINI_STRETCH], ROUTE)
+    assert not in_stretch("Lonavala", [KINI_STRETCH], ROUTE)  # not on the route at all
+    assert not in_stretch(None, [KINI_STRETCH], ROUTE)
+
+
+def test_unordered_stretch_and_route():
+    rev = "Trucks stood between Kolhapur and Satara, police said."
+    assert stretches(rev, ROUTE) == [(2, 5)] and in_stretch("Karad", [rev], ROUTE)
+    # a stretch whose ends are not both on the route never corroborates
+    assert not in_stretch("Karad", ["The stretch from Satara to Mumbai was closed."], ROUTE)
+    # the order is the trip's: on a route where Karad is not between the ends, no match
+    assert not in_stretch("Karad", [KINI_STRETCH], ["Karad", "Pune", "Satara", "Kini", "Kolhapur"])
+
+
+def test_stretch_halt_gives_fm_ground(monkeypatch):
+    from pdr.models import Halt, SourceRef
+    from tests.unit.engine.fixtures_b1 import ist, KINI_TEXT
+    ev = kini_evidence().model_copy(update={"place_named": "Kini"})
+    _patch(monkeypatch, lambda req: EvidenceResult(status="found", supporting=[ev]))
+    t = trip(halt=False, places=ROUTE).model_copy(update={"halts": [Halt(
+        start=ist(5, 6), end=ist(5, 20), place="Karad", source="gps", ref=SourceRef(file="g.csv", row=9))]})
+    store, keys = world(trips=[t])
+    from pdr.models import sha256_hex
+    text = KINI_TEXT + " " + KINI_STRETCH
+    store.snapshot_put(sha256_hex(text), ev.url, text, None)
+    ev2 = ev.model_copy(update={"content_hash": sha256_hex(text)})
+    _patch(monkeypatch, lambda req: EvidenceResult(status="found", supporting=[ev2]))
+    v = run(keys, ctx(store, **{"causation.allowance_hours": 12}))[0]
+    assert v.outcome == Outcome.disputable and v.grounds == [Ground.FORCE_MAJEURE], v.explanation
+
+
+def test_agitation_is_searchable(monkeypatch):
+    f = _patch(monkeypatch, lambda req: EvidenceResult(status="none"))
+    from pdr.models import Assertion, SourceRef
+    from tests.unit.engine.fixtures_b1 import ist
+    t = trip().model_copy(update={"assertions": [Assertion(kind="ops_note", event_type="agitation", text="farmers' agitation",
+                                                           at=ist(5, 7), place="Kini", ref=SourceRef(file="o.csv"))]})
+    store, keys = world(trips=[t])
+    run(keys, ctx(store))
+    from pdr.codes import EventType
+    assert f.calls and EventType.agitation in f.calls[0].event_types

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from datetime import datetime, time, timedelta, timezone
 from decimal import Decimal
 from typing import Optional
@@ -120,19 +121,83 @@ def event_interval(res: EvidenceResult) -> Optional[tuple[datetime, datetime]]:
     return datetime.combine(min(froms), time.min, IST), datetime.combine(max(tos), time.max, IST)
 
 
+_SEG = r"([A-Za-z][\w .()'-]{1,60}?)"
+_STRETCH_RES = [
+    re.compile(r"\bbetween\s+" + _SEG + r"\s+and\s+" + _SEG + r"(?=[,.;:]|\s+(?:on|in|along|of|stretch|section)\b|$)", re.I),
+    re.compile(r"\bfrom\s+" + _SEG + r"\s+to\s+" + _SEG + r"(?=[,.;:]|\s+(?:on|in|along|of|stretch|section)\b|$)", re.I),
+    re.compile(_SEG + r"\s*(?:\bto\b|-|\u2013|\u2014)\s*" + _SEG + r"\s+(?:stretch|section)\b", re.I),
+]
+
+
+def _route_index(text: str | None, route_places: list[str], prefer: str = "only") -> int | None:
+    """Index of the route place a text names: 'last'/'first' by position in the text, 'only' = unique match."""
+    low = (text or "").lower()
+    hits = []
+    for i, r in enumerate(route_places):
+        if len(_n(r)) < 3:
+            continue
+        for m in re.finditer(r"\b" + re.escape(r.lower()) + r"\b", low):
+            hits.append((m.start(), m.end(), i))
+    if not hits:
+        return None
+    if prefer == "last":
+        return max(hits, key=lambda h: (h[1], h[1] - h[0]))[2]
+    if prefer == "first":
+        return min(hits, key=lambda h: (h[0], -(h[1] - h[0])))[2]
+    ids = {h[2] for h in hits}
+    return ids.pop() if len(ids) == 1 else None
+
+
+def stretches(text: str | None, route_places: list[str]) -> list[tuple[int, int]]:
+    """(i, j) index pairs of from-to stretches the text names whose both ends are on the ordered route."""
+    out = []
+    for rx in _STRETCH_RES:
+        for m in rx.finditer(text or ""):
+            a, b = _route_index(m.group(1), route_places, "last"), _route_index(m.group(2), route_places, "first")
+            if a is not None and b is not None and a != b:
+                out.append((min(a, b), max(a, b)))
+    return out
+
+
+def in_stretch(record_place: str | None, texts: list[str], route_places: list[str]) -> bool:
+    """A record's place is a route place lying between the two ends of a stretch the evidence names."""
+    k = _route_index(record_place, route_places)
+    if k is None:
+        return False
+    return any(i <= k <= j for t in texts for (i, j) in stretches(t, route_places))
+
+
+def _evidence_texts(c: CheckContext, res: EvidenceResult) -> list[str]:
+    texts = []
+    for e in res.supporting:
+        if e.passage:
+            texts.append(e.passage)
+        try:
+            snap = c.ctx.store.snapshot_get(e.content_hash) if e.content_hash else None
+            if snap and snap.get("text"):
+                texts.append(snap["text"])
+        except Exception:  # noqa: BLE001 - snapshot is optional context for stretch names
+            pass
+    return texts
+
+
 def corroborate(c: CheckContext, res: EvidenceResult, iv) -> list[tuple[datetime, datetime, Evidence]]:
-    """Own records placing the truck in an affected place during the event: (start, end, evidence)."""
+    """Own records placing the truck in an affected place (or inside a named stretch) during the event."""
     affected = [e.place_named for e in res.supporting if e.place_named]
+    texts = _evidence_texts(c, res)
     out = []
     trip = c.trip
+
+    def at_place(place):
+        return place_match(place, affected, trip.route_places) or in_stretch(place, texts, trip.route_places)
     for h in trip.halts:
-        if h.source in CORROBORATING and place_match(h.place, affected, trip.route_places):
+        if h.source in CORROBORATING and at_place(h.place):
             s, e = max(h.start, iv[0]), min(h.end, iv[1])
             if s <= e:
                 out.append((s, e, record_evidence(trip, h.source.value, "halts",
                                                   f"{h.start.isoformat()}/{h.end.isoformat()} at {h.place}", h.start, h.ref)))
     for a in trip.assertions:
-        if a.kind == "driver_report" and a.at and iv[0] <= a.at <= iv[1] and place_match(a.place, affected, trip.route_places):
+        if a.kind == "driver_report" and a.at and iv[0] <= a.at <= iv[1] and at_place(a.place):
             out.append((a.at, a.at, record_evidence(trip, a.kind, "assertions", a.text, a.at, a.ref)))
     return out
 
