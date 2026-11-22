@@ -321,6 +321,7 @@ class Deduction(Entity):
     client_calc: Optional[ClientCalc] = None
     stage: Stage = Stage.received
     flags: list[Flag] = Field(default_factory=list)
+    input_problems: list[str] = Field(default_factory=list)  # e.g. "missing_field:lr_no" -> cannot verify naming it
 
 
 # --------------------------------------------------------------------------- checks, evidence, verdicts
