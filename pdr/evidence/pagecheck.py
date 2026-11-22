@@ -132,6 +132,13 @@ def snapshot(page: Page, store: Any) -> str:
     return h
 
 
+FETCH_BATCH = 10
+
+
+def _ledger_ids(ctx: Any) -> list[str]:
+    return [getattr(c, "ledger_entry_id", None) for c in (getattr(ctx, "last_calls", None) or [])]
+
+
 def fetch_checked(urls: list[str], ctx: Any, client: Any = None) -> list[Page]:
     """Fetch (batched), check each page, retry blocked ones once with human_mode; every attempt is ledgered."""
     if client is None:
@@ -140,16 +147,22 @@ def fetch_checked(urls: list[str], ctx: Any, client: Any = None) -> list[Page]:
     if not urls:
         return []
     items = crustdata.fetch(list(urls), ctx, step="fetch")
+    ids = _ledger_ids(ctx)
     by_url = {it.get("url"): it for it in items or []}
     pages = [check_page(by_url.get(u) or {"url": u}, ctx.settings) for u in urls]
+    for i, p in enumerate(pages):
+        p.ledger_entry_id = p.ledger_entry_id or (ids[min(i // FETCH_BATCH, len(ids) - 1)] if ids else None)
     retry = [p.url for p in pages if p.blocked]
     if retry and ctx.settings.evidence.human_mode_retry:
         again = crustdata.fetch(retry, ctx, human_mode=True, step="fetch_human")
+        ids2 = _ledger_ids(ctx)
         by_url2 = {it.get("url"): it for it in again or []}
         for i, p in enumerate(pages):
             if p.blocked and p.url in by_url2:
                 p2 = check_page(by_url2[p.url], ctx.settings)
                 p2.human_mode = True
+                k = retry.index(p.url) // FETCH_BATCH
+                p2.ledger_entry_id = p2.ledger_entry_id or (ids2[min(k, len(ids2) - 1)] if ids2 else None)
                 if not p2.blocked:
                     pages[i] = p2
     return pages

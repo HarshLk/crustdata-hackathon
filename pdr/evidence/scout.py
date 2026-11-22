@@ -45,12 +45,12 @@ def _resolve(url: str, ctx: RunContext) -> str | None:
 
 
 def _last_call(ctx: RunContext) -> tuple[Decimal, bool, str | None]:
-    """Credits, cache hit and ledger id of the client's last call, if the client records them on ctx."""
-    res = getattr(ctx, "last_call", None) or getattr(ctx, "last_call_result", None)
-    if res is None:
+    """Credits, cache hit and ledger id of the client's last call (the client leaves CallResults on ctx.last_calls)."""
+    calls = list(getattr(ctx, "last_calls", None) or [])
+    if not calls:
         return Decimal("0"), False, None
-    return Decimal(str(getattr(res, "credits", 0) or 0)), bool(getattr(res, "cache_hit", False)), \
-        getattr(res, "ledger_entry_id", None)
+    credits = sum((Decimal(str(getattr(c, "credits", 0) or 0)) for c in calls), Decimal("0"))
+    return credits, all(getattr(c, "cache_hit", False) for c in calls), getattr(calls[0], "ledger_entry_id", None)
 
 
 def snippet_ok(result: dict, req: EvidenceRequest) -> bool:
@@ -97,7 +97,14 @@ def find_evidence(req: EvidenceRequest, ctx: RunContext) -> EvidenceResult:
                 if ctx.remaining_credits() < SEARCH_CREDITS:
                     raise BudgetReached("below one search")
                 ctx.last_call_failed = False
-                results = _crust().search(q.text, q.start, q.end, ctx, step="search") or []
+                ctx.last_calls = []
+                try:
+                    results = _crust().search(q.text, q.start, q.end, ctx, step="search") or []
+                except BudgetReached:
+                    raise
+                except Exception as e:  # noqa: BLE001  a provider or transport fault is not a finding
+                    log.warning("search failed (%s)", type(e).__name__)
+                    results, ctx.last_call_failed = [], True
                 credits, hit, lid = _last_call(ctx)
                 res.search_log.append(SearchLogLine(query=q.text, window=(q.start, q.end), n_results=len(results),
                                                     credits=credits, cache_hit=hit, ledger_entry_id=lid))
@@ -107,7 +114,14 @@ def find_evidence(req: EvidenceRequest, ctx: RunContext) -> EvidenceResult:
                 urls = _pick_urls(results, req, ctx, res, seen_urls, s.max_fetches_per_deduction - fetched)
                 if not urls:
                     continue
-                pages = fetch_checked(urls, ctx, _crust())
+                try:
+                    pages = fetch_checked(urls, ctx, _crust())
+                except BudgetReached:
+                    raise
+                except Exception as e:  # noqa: BLE001
+                    log.warning("fetch failed (%s)", type(e).__name__)
+                    provider_failed = True
+                    continue
                 fetched += len(urls)
                 for page in pages:
                     if page.blocked:
