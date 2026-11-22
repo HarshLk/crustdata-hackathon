@@ -22,6 +22,8 @@ GENESIS = "0" * 64
 
 
 class MemStore:
+    path = ":memory:"  # seam: every Store exposes .path (broker uses a private DB for ":memory:")
+
     def __init__(self) -> None:
         self._entities: dict[tuple[str, str], Any] = {}
         self._stages: dict[tuple[str, str, str], list[CheckResult]] = {}
