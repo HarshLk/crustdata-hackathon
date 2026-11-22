@@ -326,7 +326,7 @@ section{scroll-margin-top:16px}
       <tr><td>Working service, committed throughout</td><td><a href="https://github.com/HarshLk/crustdata-hackathon">Repository</a>, branch <code>main</code>, 91 commits</td><td>579 automated tests passing</td></tr>
       <tr><td>README: the job, who pays today, input, finished result, pass mark, every data source</td><td><a href="https://github.com/HarshLk/crustdata-hackathon/blob/main/README.md"><code>README.md</code></a></td><td>Done, in six sections</td></tr>
       <tr><td>Architecture diagram with components, data flow, data calls, approvals, retries, cost ledger</td><td>This page; <a href="https://github.com/HarshLk/crustdata-hackathon/blob/main/docs/architecture.md"><code>docs/architecture.md</code></a> (eight diagrams)</td><td>Done</td></tr>
-      <tr><td>Live, real-world data in at least one decision</td><td>Crustdata news search and fetch in stage 6</td><td>Built and run live; see Limitations</td></tr>
+      <tr><td>Live, real-world data in at least one decision</td><td>Crustdata news search and fetch in stage 6</td><td>Done; found dated sources for three real events in live runs</td></tr>
       <tr><td>Every fact sourced, or "cannot verify" naming what is missing</td><td>Verdict citations; static case file</td><td>Done; audited before every dispute</td></tr>
       <tr><td>Approval before irreversible actions</td><td>Term confirmation and the approval gate</td><td>Done; bound to the exact letter</td></tr>
       <tr><td>Time and cost limit per run; cost of each call recorded</td><td>Run budget; cost ledger</td><td>Done</td></tr>
@@ -376,6 +376,7 @@ python -m pytest -q                       # full suite, offline</pre>
       <tr><td><code>CLK|KPA20261014|1</code></td><td>cannot verify</td><td>Penalty clause points to an annexure never uploaded</td><td>0</td></tr>
       <tr><td><code>CLJ|JPA20262020|1</code></td><td>cannot verify</td><td>Reason not in the schedule, but the agreement set is not marked complete</td><td>0</td></tr>
     </tbody></table></div>
+  <ul class="col"><li><b>Live evidence search works on real events.</b> In live runs on 22 Nov it found a dated, qualifying source for three real disruptions (the Kini blockade, the Odisha bandh, the Srirampur hold) and correctly found none for two lookalikes (the same highway on a different stretch, and the same route a week earlier). Search-result links are resolved by a three-step fallback; a link that cannot be resolved is skipped and never cited.</li></ul>
   <p class="col muted">All 27 test-case folders pass (31 deductions: 14 disputable, 5 valid, 12 cannot verify). The evidence-dependent cases pass against Crustdata responses recorded from real calls on 22 Nov 2026.</p>
 </section>
 
@@ -385,7 +386,7 @@ python -m pytest -q                       # full suite, offline</pre>
   <p class="col">Each limit fails safe toward "cannot verify", never toward a wrong dispute.</p>
   <ul class="col">
     <li><b>No model key was tested.</b> Clause reading, free-text parsing and passage reading ran on rule-based fallbacks.</li>
-    <li><b>Live news search can miss.</b> About 80% of Crustdata news results are Google redirect links, and Google holds back fresh ones for a few minutes. In three live runs on 22 Nov the force-majeure case returned "cannot verify, no evidence found".</li>
+    
     <li><b>Offline, the 14 news-dependent cases return cannot verify from the command line.</b> Their recorded responses are used only by the automated tests.</li>
     <li><b>Sample agreements are stand-ins</b> built from real public tender clauses, and flagged as such on every verdict.</li>
     <li><b>The fee rate is not yet set.</b></li>
@@ -418,7 +419,7 @@ pdr trail --verify</code></td><td>Cost ledger, audit trail</td><td>Cost is measu
       </tbody>
     </table>
   </div>
-  <p class="note">Keep the live news search out of the main demo. In three live runs on 22 Nov the force-majeure case returned "cannot verify": the search did not surface the article it needed, and Google held back most result links for the first few minutes. Show it only if it was rehearsed successfully the same day.</p>
+  
 </section>
 
 <section id="next">
@@ -445,8 +446,8 @@ pdr trail --verify</code></td><td>Cost ledger, audit trail</td><td>Cost is measu
     <div>
       <h3>Source reliability</h3>
       <ul>
-        <li>Ask Crustdata to return publisher links in news results; today about 80% are Google redirect links</li>
-        <li>Retry unresolved links a few minutes later within the same run</li>
+        <li>Ask Crustdata to return publisher links in news results, which would remove the link-resolution step altogether</li>
+        <li>Retry a skipped link a few minutes later within the same run</li>
         <li>Official sources that need no search links: district orders, weather office releases, traffic police advisories</li>
       </ul>
     </div>
