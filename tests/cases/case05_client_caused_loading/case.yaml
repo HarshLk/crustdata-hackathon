@@ -1,0 +1,7 @@
+id: case05_client_caused_loading
+prd_case: '5'
+title: 'Client gate log: loading finished 9 h after reporting; SOP 4 h'
+clients:
+- CLG
+kind: free_check
+settings_overrides: {}

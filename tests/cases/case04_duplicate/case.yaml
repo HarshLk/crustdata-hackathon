@@ -1,0 +1,7 @@
+id: case04_duplicate
+prd_case: '4'
+title: One LR penalised on two payment advices
+clients:
+- CLG
+kind: free_check
+settings_overrides: {}

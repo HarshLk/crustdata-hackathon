@@ -1,0 +1,7 @@
+id: case14_annexure_missing
+prd_case: '14'
+title: Penalty clause says 'as per Annexure C'; Annexure C not uploaded
+clients:
+- CLK
+kind: free_check
+settings_overrides: {}

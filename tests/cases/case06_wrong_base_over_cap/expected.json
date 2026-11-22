@@ -7,7 +7,9 @@
     ],
     "primary_reason": null,
     "amount_disputable": "49500.00",
-    "flags": [],
+    "flags": [
+      "STAND_IN_TERMS"
+    ],
     "missing_item_contains": null,
     "max_paid_calls": 0
   }

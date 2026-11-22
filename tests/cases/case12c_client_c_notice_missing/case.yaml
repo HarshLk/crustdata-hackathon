@@ -1,0 +1,7 @@
+id: case12c_client_c_notice_missing
+prd_case: 12c
+title: Case 1's facts under Client C's terms
+clients:
+- CLC
+kind: free_check
+settings_overrides: {}

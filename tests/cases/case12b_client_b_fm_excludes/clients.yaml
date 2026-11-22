@@ -1,0 +1,12 @@
+# Stand-in clients (not real companies). Built from fixtures/clients/.
+clients:
+- client_id: CLB
+  legal_name: Bravo Demo Warehousing Ltd
+  aliases:
+  - Bravo Demo Warehousing
+  lanes:
+  - PUNE-KOLHAPUR
+  approvers:
+    kam: kam.demo
+    finance: finance.demo
+    legal: legal.demo

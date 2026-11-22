@@ -1,0 +1,31 @@
+[
+  {
+    "client_id": "CLB",
+    "client_name_raw": "Bravo Demo Warehousing Ltd",
+    "advice_no": "BPA/2026/1105",
+    "line_no": "1",
+    "reason_code": "late_delivery",
+    "trip_refs": [
+      "LR-B-1105"
+    ],
+    "deduction_date": "2026-11-12",
+    "received_date": "2026-11-13",
+    "amount": "2000.00",
+    "reason_text": "Late delivery penalty 1 day(s) @ Rs 2,000 per day",
+    "invoice_ref": "INV-B-2026-1105",
+    "client_calc": {
+      "rate": "2000",
+      "unit": "flat_per_day",
+      "units_counted": "1",
+      "from_ts": "2026-11-05T18:00:00+05:30",
+      "to_ts": "2026-11-06T07:00:00+05:30"
+    },
+    "source_ref": {
+      "file": "deductions.csv",
+      "row": 1
+    },
+    "dispute_key": "CLB|BPA20261105|1",
+    "event_fp": "cac97aa8e6976313",
+    "deduction_id": "CLB|BPA20261105|1"
+  }
+]

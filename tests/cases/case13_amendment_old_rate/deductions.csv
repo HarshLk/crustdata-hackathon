@@ -1,0 +1,2 @@
+client,advice_no,line_no,client_deduction_no,deduction_date,received_date,amount,reason,lr_no,invoice_no,calc_rate,calc_unit,calc_base_amount,calc_units,calc_from,calc_to
+Hotel Demo Cement Ltd,HPA/2026/1013,1,,2026-10-28,2026-10-29,4000.00,"Late delivery LD 2 days @ Rs 2,000 per day",LR-H-1013,INV-H-2026-1013,2000,flat_per_day,,2,2026-10-12T18:00:00+05:30,2026-10-14T18:00:00+05:30

@@ -1,0 +1,26 @@
+{
+  "CLG|GPA20261020|1": {
+    "outcome": "disputable",
+    "grounds": [
+      "NO_CONTRACTUAL_BASIS"
+    ],
+    "primary_reason": null,
+    "amount_disputable": "2500.00",
+    "flags": [
+      "STAND_IN_TERMS"
+    ],
+    "missing_item_contains": null,
+    "max_paid_calls": 0
+  },
+  "CLJ|JPA20262020|1": {
+    "outcome": "cannot_verify",
+    "grounds": [],
+    "primary_reason": "TERMS_MISSING",
+    "amount_disputable": "0",
+    "flags": [
+      "STAND_IN_TERMS"
+    ],
+    "missing_item_contains": "Schedule of other charges",
+    "max_paid_calls": 0
+  }
+}

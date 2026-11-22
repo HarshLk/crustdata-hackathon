@@ -1,0 +1,59 @@
+[
+  {
+    "trip_id": "LR-G-1010",
+    "client_id": "CLG",
+    "lr_no": "LR-G-1010",
+    "origin": "Pune",
+    "destination": "Kolhapur",
+    "lane": "PUNE-KOLHAPUR",
+    "route_places": [
+      "Pune, Pune, Maharashtra",
+      "Shirwal, Satara, Maharashtra",
+      "Satara, Satara, Maharashtra",
+      "Nagthane, Satara, Maharashtra",
+      "Umbraj, Satara, Maharashtra",
+      "Karad, Satara, Maharashtra",
+      "Kasegaon, Sangli, Maharashtra",
+      "Peth Naka, Sangli, Maharashtra",
+      "Kini, Kolhapur, Maharashtra",
+      "Sangli Phata, Kolhapur, Maharashtra",
+      "Kolhapur, Kolhapur, Maharashtra"
+    ],
+    "route_states": [
+      "Maharashtra"
+    ],
+    "source_ref": {
+      "file": "trips.json",
+      "field": "LR-G-1010"
+    },
+    "vehicle_no": "MH12ZZ1010",
+    "invoice_no": "INV-G-2026-1010",
+    "freight": "30000.00",
+    "driver_ref": "DRV-1010",
+    "delivery_due_at": "2026-09-10T18:00:00+05:30",
+    "arrival_at": [
+      {
+        "value": "2026-09-28T18:00:00+05:30",
+        "source": "consignee_gate_log",
+        "ref": {
+          "file": "gate_log.csv",
+          "row": 2,
+          "field": "arrival_at"
+        }
+      }
+    ],
+    "gate_out_at": [
+      {
+        "value": "2026-09-09T20:00:00+05:30",
+        "source": "client_gate_log",
+        "ref": {
+          "file": "gate_log.csv",
+          "row": 1,
+          "field": "gate_out_at"
+        }
+      }
+    ],
+    "driver_name": "Testdriver Canary",
+    "driver_phone": "CANARY-7Q4X-DRIVER-PHONE-9000000001"
+  }
+]

@@ -1,0 +1,15 @@
+{
+  "CLG|GPA20260705|1": {
+    "outcome": "disputable",
+    "grounds": [
+      "CLIENT_CAUSED"
+    ],
+    "primary_reason": null,
+    "amount_disputable": "300.00",
+    "flags": [
+      "STAND_IN_TERMS"
+    ],
+    "missing_item_contains": null,
+    "max_paid_calls": 0
+  }
+}

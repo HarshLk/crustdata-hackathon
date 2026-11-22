@@ -1,0 +1,46 @@
+[
+  {
+    "trip_id": "LR-E-0909",
+    "client_id": "CLE",
+    "lr_no": "LR-E-0909",
+    "origin": "Pune",
+    "destination": "Kolhapur",
+    "lane": "PUNE-KOLHAPUR",
+    "route_places": [
+      "Pune, Pune, Maharashtra",
+      "Shirwal, Satara, Maharashtra",
+      "Satara, Satara, Maharashtra",
+      "Nagthane, Satara, Maharashtra",
+      "Umbraj, Satara, Maharashtra",
+      "Karad, Satara, Maharashtra",
+      "Kasegaon, Sangli, Maharashtra",
+      "Peth Naka, Sangli, Maharashtra",
+      "Kini, Kolhapur, Maharashtra",
+      "Sangli Phata, Kolhapur, Maharashtra",
+      "Kolhapur, Kolhapur, Maharashtra"
+    ],
+    "route_states": [
+      "Maharashtra"
+    ],
+    "source_ref": {
+      "file": "trips.json",
+      "field": "LR-E-0909"
+    },
+    "vehicle_no": "MH12ZZ0909",
+    "invoice_no": "INV-E-2026-0909",
+    "freight": "28000.00",
+    "driver_ref": "DRV-0909",
+    "delivery_due_at": "2026-09-12T18:00:00+05:30",
+    "arrival_at": [
+      {
+        "value": "2026-09-13T10:00:00+05:30",
+        "source": "consignee_gate_log",
+        "ref": {
+          "file": "gate_log.csv",
+          "row": 2,
+          "field": "arrival_at"
+        }
+      }
+    ]
+  }
+]

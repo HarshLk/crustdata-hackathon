@@ -1,0 +1,24 @@
+# Stand-in clients (not real companies). Built from fixtures/clients/.
+clients:
+- client_id: CLG
+  legal_name: Golf Demo Public Sector Buyer
+  aliases:
+  - Golf Demo PSB
+  - GOLF DEMO PUBLIC SECTOR BUYER (GEM)
+  lanes:
+  - PUNE-KOLHAPUR
+  - PUNE-MUMBAI
+  approvers:
+    kam: kam.demo
+    finance: finance.demo
+    legal: legal.demo
+- client_id: CLJ
+  legal_name: Juliet Demo Public Sector Buyer
+  aliases: []
+  lanes:
+  - PUNE-KOLHAPUR
+  - PUNE-MUMBAI
+  approvers:
+    kam: kam.demo
+    finance: finance.demo
+    legal: legal.demo

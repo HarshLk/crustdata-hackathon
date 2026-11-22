@@ -1,0 +1,9 @@
+id: case18_case6_as_email
+prd_case: '18'
+title: Case 6 resent as pasted email text
+clients:
+- CLG
+kind: free_check
+settings_overrides: {}
+notes_for_runner: Same dispute_key as case06; loading both into one store must create one Deduction and one dispute.
+k4_file: deductions.txt

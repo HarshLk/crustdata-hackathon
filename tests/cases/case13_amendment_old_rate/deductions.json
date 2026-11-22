@@ -1,0 +1,31 @@
+[
+  {
+    "client_id": "CLH",
+    "client_name_raw": "Hotel Demo Cement Ltd",
+    "advice_no": "HPA/2026/1013",
+    "line_no": "1",
+    "reason_code": "late_delivery",
+    "trip_refs": [
+      "LR-H-1013"
+    ],
+    "deduction_date": "2026-10-28",
+    "received_date": "2026-10-29",
+    "amount": "4000.00",
+    "reason_text": "Late delivery LD 2 days @ Rs 2,000 per day",
+    "invoice_ref": "INV-H-2026-1013",
+    "client_calc": {
+      "rate": "2000",
+      "unit": "flat_per_day",
+      "units_counted": "2",
+      "from_ts": "2026-10-12T18:00:00+05:30",
+      "to_ts": "2026-10-14T18:00:00+05:30"
+    },
+    "source_ref": {
+      "file": "deductions.csv",
+      "row": 1
+    },
+    "dispute_key": "CLH|HPA20261013|1",
+    "event_fp": "dcf3e18f98ae5b6f",
+    "deduction_id": "CLH|HPA20261013|1"
+  }
+]

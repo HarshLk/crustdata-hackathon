@@ -1,0 +1,12 @@
+# Stand-in clients (not real companies). Built from fixtures/clients/.
+clients:
+- client_id: CLD
+  legal_name: Delta Demo Traders Ltd
+  aliases:
+  - Delta Demo Traders
+  lanes:
+  - PUNE-KOLHAPUR
+  approvers:
+    kam: kam.demo
+    finance: finance.demo
+    legal: legal.demo

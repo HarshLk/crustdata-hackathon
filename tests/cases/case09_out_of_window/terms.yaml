@@ -1,0 +1,59 @@
+# Confirmed stand-in terms built from real public clauses (REFERENCE.md section 3). is_stand_in: true.
+agreements:
+- agreement_id: CLE-TSA-2026
+  client_id: CLE
+  doc_type: transport_service_agreement
+  precedence_rank: 1
+  title: Stand-in Transport Service Agreement, Echo Demo Foods Ltd (built from D1, D6, D7 clauses)
+  file_ref: fixtures/terms/sample_agreement_client_a.txt
+  effective_from: '2026-04-01'
+  effective_to: '2027-03-31'
+  lanes:
+  - PUNE-KOLHAPUR
+  - PUNE-MUMBAI
+  - CUTTACK-BHUBANESWAR
+  - ASSAM-HALDIA
+  completeness: complete
+  is_stand_in: true
+  confirmed_by: kam.demo
+  confirmed_at: '2026-09-01T10:00:00+05:30'
+terms:
+- term_id: CLE-PEN-1
+  agreement_id: CLE-TSA-2026
+  client_id: CLE
+  term_type: penalty_rule
+  params:
+    event: late_delivery
+    rate: '2000'
+    unit: flat_per_day
+    base: none
+    part_unit_counts_as_full: true
+    day_count: calendar
+    measured_from: delivery_due_at
+    measured_to: arrival_at
+  page: 7
+  clause_ref: '13'
+  verbatim: Liquidated Damages from the Service Provider @ Rs.2000/- per day of delay in delivery beyond the due date, a part
+    of a day being counted as a full day.
+  effective_from: '2026-04-01'
+  extraction_confidence: 1.0
+  status: confirmed
+  confirmed_by: kam.demo
+  confirmed_at: '2026-09-01T10:00:00+05:30'
+- status: confirmed
+  confirmed_by: kam.demo
+  confirmed_at: '2026-09-01T10:00:00+05:30'
+  extraction_confidence: 1.0
+  effective_from: '2026-04-01'
+  term_id: CLE-TL-1
+  term_type: time_limit
+  params:
+    window_days: 30
+    day_count: calendar
+    counted_from: received_date
+  page: 36
+  clause_ref: '16'
+  verbatim: Any dispute regarding a deduction shall be raised in writing within 30 days of receipt of the payment advice,
+    failing which the deduction shall be deemed accepted.
+  agreement_id: CLE-TSA-2026
+  client_id: CLE

@@ -1,0 +1,14 @@
+# Stand-in clients (not real companies). Built from fixtures/clients/.
+clients:
+- client_id: CLE
+  legal_name: Echo Demo Foods Ltd
+  aliases: []
+  lanes:
+  - PUNE-KOLHAPUR
+  - PUNE-MUMBAI
+  - CUTTACK-BHUBANESWAR
+  - ASSAM-HALDIA
+  approvers:
+    kam: kam.demo
+    finance: finance.demo
+    legal: legal.demo

@@ -1,0 +1,84 @@
+[
+  {
+    "trip_id": "LR-C-1105",
+    "client_id": "CLC",
+    "lr_no": "LR-C-1105",
+    "origin": "Pune",
+    "destination": "Kolhapur",
+    "lane": "PUNE-KOLHAPUR",
+    "route_places": [
+      "Pune, Pune, Maharashtra",
+      "Shirwal, Satara, Maharashtra",
+      "Satara, Satara, Maharashtra",
+      "Nagthane, Satara, Maharashtra",
+      "Umbraj, Satara, Maharashtra",
+      "Karad, Satara, Maharashtra",
+      "Kasegaon, Sangli, Maharashtra",
+      "Peth Naka, Sangli, Maharashtra",
+      "Kini, Kolhapur, Maharashtra",
+      "Sangli Phata, Kolhapur, Maharashtra",
+      "Kolhapur, Kolhapur, Maharashtra"
+    ],
+    "route_states": [
+      "Maharashtra"
+    ],
+    "source_ref": {
+      "file": "trips.json",
+      "field": "LR-C-1105"
+    },
+    "vehicle_no": "MH12ZZ1105",
+    "invoice_no": "INV-C-2026-1105",
+    "freight": "28000.00",
+    "driver_ref": "DRV-C1105",
+    "gate_out_at": [
+      {
+        "value": "2026-11-05T01:00:00+05:30",
+        "source": "client_gate_log",
+        "ref": {
+          "file": "gate_log.csv",
+          "row": 1,
+          "field": "gate_out_at"
+        }
+      }
+    ],
+    "delivery_due_at": "2026-11-05T18:00:00+05:30",
+    "arrival_at": [
+      {
+        "value": "2026-11-06T07:00:00+05:30",
+        "source": "consignee_gate_log",
+        "ref": {
+          "file": "gate_log.csv",
+          "row": 2,
+          "field": "arrival_at"
+        }
+      }
+    ],
+    "assertions": [
+      {
+        "kind": "driver_report",
+        "event_type": "agitation",
+        "at": "2026-11-05T06:30:00+05:30",
+        "place": "Kini, Kolhapur, Maharashtra",
+        "text": "Driver reports NH-48 blocked by sugarcane farmers' agitation at Kini toll plaza; trucks not allowed to move towards Kolhapur.",
+        "ref": {
+          "file": "notes.csv",
+          "row": 1,
+          "field": "text"
+        }
+      }
+    ],
+    "halts": [
+      {
+        "start": "2026-11-05T06:00:00+05:30",
+        "end": "2026-11-06T04:00:00+05:30",
+        "place": "Kini, Kolhapur, Maharashtra",
+        "source": "gps",
+        "ref": {
+          "file": "gps.csv",
+          "row": 14,
+          "field": "halt"
+        }
+      }
+    ]
+  }
+]

@@ -1,0 +1,13 @@
+{
+  "CLK|KPA20261014|1": {
+    "outcome": "cannot_verify",
+    "grounds": [],
+    "primary_reason": "TERMS_MISSING",
+    "amount_disputable": "0",
+    "flags": [
+      "STAND_IN_TERMS"
+    ],
+    "missing_item_contains": "Annexure C",
+    "max_paid_calls": 0
+  }
+}

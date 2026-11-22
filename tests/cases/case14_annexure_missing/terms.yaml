@@ -1,0 +1,37 @@
+# Confirmed stand-in terms built from real public clauses (REFERENCE.md section 3). is_stand_in: true.
+agreements:
+- agreement_id: CLK-TSA-2026
+  client_id: CLK
+  doc_type: transport_service_agreement
+  precedence_rank: 1
+  title: Stand-in Transport Service Agreement, Kilo Demo Steel Ltd (built from D1, D6, D7 clauses)
+  file_ref: fixtures/terms/sample_agreement_client_a.txt
+  effective_from: '2026-04-01'
+  effective_to: '2027-03-31'
+  lanes:
+  - PUNE-KOLHAPUR
+  - PUNE-MUMBAI
+  - CUTTACK-BHUBANESWAR
+  - ASSAM-HALDIA
+  completeness: missing
+  is_stand_in: true
+  confirmed_by: kam.demo
+  confirmed_at: '2026-09-01T10:00:00+05:30'
+  missing_documents:
+  - Annexure C (penalty matrix) referenced in clause 14.2
+terms:
+- status: confirmed
+  confirmed_by: kam.demo
+  confirmed_at: '2026-09-01T10:00:00+05:30'
+  extraction_confidence: 1.0
+  effective_from: '2026-04-01'
+  term_id: CLK-DEF-1
+  term_type: definition
+  params:
+    name: delivery
+    event: arrival_at
+  page: 4
+  clause_ref: '2.3'
+  verbatim: '''Delivery'' means the arrival of the vehicle at the consignee''s gate.'
+  agreement_id: CLK-TSA-2026
+  client_id: CLK

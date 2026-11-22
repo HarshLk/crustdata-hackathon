@@ -1,0 +1,112 @@
+[
+  {
+    "trip_id": "LR-G-1020",
+    "client_id": "CLG",
+    "lr_no": "LR-G-1020",
+    "origin": "Pune",
+    "destination": "Kolhapur",
+    "lane": "PUNE-KOLHAPUR",
+    "route_places": [
+      "Pune, Pune, Maharashtra",
+      "Shirwal, Satara, Maharashtra",
+      "Satara, Satara, Maharashtra",
+      "Nagthane, Satara, Maharashtra",
+      "Umbraj, Satara, Maharashtra",
+      "Karad, Satara, Maharashtra",
+      "Kasegaon, Sangli, Maharashtra",
+      "Peth Naka, Sangli, Maharashtra",
+      "Kini, Kolhapur, Maharashtra",
+      "Sangli Phata, Kolhapur, Maharashtra",
+      "Kolhapur, Kolhapur, Maharashtra"
+    ],
+    "route_states": [
+      "Maharashtra"
+    ],
+    "source_ref": {
+      "file": "trips.json",
+      "field": "LR-G-1020"
+    },
+    "vehicle_no": "MH12ZZ1020",
+    "invoice_no": "INV-G-2026-1020",
+    "freight": "30000.00",
+    "driver_ref": "DRV-1020",
+    "delivery_due_at": "2026-10-08T18:00:00+05:30",
+    "arrival_at": [
+      {
+        "value": "2026-10-08T15:00:00+05:30",
+        "source": "consignee_gate_log",
+        "ref": {
+          "file": "gate_log.csv",
+          "row": 2,
+          "field": "arrival_at"
+        }
+      }
+    ],
+    "reporting_at": [
+      {
+        "value": "2026-10-07T08:00:00+05:30",
+        "source": "client_gate_log",
+        "ref": {
+          "file": "gate_log.csv",
+          "row": 1,
+          "field": "reporting_at"
+        }
+      }
+    ]
+  },
+  {
+    "trip_id": "LR-J-2020",
+    "client_id": "CLJ",
+    "lr_no": "LR-J-2020",
+    "origin": "Pune",
+    "destination": "Kolhapur",
+    "lane": "PUNE-KOLHAPUR",
+    "route_places": [
+      "Pune, Pune, Maharashtra",
+      "Shirwal, Satara, Maharashtra",
+      "Satara, Satara, Maharashtra",
+      "Nagthane, Satara, Maharashtra",
+      "Umbraj, Satara, Maharashtra",
+      "Karad, Satara, Maharashtra",
+      "Kasegaon, Sangli, Maharashtra",
+      "Peth Naka, Sangli, Maharashtra",
+      "Kini, Kolhapur, Maharashtra",
+      "Sangli Phata, Kolhapur, Maharashtra",
+      "Kolhapur, Kolhapur, Maharashtra"
+    ],
+    "route_states": [
+      "Maharashtra"
+    ],
+    "source_ref": {
+      "file": "trips.json",
+      "field": "LR-J-2020"
+    },
+    "vehicle_no": "MH12ZZ2020",
+    "invoice_no": "INV-J-2026-2020",
+    "freight": "30000.00",
+    "driver_ref": "DRV-2020",
+    "delivery_due_at": "2026-10-08T18:00:00+05:30",
+    "arrival_at": [
+      {
+        "value": "2026-10-08T15:00:00+05:30",
+        "source": "consignee_gate_log",
+        "ref": {
+          "file": "gate_log.csv",
+          "row": 2,
+          "field": "arrival_at"
+        }
+      }
+    ],
+    "reporting_at": [
+      {
+        "value": "2026-10-07T08:00:00+05:30",
+        "source": "client_gate_log",
+        "ref": {
+          "file": "gate_log.csv",
+          "row": 1,
+          "field": "reporting_at"
+        }
+      }
+    ]
+  }
+]

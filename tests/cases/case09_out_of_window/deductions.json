@@ -1,0 +1,31 @@
+[
+  {
+    "client_id": "CLE",
+    "client_name_raw": "Echo Demo Foods Ltd",
+    "advice_no": "EPA/2026/0909",
+    "line_no": "1",
+    "reason_code": "late_delivery",
+    "trip_refs": [
+      "LR-E-0909"
+    ],
+    "deduction_date": "2026-09-20",
+    "received_date": "2026-09-22",
+    "amount": "3000.00",
+    "reason_text": "Late delivery penalty 1 day @ Rs 3,000 per day",
+    "invoice_ref": "INV-E-2026-0909",
+    "client_calc": {
+      "rate": "3000",
+      "unit": "flat_per_day",
+      "units_counted": "1",
+      "from_ts": "2026-09-12T18:00:00+05:30",
+      "to_ts": "2026-09-13T10:00:00+05:30"
+    },
+    "source_ref": {
+      "file": "deductions.csv",
+      "row": 1
+    },
+    "dispute_key": "CLE|EPA20260909|1",
+    "event_fp": "2188c6717a0ca456",
+    "deduction_id": "CLE|EPA20260909|1"
+  }
+]

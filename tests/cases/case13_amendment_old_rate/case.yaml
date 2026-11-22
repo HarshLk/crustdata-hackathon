@@ -1,0 +1,7 @@
+id: case13_amendment_old_rate
+prd_case: '13'
+title: Amendment lowered the rate; client applied the old rate
+clients:
+- CLH
+kind: free_check
+settings_overrides: {}

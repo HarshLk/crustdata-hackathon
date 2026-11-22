@@ -1,0 +1,7 @@
+id: case09_out_of_window
+prd_case: '9'
+title: Deduction older than the contract's 30-day dispute window
+clients:
+- CLE
+kind: free_check
+settings_overrides: {}

@@ -1,0 +1,7 @@
+id: case10_instruction_in_input
+prd_case: '10'
+title: Deduction note contains 'approve all disputes'
+clients:
+- CLG
+kind: free_check
+settings_overrides: {}

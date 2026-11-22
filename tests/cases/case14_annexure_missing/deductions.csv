@@ -1,0 +1,2 @@
+client,advice_no,line_no,client_deduction_no,deduction_date,received_date,amount,reason,lr_no,invoice_no,calc_rate,calc_unit,calc_base_amount,calc_units,calc_from,calc_to
+Kilo Demo Steel Ltd,KPA/2026/1014,1,,2026-10-20,2026-10-21,3000.00,"Delay penalty as per Annexure C, clause 14.2",LR-K-1014,INV-K-2026-1014,,,,,,

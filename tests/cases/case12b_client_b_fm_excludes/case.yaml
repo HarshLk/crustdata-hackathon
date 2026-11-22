@@ -1,0 +1,7 @@
+id: case12b_client_b_fm_excludes
+prd_case: 12b
+title: Case 1's facts under Client B's terms
+clients:
+- CLB
+kind: free_check
+settings_overrides: {}

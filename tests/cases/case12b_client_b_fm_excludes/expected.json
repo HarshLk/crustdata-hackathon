@@ -1,0 +1,14 @@
+{
+  "CLB|BPA20261105|1": {
+    "outcome": "valid",
+    "grounds": [],
+    "primary_reason": null,
+    "amount_disputable": "0",
+    "flags": [
+      "CLIENT_ADMISSION_CHECK",
+      "STAND_IN_TERMS"
+    ],
+    "missing_item_contains": null,
+    "max_paid_calls": 0
+  }
+}

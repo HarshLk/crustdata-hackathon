@@ -1,0 +1,13 @@
+{
+  "CLD|DPA20261105|1": {
+    "outcome": "cannot_verify",
+    "grounds": [],
+    "primary_reason": "FM_WORDING_ARGUABLE",
+    "amount_disputable": "0",
+    "flags": [
+      "STAND_IN_TERMS"
+    ],
+    "missing_item_contains": "civil commotion",
+    "max_paid_calls": 0
+  }
+}

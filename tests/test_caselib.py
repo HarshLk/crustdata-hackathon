@@ -35,14 +35,15 @@ def test_case_loads(case_dir):
 def test_case_files_are_consistent(case_dir):
     c = read_case(case_dir)
     meta = c["meta"]
-    for f in ("case.yaml", "deductions.json", "deductions.csv", "expected.json", "NOTES.md"):
+    for f in ("case.yaml", "deductions.json", meta.get("k4_file", "deductions.csv"), "expected.json", "NOTES.md"):
         assert (case_dir / f).exists(), f
     client_ids = {x.client_id for x in c["clients"]}
     for d in c["deductions"]:
         assert d.dispute_key == make_dispute_key(d.client_id, d.advice_no, d.line_no, d.client_deduction_no)
         assert d.deduction_date.year == 2026 and d.deduction_date.month >= 9
     raw_trips = (case_dir / "trips.json").read_text(encoding="utf-8")
-    assert "driver_name" not in raw_trips and "driver_phone" not in raw_trips
+    if c["meta"]["prd_case"] != "10":  # case 10 carries the canary for the adapter path
+        assert "driver_name" not in raw_trips and "driver_phone" not in raw_trips
     for t in c["trips"]:
         if t.delivery_due_at:
             assert t.delivery_due_at.isoformat() >= "2026-09-01"

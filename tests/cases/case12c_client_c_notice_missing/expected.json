@@ -1,0 +1,13 @@
+{
+  "CLC|CPA20261105|1": {
+    "outcome": "cannot_verify",
+    "grounds": [],
+    "primary_reason": "NOTICE_EVIDENCE_MISSING",
+    "amount_disputable": "0",
+    "flags": [
+      "STAND_IN_TERMS"
+    ],
+    "missing_item_contains": "notice",
+    "max_paid_calls": 0
+  }
+}

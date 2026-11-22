@@ -1,0 +1,16 @@
+{
+  "CLE|EPA20260909|1": {
+    "outcome": "disputable",
+    "grounds": [
+      "WRONG_RATE"
+    ],
+    "primary_reason": null,
+    "amount_disputable": "1000.00",
+    "flags": [
+      "OUT_OF_WINDOW",
+      "STAND_IN_TERMS"
+    ],
+    "missing_item_contains": null,
+    "max_paid_calls": 0
+  }
+}

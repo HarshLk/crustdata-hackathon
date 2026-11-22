@@ -1,0 +1,8 @@
+id: case20_no_contractual_basis
+prd_case: '20'
+title: Detention charge not in the penalty schedule (complete vs incomplete set)
+clients:
+- CLG
+- CLJ
+kind: free_check
+settings_overrides: {}

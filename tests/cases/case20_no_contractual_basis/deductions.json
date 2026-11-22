@@ -1,0 +1,46 @@
+[
+  {
+    "client_id": "CLG",
+    "client_name_raw": "Golf Demo Public Sector Buyer",
+    "advice_no": "GPA/2026/1020",
+    "line_no": "1",
+    "reason_code": "detention_charge",
+    "trip_refs": [
+      "LR-G-1020"
+    ],
+    "deduction_date": "2026-10-22",
+    "received_date": "2026-10-23",
+    "amount": "2500.00",
+    "reason_text": "Detention charge for vehicle at site",
+    "invoice_ref": "INV-G-2026-1020",
+    "source_ref": {
+      "file": "deductions.csv",
+      "row": 1
+    },
+    "dispute_key": "CLG|GPA20261020|1",
+    "event_fp": "c8ae4a42c6027133",
+    "deduction_id": "CLG|GPA20261020|1"
+  },
+  {
+    "client_id": "CLJ",
+    "client_name_raw": "Juliet Demo Public Sector Buyer",
+    "advice_no": "JPA/2026/2020",
+    "line_no": "1",
+    "reason_code": "detention_charge",
+    "trip_refs": [
+      "LR-J-2020"
+    ],
+    "deduction_date": "2026-10-22",
+    "received_date": "2026-10-23",
+    "amount": "2500.00",
+    "reason_text": "Detention charge for vehicle at site",
+    "invoice_ref": "INV-J-2026-2020",
+    "source_ref": {
+      "file": "deductions.csv",
+      "row": 2
+    },
+    "dispute_key": "CLJ|JPA20262020|1",
+    "event_fp": "7f55b66b801d6e60",
+    "deduction_id": "CLJ|JPA20262020|1"
+  }
+]

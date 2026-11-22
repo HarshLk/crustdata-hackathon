@@ -1,0 +1,7 @@
+id: case12d_client_d_civil_commotion
+prd_case: 12d
+title: Case 1's facts under Client D's terms
+clients:
+- CLD
+kind: free_check
+settings_overrides: {}

@@ -1,0 +1,74 @@
+# Confirmed stand-in terms built from real public clauses (REFERENCE.md section 3). is_stand_in: true.
+agreements:
+- agreement_id: CLD-TSA-2026
+  client_id: CLD
+  doc_type: transport_service_agreement
+  precedence_rank: 1
+  title: Stand-in Transport Agreement, Delta Demo Traders (built from D1, D11 clauses)
+  file_ref: fixtures/terms/sample_agreement_client_d.txt
+  effective_from: '2026-04-01'
+  effective_to: '2027-03-31'
+  lanes:
+  - PUNE-KOLHAPUR
+  completeness: complete
+  is_stand_in: true
+  confirmed_by: kam.demo
+  confirmed_at: '2026-09-01T10:00:00+05:30'
+terms:
+- term_id: CLD-PEN-1
+  agreement_id: CLD-TSA-2026
+  client_id: CLD
+  term_type: penalty_rule
+  params:
+    event: late_delivery
+    rate: '2000'
+    unit: flat_per_day
+    base: none
+    part_unit_counts_as_full: true
+    day_count: calendar
+    measured_from: delivery_due_at
+    measured_to: arrival_at
+  page: 6
+  clause_ref: '9.1'
+  verbatim: Liquidated damages @ Rs.2000/- per day of delay in delivery, a part of a day being counted as a full day.
+  effective_from: '2026-04-01'
+  extraction_confidence: 1.0
+  status: confirmed
+  confirmed_by: kam.demo
+  confirmed_at: '2026-09-01T10:00:00+05:30'
+- term_id: CLD-FM-1
+  agreement_id: CLD-TSA-2026
+  client_id: CLD
+  term_type: force_majeure
+  params:
+    events_named: []
+    general_words:
+    - civil commotion
+    events_excluded: []
+    relief: excuse_delay
+  page: 11
+  clause_ref: '14'
+  verbatim: Neither party shall be liable for any delay caused by civil commotion.
+  effective_from: '2026-04-01'
+  extraction_confidence: 1.0
+  status: confirmed
+  confirmed_by: kam.demo
+  confirmed_at: '2026-09-01T10:00:00+05:30'
+- term_id: CLD-NOT-1
+  agreement_id: CLD-TSA-2026
+  client_id: CLD
+  term_type: notice
+  params:
+    deadline_hours: 240
+    immediate: false
+    method: writing
+    addressee: Client logistics desk
+    applies_to: force_majeure
+  page: 11
+  clause_ref: '14'
+  verbatim: The party affected shall notify the other in writing within10 days from the date of occurrence thereof.
+  effective_from: '2026-04-01'
+  extraction_confidence: 1.0
+  status: confirmed
+  confirmed_by: kam.demo
+  confirmed_at: '2026-09-01T10:00:00+05:30'

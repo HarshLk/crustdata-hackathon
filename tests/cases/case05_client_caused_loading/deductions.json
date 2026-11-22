@@ -1,0 +1,32 @@
+[
+  {
+    "client_id": "CLG",
+    "client_name_raw": "Golf Demo Public Sector Buyer",
+    "advice_no": "GPA/2026/0705",
+    "line_no": "1",
+    "reason_code": "late_delivery",
+    "trip_refs": [
+      "LR-G-0705"
+    ],
+    "deduction_date": "2026-10-05",
+    "received_date": "2026-10-06",
+    "amount": "600.00",
+    "reason_text": "Late delivery penalty 1% of trip cost x 2 days",
+    "invoice_ref": "INV-G-2026-0705",
+    "client_calc": {
+      "rate": "1",
+      "unit": "pct_per_vehicle_day",
+      "base_amount": "30000.00",
+      "units_counted": "2",
+      "from_ts": "2026-09-15T18:00:00+05:30",
+      "to_ts": "2026-09-16T20:00:00+05:30"
+    },
+    "source_ref": {
+      "file": "deductions.csv",
+      "row": 1
+    },
+    "dispute_key": "CLG|GPA20260705|1",
+    "event_fp": "d93cd74640caf77e",
+    "deduction_id": "CLG|GPA20260705|1"
+  }
+]

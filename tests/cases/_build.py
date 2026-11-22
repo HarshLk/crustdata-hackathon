@@ -91,7 +91,7 @@ def write_case(spec: dict) -> Path:
     meta = {"id": spec["slug"], "prd_case": spec["prd"], "title": spec["title"],
             "clients": [c["client_id"] for c in clients], "kind": spec.get("kind", "free_check"),
             "settings_overrides": spec.get("settings_overrides", {})}
-    for k in ("faults", "kill", "adapter_only", "notes_for_runner"):
+    for k in ("faults", "kill", "adapter_only", "notes_for_runner", "k4_file"):
         if k in spec:
             meta[k] = spec[k]
     dump = lambda obj: yaml.safe_dump(obj, sort_keys=False, allow_unicode=True, width=120)
@@ -105,7 +105,8 @@ def write_case(spec: dict) -> Path:
     (d / "trips.json").write_text(json.dumps(spec["trips"], indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     (d / "deductions.json").write_text(json.dumps(spec["deductions"], indent=2, ensure_ascii=False) + "\n",
                                        encoding="utf-8")
-    write_csv(d / "deductions.csv", csv_rows(spec["deductions"]))
+    if not spec.get("k4_file"):  # the K4 input as the service would receive it
+        write_csv(d / "deductions.csv", csv_rows(spec["deductions"]))
     exp = {}
     for key, e in spec["expected"].items():
         full = {"outcome": None, "grounds": [], "primary_reason": None, "amount_disputable": "0",

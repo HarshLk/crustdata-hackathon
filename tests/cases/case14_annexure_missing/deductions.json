@@ -1,0 +1,24 @@
+[
+  {
+    "client_id": "CLK",
+    "client_name_raw": "Kilo Demo Steel Ltd",
+    "advice_no": "KPA/2026/1014",
+    "line_no": "1",
+    "reason_code": "late_delivery",
+    "trip_refs": [
+      "LR-K-1014"
+    ],
+    "deduction_date": "2026-10-20",
+    "received_date": "2026-10-21",
+    "amount": "3000.00",
+    "reason_text": "Delay penalty as per Annexure C, clause 14.2",
+    "invoice_ref": "INV-K-2026-1014",
+    "source_ref": {
+      "file": "deductions.csv",
+      "row": 1
+    },
+    "dispute_key": "CLK|KPA20261014|1",
+    "event_fp": "3b98ba0396249141",
+    "deduction_id": "CLK|KPA20261014|1"
+  }
+]
