@@ -1,0 +1,34 @@
+{% extends "base.html.j2" %}
+{% block body %}
+<h1>Money</h1>
+<p class="muted">What each check cost us, from the cost ledger (one row per external or model call, including retries and cache hits).</p>
+<div class="card"><dl class="kv">
+<dt>Paid calls</dt><dd>{{ ledger|length }}</dd>
+<dt>Cache hits</dt><dd>{{ cache_hits }}</dd>
+<dt>Total cost</dt><dd>INR {{ total_inr|inr }}</dd>
+<dt>Amount to recover</dt><dd>INR {{ total_recover|inr }}</dd>
+</dl></div>
+
+{% if economics %}
+<h2>Economics</h2>
+<p class="small muted">Fee rate and win rate are assumptions set by the team; they never influence a verdict.</p>
+{% for section in economics %}
+<h3>{{ section.title }}</h3>
+<div class="table-wrap"><table>
+{% if section.header %}<thead><tr>{% for h in section.header %}<th>{{ h }}</th>{% endfor %}</tr></thead>{% endif %}
+<tbody>{% for row in section.rows %}<tr>{% for cell in row %}<td>{{ cell }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+</table></div>
+{% endfor %}
+{% else %}
+<p class="muted">Economics view not available in this build.</p>
+{% endif %}
+
+<h2>Ledger</h2>
+{% if ledger %}
+<div class="table-wrap"><table>
+<thead><tr><th>Started</th><th>Deduction</th><th>Step</th><th>Provider / endpoint</th><th>Outcome</th><th>Attempt</th><th>Cache</th><th class="num">Units</th><th class="num">INR</th></tr></thead>
+<tbody>{% for l in ledger %}
+<tr><td class="small">{{ l.started_at }}</td><td class="small wrap">{{ l.dispute_key or "-" }}</td><td>{{ l.step }}</td><td class="small">{{ l.provider }} {{ l.endpoint }}</td><td>{{ l.outcome }}</td><td>{{ l.attempt_no }}</td><td>{{ "hit" if l.cache_hit else "-" }}</td><td class="num">{{ l.units }} {{ l.unit_kind }}</td><td class="num">{{ l.cost_inr|inr }}</td></tr>
+{% endfor %}</tbody></table></div>
+{% else %}<p class="muted">No paid calls recorded (or the ledger is not available in this build).</p>{% endif %}
+{% endblock %}

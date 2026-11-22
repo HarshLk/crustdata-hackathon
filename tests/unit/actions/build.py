@@ -22,6 +22,18 @@ CAP_CLAUSE = "The penalty shall not exceed 15% of the trip cost per vehicle."
 RATE_CLAUSE = "Penalty of 1% of trip cost per vehicle per day of delay."
 
 
+def make_store(kind: str = "mem", tmp_path: Path | None = None):
+    """MemStore, or c1's SqliteStore when it is importable."""
+    if kind == "sqlite":
+        try:
+            from pdr.store import SqliteStore
+        except ImportError:
+            import pytest
+            pytest.skip("pdr.store not on this branch yet")
+        return SqliteStore(tmp_path / "state.db")
+    return MemStore()
+
+
 def settings(tmp_path: Path | None = None, **approvals):
     s = load_settings(ROOT / "settings.yaml")
     data = s.model_dump(mode="json")

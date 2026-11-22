@@ -1,0 +1,135 @@
+{% extends "base.html.j2" %}
+{% macro src(e) -%}
+<div class="card" id="ev-{{ e.evidence_id }}">
+<div class="wrap"><a href="{{ e.link }}">{{ e.url }}</a>{% if e.stance %} <span class="badge b-none">{{ e.stance }}</span>{% endif %}{% if e.audit %} <span class="badge b-none">audit {{ e.audit }}</span>{% endif %}</div>
+<blockquote>{{ e.passage }}</blockquote>
+<dl class="kv small">
+<dt>Published</dt><dd>{{ e.published }}</dd>
+<dt>Retrieved</dt><dd>{{ e.retrieved }}</dd>
+{% if e.event %}<dt>Event dates</dt><dd>{{ e.event }}</dd>{% endif %}
+{% if e.place %}<dt>Place named</dt><dd>{{ e.place }}</dd>{% endif %}
+<dt>Open at passage</dt><dd class="wrap"><a href="{{ e.link }}">{{ e.link }}</a></dd>
+<dt>Snapshot</dt><dd>{% if e.snapshot %}<code>{{ e.snapshot }}</code>{% if e.snapshot_at %} stored {{ e.snapshot_at }}{% endif %}{% else %}none{% endif %}</dd>
+</dl>
+</div>
+{%- endmacro %}
+{% block body %}
+<h1 class="wrap">{{ key }}</h1>
+<p><span class="badge b-{{ outcome }}">{{ outcome_label }}</span>
+{% for g in grounds %} <span class="badge b-none">{{ g }}</span>{% endfor %}
+{% for f in flags %} <span class="badge flag">{{ f|replace("_", " ") }}</span>{% endfor %}</p>
+{% if stand_in %}<div class="standin">STAND-IN TERMS: the clauses below come from public sample terms, not this client's signed agreement. Confirm against the real agreement before relying on this verdict.</div>{% endif %}
+{% if out_of_window %}<div class="standin">OUT OF WINDOW: the contract's dispute window has passed. No letter goes out unless an account manager overrides with a written reason.</div>{% endif %}
+
+<div class="card">
+<dl class="kv">
+<dt>Client</dt><dd>{{ client_name }}</dd>
+<dt>Payment advice / line</dt><dd>{{ ded.advice_no or ded.client_deduction_no or "-" }} / {{ ded.line_no or "-" }}</dd>
+<dt>Deduction date</dt><dd>{{ ded.deduction_date }}</dd>
+<dt>Reason stated</dt><dd>{{ reason_text }}</dd>
+<dt>Amount deducted</dt><dd>INR {{ ded.amount|inr }}</dd>
+{% if v %}<dt>Penalty due on our reading</dt><dd>{% if v.recomputed_penalty is not none %}INR {{ v.recomputed_penalty|inr }}{% else %}not computed{% endif %}</dd>
+<dt>Amount to recover</dt><dd><strong>INR {{ v.amount_disputable|inr }}</strong></dd>
+<dt>Primary reason</dt><dd>{{ v.primary_reason or "-" }}</dd>
+<dt>Next action</dt><dd>{{ v.next_action or "-" }}</dd>
+<dt>Stage</dt><dd>{{ ded.stage }}</dd>
+<dt>Run cost</dt><dd>INR {{ v.run_cost_inr|inr }} ({{ v.run_cost_credits }} credits)</dd>
+<dt>Versions</dt><dd class="small">rules {{ v.rule_version or "-" }} · settings {{ v.settings_version or "-" }} · run {{ v.run_id or "-" }}</dd>{% endif %}
+</dl>
+</div>
+
+{% if v %}
+<h2>Verdict</h2>
+<p>{{ explanation or "No explanation recorded." }}</p>
+{% else %}
+<h2>Verdict</h2><p class="muted">Not decided yet (stage {{ ded.stage }}).</p>
+{% endif %}
+
+<h2>Clauses applied</h2>
+{% for t in clauses %}
+<div class="card">
+<div><strong>{{ t.doc }}</strong>, page {{ t.page }}, clause {{ t.clause }}{% if t.effective %} <span class="muted small">in force from {{ t.effective }}</span>{% endif %}{% if t.stand_in %} <span class="badge flag">STAND-IN TERMS</span>{% endif %}</div>
+<blockquote>{{ t.verbatim }}</blockquote>
+{% if t.link %}<div class="small"><a href="{{ t.link }}">Open the agreement at this page</a></div>{% endif %}
+</div>
+{% else %}<p class="muted">No clause was applied.</p>{% endfor %}
+
+<h2>Trip timeline</h2>
+{% if trip %}
+<p class="small muted">Trip {{ trip.trip_id }} · {{ trip.origin }} to {{ trip.destination }} · vehicle {{ trip.vehicle_no }} · route {{ trip.route_places|join(", ") or "-" }}. Driver identity is not shown.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Event</th><th>Client's timestamp</th><th>Our timestamp</th></tr></thead>
+<tbody>
+{% for row in timeline %}
+<tr><td>{{ row.event }}</td>
+<td>{% for o in row.client %}<div>{{ o.at }} <span class="muted small">({{ o.source }}; {{ o.ref }})</span></div>{% else %}<span class="muted">-</span>{% endfor %}</td>
+<td>{% for o in row.ours %}<div>{{ o.at }} <span class="muted small">({{ o.source }}; {{ o.ref }})</span></div>{% else %}<span class="muted">-</span>{% endfor %}</td></tr>
+{% endfor %}
+</tbody></table></div>
+{% if halts %}<h3>Halts in the disputed window</h3>
+<div class="table-wrap"><table><thead><tr><th>From</th><th>To</th><th>Place</th><th>Source</th></tr></thead><tbody>
+{% for h in halts %}<tr><td>{{ h.start }}</td><td>{{ h.end }}</td><td>{{ h.place }}</td><td class="small">{{ h.source }}; {{ h.ref }}</td></tr>{% endfor %}
+</tbody></table></div>{% endif %}
+{% if hidden_gps %}<p class="small muted">{{ hidden_gps }} GPS record(s) outside the disputed window ({{ window }}) are not shown.</p>{% endif %}
+{% if holds %}<h3>Holds by an authority</h3><ul>{% for h in holds %}<li>{{ h }}</li>{% endfor %}</ul>{% endif %}
+{% if notices %}<h3>Notices sent</h3><ul>{% for n in notices %}<li>{{ n }}</li>{% endfor %}</ul>{% endif %}
+{% if assertions %}<h3>Notes on file</h3><ul>{% for a in assertions %}<li>{{ a }}</li>{% endfor %}</ul>{% endif %}
+{% else %}<p class="muted">No trip matched.</p>{% endif %}
+
+<h2>Recomputation</h2>
+{% if v and v.recomputation %}
+<div class="table-wrap"><table><thead><tr><th>#</th><th>Step</th><th class="num">INR</th></tr></thead><tbody>
+{% for r in v.recomputation %}<tr><td>{{ loop.index }}</td><td>{{ r.description }}{% if r.citations %} <span class="small muted">({% for c in r.citations %}<a href="{{ c.link }}">{{ c.label }}</a>{% if not loop.last %}, {% endif %}{% endfor %})</span>{% endif %}</td><td class="num">{{ r.value|inr }}</td></tr>{% endfor %}
+<tr><td></td><td>Amount deducted</td><td class="num">{{ v.amount_deducted|inr }}</td></tr>
+<tr><td></td><td><strong>Amount to recover</strong></td><td class="num"><strong>{{ v.amount_disputable|inr }}</strong></td></tr>
+</tbody></table></div>
+{% else %}<p class="muted">No recomputation for this verdict.</p>{% endif %}
+
+<h2>Our records cited</h2>
+{% for r in records %}
+<div class="card" id="rec-{{ r.evidence_id }}"><strong>{{ r.record }}</strong> · {{ r.field }} = <code>{{ r.value }}</code>{% if r.timestamp %} at {{ r.timestamp }}{% endif %}<div class="small muted">Source: {{ r.source }}</div></div>
+{% else %}<p class="muted">None.</p>{% endfor %}
+
+<h2>External sources</h2>
+{% if conflict %}
+<p>The sources disagree. They are shown side by side; a person decides.</p>
+<div class="grid2"><div><h3>Supporting</h3>{% for e in supporting %}{{ src(e) }}{% endfor %}</div>
+<div><h3>Contradicting</h3>{% for e in contradicting %}{{ src(e) }}{% endfor %}</div></div>
+{% else %}
+{% for e in supporting + contradicting %}{{ src(e) }}{% else %}<p class="muted">None cited.</p>{% endfor %}
+{% endif %}
+
+{% if v %}
+<h2>Checks run</h2>
+{% if v.checks_run %}<p class="small">{{ v.checks_run|join(", ") }}</p>{% else %}<p class="muted">Not recorded.</p>{% endif %}
+<h2>What would change this verdict</h2>
+{% if v.what_would_change %}<ul>{% for w in v.what_would_change %}<li>{{ w }}</li>{% endfor %}</ul>{% else %}<p class="muted">Nothing listed.</p>{% endif %}
+<h2>Missing items</h2>
+{% if v.missing_items or v.unresolved %}<ul>{% for m in v.missing_items %}<li>{{ m }}</li>{% endfor %}{% for m in v.unresolved %}<li>{{ m }} (unresolved)</li>{% endfor %}</ul>{% else %}<p class="muted">None.</p>{% endif %}
+{% if v.audit %}<h3>Citation audit</h3><ul class="small">{% for f in v.audit %}<li>{{ "passed" if f.passed else "FAILED" }}: {{ f.rule }} on {{ f.citation_evidence_id }} {{ f.detail }}</li>{% endfor %}</ul>{% endif %}
+{% endif %}
+
+<h2>Action and approvals</h2>
+{% for a in actions %}
+<div class="card">
+<div><strong>{{ a.kind|replace("_", " ") }}</strong> <span class="badge b-none">{{ a.status_label }}</span></div>
+<dl class="kv small">
+<dt>Action id</dt><dd><code>{{ a.action_id }}</code></dd>
+<dt>Amount claimed</dt><dd>{% if a.amount is not none %}INR {{ a.amount|inr }}{% else %}-{% endif %}</dd>
+<dt>Required roles</dt><dd>{{ a.roles|join(", ") }}</dd>
+<dt>Approvals</dt><dd>{% for p in a.approvals %}<div>{{ p.decision }} by {{ p.approver }} ({{ p.role_required }}) {{ p.decided_at }}{% if p.comment %}: "{{ p.comment }}"{% endif %}</div>{% else %}none yet{% endfor %}</dd>
+{% if a.missing %}<dt>Waiting for</dt><dd>{{ a.missing|join(", ") }}</dd>{% endif %}
+{% if a.sent_at %}<dt>Sent</dt><dd>{{ a.sent_at }} (attempts {{ a.attempts }})</dd>{% endif %}
+</dl>
+<details><summary class="small">Letter text</summary><pre class="small wrap" style="white-space:pre-wrap">{{ a.body }}</pre></details>
+{% if a.approve_cmd %}<p class="small muted">Approve in the terminal: <code>{{ a.approve_cmd }}</code></p>{% endif %}
+</div>
+{% else %}<p class="muted">No action drafted.</p>{% endfor %}
+
+{% if ledger %}
+<h2>Paid calls for this deduction</h2>
+<div class="table-wrap"><table><thead><tr><th>Step</th><th>Provider</th><th>Outcome</th><th>Cache hit</th><th class="num">INR</th></tr></thead><tbody>
+{% for l in ledger %}<tr><td>{{ l.step }}</td><td>{{ l.provider }} {{ l.endpoint }}</td><td>{{ l.outcome }}</td><td>{{ "yes" if l.cache_hit else "no" }}</td><td class="num">{{ l.cost_inr|inr }}</td></tr>{% endfor %}
+</tbody></table></div>
+{% endif %}
+{% endblock %}

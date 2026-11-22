@@ -96,7 +96,8 @@ def clauses(bundle: dict) -> list[dict]:
         if ag is not None and ag.is_stand_in:
             doc += " (stand-in terms)"
         out.append({"doc": doc, "page": t.page, "clause": t.clause_ref, "verbatim": t.verbatim,
-                    "effective": str(t.effective_from), "term_id": t.term_id, "stand_in": bool(ag and ag.is_stand_in)})
+                    "effective": str(t.effective_from), "term_id": t.term_id, "stand_in": bool(ag and ag.is_stand_in),
+                    "link": f"{ag.file_ref}#page={t.page}" if ag and ag.file_ref else ""})
         seen.add(t.term_id)
     for e in bundle["evidence"]:
         if e.kind == "contract_term" and (e.term_id is None or e.term_id not in seen):

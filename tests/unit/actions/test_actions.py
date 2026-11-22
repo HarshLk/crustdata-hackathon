@@ -16,9 +16,9 @@ from pdr.outputs import letter
 from tests.unit.actions import build
 
 
-@pytest.fixture
-def c(tmp_path):
-    return build.ctx(tmp_path=tmp_path)
+@pytest.fixture(params=["mem", "sqlite"])
+def c(request, tmp_path):
+    return build.ctx(store=build.make_store(request.param, tmp_path), tmp_path=tmp_path)
 
 
 def outbox(c):

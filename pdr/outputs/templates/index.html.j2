@@ -1,0 +1,34 @@
+{% extends "base.html.j2" %}
+{% block body %}
+<h1>Deduction queue</h1>
+<p class="muted">One row per deduction. Disputable means our records and the client's own agreement support asking for money back; nothing is sent until a named person approves it.</p>
+<div class="card">
+<dl class="kv">
+<dt>Deductions</dt><dd>{{ rows|length }}</dd>
+<dt>Amount deducted</dt><dd>INR {{ total_deducted|inr }}</dd>
+<dt>Amount to recover</dt><dd>INR {{ total_recover|inr }}</dd>
+<dt>Outcomes</dt><dd>{% for k, n in counts.items() %}<span class="badge b-{{ k }}">{{ k|replace("_", " ") }}: {{ n }}</span> {% endfor %}</dd>
+</dl>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Deduction</th><th>Verdict</th><th class="num">Deducted (INR)</th><th class="num">To recover (INR)</th><th>Reason / grounds</th><th>Stage</th><th class="num">Cost (INR)</th><th>Action</th></tr></thead>
+<tbody>
+{% for r in rows %}
+<tr>
+<td class="wrap"><a href="{{ r.page }}">{{ r.key }}</a><div class="muted small">{{ r.client }}</div></td>
+<td><span class="badge b-{{ r.outcome }}">{{ r.outcome_label }}</span>{% for f in r.flags %} <span class="badge flag">{{ f|replace("_", " ") }}</span>{% endfor %}</td>
+<td class="num">{{ r.amount|inr }}</td>
+<td class="num">{{ r.recover|inr }}</td>
+<td class="small">{{ r.reason }}</td>
+<td class="small">{{ r.stage }}</td>
+<td class="num">{{ r.cost|inr }}</td>
+<td class="small">{{ r.action }}</td>
+</tr>
+{% else %}
+<tr><td colspan="8" class="muted">No deductions yet.</td></tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+{% endblock %}
