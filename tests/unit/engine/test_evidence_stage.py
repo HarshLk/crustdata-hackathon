@@ -214,3 +214,34 @@ def test_agitation_is_searchable(monkeypatch):
     run(keys, ctx(store))
     from pdr.codes import EventType
     assert f.calls and EventType.agitation in f.calls[0].event_types
+
+
+# ----------------------------------------------------------------------------- place regions (D-27)
+
+def test_build_request_carries_place_regions():
+    from types import SimpleNamespace
+    from pdr.engine.evidence_stage import build_request
+    from tests.unit.engine.fixtures_b1 import settings
+    t = trip(places=["Pune", "Shrirampur", "Kolhapur"]).model_copy(update={"route_place_details": {
+        "Shrirampur": {"district": "Ahmednagar", "state": "Maharashtra", "state_local": "Maharashtra"},
+        "Elsewhere": {"district": "X", "state": "Y"}}})
+    c = SimpleNamespace(trip=t, ctx=SimpleNamespace(settings=settings()), deduction=deduction())
+    req = build_request(c, {"mode": "asserted", "event_types": ["blockade"]})
+    assert dict(req.place_regions) == {"Shrirampur": ("Ahmednagar", "Maharashtra", "Maharashtra")}
+    hash(req)  # still hashable
+    plain = build_request(SimpleNamespace(trip=trip(), ctx=c.ctx, deduction=c.deduction),
+                          {"mode": "asserted", "event_types": ["blockade"]})
+    assert not plain.place_regions
+
+
+def test_region_check_uses_place_district_and_rejects_same_name_elsewhere():
+    from types import SimpleNamespace
+    from pdr.contracts import EvidenceRequest
+    from pdr.evidence.qualify import _region_named
+    from tests.unit.engine.fixtures_b1 import ist
+    req = EvidenceRequest(route_places=["Pune", "Srirampur"], route_states=["Maharashtra"], window=(ist(1), ist(9)),
+                          event_types=["blockade"], place_regions={"Srirampur": ("Ahmednagar", "Maharashtra")})
+    district_only = SimpleNamespace(title="Rasta roko at Srirampur", text="Farmers blocked the road at Srirampur in Ahmednagar district.")
+    other_state = SimpleNamespace(title="Trucks held at Srirampur", text="Over 300 trucks are held at Srirampur on the Assam-West Bengal border.")
+    assert _region_named("Srirampur", district_only, req)
+    assert not _region_named("Srirampur", other_state, req)

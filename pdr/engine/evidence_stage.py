@@ -72,7 +72,20 @@ def build_request(c: CheckContext, plan: dict) -> Optional[EvidenceRequest]:
     if win is None:
         return None
     return EvidenceRequest(route_places=list(c.trip.route_places), route_states=list(c.trip.route_states),
-                           window=win, event_types=list(plan["event_types"]), mode=plan["mode"])
+                           window=win, event_types=list(plan["event_types"]), mode=plan["mode"],
+                           place_regions=place_regions(c.trip))
+
+
+def place_regions(trip) -> dict:
+    """place -> (district, state, regional state name) from the trip's route_place_details, for route places only."""
+    details = getattr(trip, "route_place_details", None) or {}
+    out = {}
+    for place in trip.route_places:
+        d = details.get(place) or {}
+        regions = tuple(x for x in (d.get("district"), d.get("state"), d.get("state_local")) if x)
+        if regions:
+            out[place] = regions
+    return out
 
 
 def get_evidence(req: EvidenceRequest, ctx) -> EvidenceResult:
