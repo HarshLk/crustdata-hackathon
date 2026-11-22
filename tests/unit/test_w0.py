@@ -195,8 +195,9 @@ def test_evidence_request_hashable():
     assert c.key() != a.key()
 
 
-def test_stubs(tmp_path):
+def test_stubs(tmp_path, monkeypatch):
     from pdr import broker, crashpoints, evidence, guard, llm
+    from tests.fakes.transport import FakeTransport
     from pdr.adapters.k7_outbox import LocalOutbox
 
     ctx = _ctx(MemStore())
@@ -207,8 +208,11 @@ def test_stubs(tmp_path):
     link = evidence.passage_link("https://n.example/a#old", "one two three four five six seven eight nine ten eleven twelve thirteen")
     assert link == "https://n.example/a#:~:text=one%20two%20three%20four%20five%20six,eight%20nine%20ten%20eleven%20twelve%20thirteen"
     assert evidence.passage_link("https://n.example/a", "NH-48 closed") == "https://n.example/a#:~:text=NH%2D48%20closed"
-    with pytest.raises(NotImplementedError):
-        broker.paid_call("crustdata", "/x", {}, ctx=ctx, step="s", worst_case_credits=Decimal("1"))
+    # the real broker (lane A) against a fake transport: first call paid, second a cache hit
+    monkeypatch.setitem(broker.TRANSPORTS, "crustdata", FakeTransport(entries=[{"endpoint": "/x", "response": {"a": 1}}]))
+    first = broker.paid_call("crustdata", "/x", {"q": "bandh Kini"}, ctx=ctx, step="s", worst_case_credits=Decimal("1"))
+    again = broker.paid_call("crustdata", "/x", {"q": "bandh Kini"}, ctx=ctx, step="s", worst_case_credits=Decimal("1"))
+    assert first.ok and first.body == {"a": 1} and not first.cache_hit and again.cache_hit
     assert llm.llm_json("map_reason", "text", Client, ctx) is None
     guard.check("crustdata_search", {"q": "bandh Kini"})
     assert guard.pseudonymise("abc", "ACME") == "abc"
