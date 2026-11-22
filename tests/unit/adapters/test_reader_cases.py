@@ -4,7 +4,7 @@ from __future__ import annotations
 import pytest
 
 from pdr.adapters import reader
-from pdr.models import Deduction
+from pdr.models import Client, Deduction
 from pdr.store_mem import MemStore
 
 caselib = pytest.importorskip("tests.caselib")
@@ -20,4 +20,10 @@ def test_reader_matches_caselib(case_dir, ctx):
     for k in keys:
         want, got = ref.get(Deduction, k), deds[k]
         assert {f: getattr(got, f) for f in CORE} == {f: getattr(want, f) for f in CORE}
-        assert not got.input_problems
+        known = {c.client_id for c in ctx.store.find(Client)}
+        if want.client_id in known:
+            assert not got.input_problems
+        else:  # lookalike issuer (case 16): never matched to a real client, the mismatch is carried as data
+            assert got.client_id not in known
+            assert got.input_problems == [p for p in got.input_problems if p.startswith("client_unmatched:")]
+            assert got.input_problems and want.client_name_raw in got.input_problems[0]
