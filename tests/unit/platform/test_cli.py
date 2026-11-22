@@ -106,3 +106,23 @@ def test_run_without_lanes_degrades_and_exits_nonzero(tmp_path, monkeypatch):
     assert r.exit_code == 1
     assert "[engine] not available" in r.output and "no verdict:" in r.output
     assert (tmp_path / "out" / "verdicts.jsonl").read_text() == ""
+
+
+def test_run_with_real_engine_when_present(tmp_path, monkeypatch):
+    """Inline fixture through the real engine (skips until lane B's scheduler is on main)."""
+    pytest.importorskip("pdr.engine.scheduler")
+    from datetime import datetime, timedelta, timezone
+    from pdr.models import Observation, SourceRef, Trip
+    store = open_store()
+    deds = fill(store, n=1)
+    ist = timezone(timedelta(hours=5, minutes=30))
+    store.put(Trip(trip_id="T1", client_id="ACME", lr_no="LR-1", origin="Pune", destination="Kolhapur",
+                   lane="PUN-KOP", vehicle_no="MH12AB1234", freight=Decimal("5000.00"),
+                   delivery_due_at=datetime(2026, 11, 5, 18, 0, tzinfo=ist),
+                   arrival_at=[Observation(value=datetime(2026, 11, 6, 10, 0, tzinfo=ist), source="gps",
+                                           ref=SourceRef(file="gps.csv", row=1))]))
+    monkeypatch.setattr(cli, "_load", lambda path, ctx: deds)
+    r = invoke("run", "--in", str(tmp_path), "--out", str(tmp_path / "out"))
+    assert r.exit_code == 0, r.output
+    assert deds[0].dispute_key in r.output
+    assert len((tmp_path / "out" / "verdicts.jsonl").read_text().splitlines()) == 1
