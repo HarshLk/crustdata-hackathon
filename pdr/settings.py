@@ -3,7 +3,7 @@
 No field here may hold a contract value (rate, cap, window, notice period, FM list).
 Sections allow extra keys so a lane or the hour-3 change can add a key in settings.yaml
 before the schema catches up; lane C may tighten this.
-The refuse-to-start rule for zero "set at kickoff" values is lane C's (not implemented here).
+Unset (0) "set at kickoff" values refuse to start via load_for_start (D-19).
 """
 from __future__ import annotations
 
@@ -180,11 +180,105 @@ class Settings(_Section):
         return {name: value}
 
 
-def load_settings(path: str | Path = "settings.yaml") -> Settings:
+class SettingsError(ValueError):
+    """Settings are invalid or a kickoff value is unset: the service refuses to start."""
+
+    def __init__(self, problems: list[str]) -> None:
+        self.problems = problems
+        super().__init__("settings refused:\n  - " + "\n  - ".join(problems))
+
+
+# D-19: values a person must set at kickoff. At 0 the service refuses to start.
+# economics.fee_rate_pct and economics.assumed_win_rate_pct are deliberately absent (0 = not assumed).
+KICKOFF_FIELDS: list[str] = [
+    "budget.run_cost_credits",
+    "budget.per_deduction_credits",
+    "budget.run_time_seconds",
+    "budget.credit_price_usd",
+    "budget.usd_inr",
+    "causation.allowance_hours",
+    "approvals.above_threshold_inr",
+    "escalation.legal_notice_above_inr",
+    "escalation.arbitration_above_inr",
+    "privacy.retention_days",
+]
+
+DEFAULT_PATH = Path(__file__).resolve().parents[1] / "settings.yaml"
+
+
+def default_settings_path() -> Path:
+    """$PDR_SETTINGS, else ./settings.yaml, else the repository's settings.yaml."""
+    import os
+    env = os.environ.get("PDR_SETTINGS")
+    if env:
+        return Path(env)
+    return Path("settings.yaml") if Path("settings.yaml").exists() else DEFAULT_PATH
+
+
+def deep_merge(base: dict, over: dict) -> dict:
+    """Recursive dict merge; `over` wins; lists are replaced, not merged."""
+    out = dict(base)
+    for k, v in (over or {}).items():
+        out[k] = deep_merge(out[k], v) if isinstance(v, dict) and isinstance(out.get(k), dict) else v
+    return out
+
+
+def _validate(data: dict) -> Settings:
+    from pydantic import ValidationError
+    try:
+        return Settings.model_validate(data)
+    except ValidationError as e:
+        raise SettingsError([f"{'.'.join(str(p) for p in err['loc'])}: {err['msg']}" for err in e.errors()]) from None
+
+
+def load_settings(path: str | Path = "settings.yaml", overrides: dict | None = None) -> Settings:
+    """Load and validate; `overrides` is a per-run dict merged over the file (tests, client overrides)."""
     with open(path, "r", encoding="utf-8") as fh:
         data = yaml.safe_load(fh) or {}
-    return Settings.model_validate(data)
+    return _validate(deep_merge(data, overrides or {}))
 
 
-def settings_from_dict(data: dict) -> Settings:
-    return Settings.model_validate(data)
+def settings_from_dict(data: dict, overrides: dict | None = None) -> Settings:
+    return _validate(deep_merge(data, overrides or {}))
+
+
+def with_overrides(settings: Settings, overrides: dict) -> Settings:
+    """A new Settings with `overrides` merged in (version recomputed)."""
+    return _validate(deep_merge(settings.model_dump(mode="json"), overrides or {}))
+
+
+def kickoff_problems(settings: Settings) -> list[str]:
+    """Kickoff values still at 0 (D-19)."""
+    problems = []
+    for dotted in KICKOFF_FIELDS:
+        value: Any = settings
+        for part in dotted.split("."):
+            value = getattr(value, part)
+        if value is None or Decimal(str(value)) == 0:
+            problems.append(f"{dotted} is 0: set it at kickoff (D-19); the service will not start with it unset")
+    return problems
+
+
+def load_for_start(path: str | Path | None = None, overrides: dict | None = None) -> Settings:
+    """What every command uses: validate the file, then refuse to start on unset kickoff values."""
+    p = Path(path) if path else default_settings_path()
+    if not p.exists():
+        raise SettingsError([f"settings file not found: {p}"])
+    try:
+        s = load_settings(p, overrides)
+    except yaml.YAMLError as e:
+        raise SettingsError([f"{p}: not valid YAML: {e}"]) from None
+    problems = kickoff_problems(s)
+    if problems:
+        raise SettingsError(problems)
+    return s
+
+
+def record_version(store: Any, settings: Settings) -> str:
+    """Store this settings version in `settings_versions` (SQLite stores only); returns the version."""
+    if hasattr(store, "execute"):
+        from datetime import datetime, timezone
+        store.execute("INSERT OR IGNORE INTO settings_versions(settings_version, body, loaded_at) VALUES(?,?,?)",
+                      (settings.version, canonical_json(settings.model_dump(mode="json")),
+                       datetime.now(timezone.utc).isoformat()))
+    return settings.version
