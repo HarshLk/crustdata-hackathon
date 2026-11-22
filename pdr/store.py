@@ -67,6 +67,7 @@ class SqliteStore:
             Path(self.path).parent.mkdir(parents=True, exist_ok=True)
         self._lock = threading.RLock()
         self._depth = 0
+        self.on_stage = None  # optional callback(dispute_key, stage) after a stage marker advances (CLI logging)
         self._conn = sqlite3.connect(self.path, isolation_level=None, check_same_thread=False, timeout=5.0)
         self._conn.row_factory = sqlite3.Row
         c = self._conn
@@ -169,6 +170,7 @@ class SqliteStore:
                    settings_version: str | None = None) -> None:
         stage = Stage(stage)
         payload = json.dumps([r.model_dump(mode="json") for r in results], ensure_ascii=False)
+        advanced = False
         with self.tx() as c:
             c.execute(
                 "INSERT OR REPLACE INTO stage_results(dispute_key,stage,inputs_hash,results,settings_version,saved_at) "
@@ -181,6 +183,12 @@ class SqliteStore:
                 if STAGE_ORDER.index(stage) > STAGE_ORDER.index(Stage(ded.stage)):
                     c.execute("UPDATE entities SET body=? WHERE kind='Deduction' AND id=?",
                               (ded.model_copy(update={"stage": stage}).model_dump_json(), dispute_key))
+                    advanced = True
+        if advanced and self.on_stage is not None:
+            try:
+                self.on_stage(dispute_key, stage)
+            except Exception:  # noqa: BLE001 - observers never break a save
+                pass
 
     def load_stage(self, dispute_key: str, stage: Stage, inputs_hash: str) -> list[CheckResult] | None:
         rows = self.query("SELECT results FROM stage_results WHERE dispute_key=? AND stage=? AND inputs_hash=?",
