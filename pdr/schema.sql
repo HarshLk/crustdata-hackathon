@@ -13,3 +13,4 @@ CREATE TABLE IF NOT EXISTS throttle      (provider TEXT, at REAL);
 CREATE TABLE IF NOT EXISTS runs          (run_id TEXT PRIMARY KEY, settings_version TEXT, started_at TEXT, ended_at TEXT, body TEXT);
 CREATE TABLE IF NOT EXISTS settings_versions (settings_version TEXT PRIMARY KEY, body TEXT, loaded_at TEXT);
 CREATE TABLE IF NOT EXISTS pii_access_log (id INTEGER PRIMARY KEY, at TEXT, who TEXT, trip_id TEXT, purpose TEXT);
+CREATE TABLE IF NOT EXISTS alert_outbox  (alert_key TEXT PRIMARY KEY, dispute_key TEXT, event TEXT, version TEXT, roles TEXT, message TEXT, status TEXT, attempts INTEGER DEFAULT 0, next_attempt_at TEXT, last_error TEXT, created_at TEXT, updated_at TEXT);

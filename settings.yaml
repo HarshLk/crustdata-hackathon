@@ -102,3 +102,12 @@ event_watch:
   queries_per_state: ["bandh call", "chakka jam"]
   lookahead_days: 7
   daily_credit_cap: 20
+alerts:                           # add-on E4: alert outbox; contacts come from .env (PDR_ALERT_TO_<ROLE>), never here
+  enabled: true
+  sink: local                     # local | whatsapp (whatsapp is a stub, off by default)
+  path: data/alerts
+  app_link_base: http://localhost:8000
+  reminder_hours: 24
+  max_attempts: 3
+  backoff_seconds: 60
+  events: { verdict_ready: true, second_approval: true, out_of_window_held: true, missing_document: true, reminder: true, dispute_sent: true, budget_stopped: true }

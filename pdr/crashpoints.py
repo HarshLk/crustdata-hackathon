@@ -18,6 +18,8 @@ KNOWN: list[str] = (
         "send.after_deliver",
         "send.after_mark_sent",
         "send.outbox_before_rename",  # c2: K7 LocalOutbox, temp written, not yet renamed
+        "alert.after_intent",  # e4: alert row marked sending, not yet delivered
+        "alert.after_send",  # e4: alert delivered, not yet marked sent
     ]
 )
 

@@ -333,7 +333,7 @@ def mount(module_name: str) -> bool:
     return True
 
 
-for _m in ("pdr.cli_actions", "pdr.cli_intake"):
+for _m in ("pdr.cli_actions", "pdr.cli_intake", "pdr.cli_alerts"):
     try:
         mount(_m)
     except Exception as _e:  # noqa: BLE001 - a broken sub-app never takes the CLI down

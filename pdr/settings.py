@@ -146,6 +146,18 @@ class EventWatch(_Section):
     daily_credit_cap: Decimal = Decimal("0")
 
 
+class Alerts(_Section):
+    """Add-on E4: alert outbox. Contacts come from .env (PDR_ALERT_TO_<ROLE>), never from this file."""
+    enabled: bool = True
+    sink: str = "local"
+    path: str = "data/alerts"
+    app_link_base: str = "http://localhost:8000"
+    reminder_hours: float = 24
+    max_attempts: int = 3
+    backoff_seconds: float = 60
+    events: dict[str, bool] = Field(default_factory=dict)
+
+
 class Settings(_Section):
     version_note: str = ""
     budget: Budget
@@ -161,6 +173,7 @@ class Settings(_Section):
     output: Output
     adapters: Adapters
     event_watch: EventWatch
+    alerts: Alerts = Field(default_factory=Alerts)
 
     _version: str = PrivateAttr(default="")
 

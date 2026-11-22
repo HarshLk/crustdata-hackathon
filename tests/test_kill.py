@@ -228,6 +228,87 @@ def test_random_sigkill(tmp_path):
     assert interrupted >= 2, "the random kills never landed mid-send; widen the slowdown"
 
 
+# --------------------------------------------------------------------------- E4 alert outbox (A6)
+
+ALERT_POINTS = ["alert.after_intent", "alert.after_send"]
+
+
+class _BlindSink:
+    """A sink that cannot check delivery; every deliver is appended to a log so duplicates show."""
+
+    def __init__(self, data_dir: Path) -> None:
+        self.log = data_dir / "blind.log"
+
+    def capabilities(self):
+        return {"can_check": False, "available": True}
+
+    def exists(self, key):
+        return False
+
+    def deliver(self, key, message):
+        with open(self.log, "a") as fh:
+            fh.write(key + "\n")
+
+
+def _alert_setup(data_dir: Path, n: int) -> None:
+    from pdr import actions
+    from tests.unit.actions import build
+    c = _driver_ctx(data_dir)
+    for i in range(n):
+        actions.draft_for_verdict(build.fm_verdict(c.store, advice=f"PA-2026-{800 + i}"), c)
+
+
+def _alert_send(data_dir: Path, blind: bool = False) -> None:
+    from pdr.alerts import events, outbox
+    os.environ["PDR_DATA_DIR"] = str(data_dir)
+    c = _driver_ctx(data_dir)
+    events.scan(c.store, c.settings)
+    outbox.send_pending(c.store, c.settings, _BlindSink(data_dir) if blind else None)
+
+
+def _alert_files(data_dir: Path) -> list[Path]:
+    from pdr.alerts.sinks import LocalAlertSink
+    return LocalAlertSink(data_dir / "alerts").messages()
+
+
+@pytest.mark.parametrize("point", ALERT_POINTS)
+def test_kill_alert_outbox_exactly_one_file(tmp_path, point):
+    """A6: kill after intent / after send, restart: one alert file per key, never two, all `sent`."""
+    from pdr.alerts import outbox
+    from pdr.store import SqliteStore
+    assert _run(["alert-setup", str(tmp_path), "3"]).returncode == 0
+    died = _run(["alert-send", str(tmp_path)], crash_at=point)
+    assert died.returncode == 137, died.stderr[-2000:]
+    again = _run(["alert-send", str(tmp_path)])
+    assert again.returncode == 0, again.stderr[-2000:]
+    files = _alert_files(tmp_path)
+    keys = collections.Counter(json.loads(f.read_text())["alert_key"] for f in files)
+    rows = outbox.rows(SqliteStore(tmp_path / "state.db"))
+    assert len(rows) == 3 and len(files) == 3 and all(n == 1 for n in keys.values()), keys
+    assert all(r["status"] == "sent" for r in rows), [r["status"] for r in rows]
+    assert not (tmp_path / "alerts" / ".tmp").exists()
+
+
+@pytest.mark.parametrize("point", ALERT_POINTS)
+def test_kill_alert_blind_sink_unconfirmed_not_resent(tmp_path, point):
+    """D-40: a sink that cannot check + kill in `sending` -> `unconfirmed`, never delivered twice."""
+    from pdr.alerts import outbox
+    from pdr.store import SqliteStore
+    assert _run(["alert-setup", str(tmp_path), "2"]).returncode == 0
+    assert _run(["alert-send-blind", str(tmp_path)], crash_at=point).returncode == 137
+    assert _run(["alert-send-blind", str(tmp_path)]).returncode == 0
+    delivered = collections.Counter((tmp_path / "blind.log").read_text().split()) if (tmp_path / "blind.log").exists() else {}
+    assert all(n == 1 for n in delivered.values()), delivered
+    st = collections.Counter(r["status"] for r in outbox.rows(SqliteStore(tmp_path / "state.db")))
+    assert st == {"unconfirmed": 1, "sent": 1}, st
+    assert len(delivered) == (2 if point == "alert.after_send" else 1)
+
+
+def test_alert_crash_points_registered():
+    from pdr.crashpoints import KNOWN
+    assert set(ALERT_POINTS) <= set(KNOWN)
+
+
 if __name__ == "__main__":
     sys.path.insert(0, str(ROOT))
     cmd, data = sys.argv[1], Path(sys.argv[2])
@@ -239,5 +320,11 @@ if __name__ == "__main__":
         _pipe_setup(data)
     elif cmd == "pipe-run":
         _pipe_run(data)
+    elif cmd == "alert-setup":
+        _alert_setup(data, int(sys.argv[3]) if len(sys.argv) > 3 else 1)
+    elif cmd == "alert-send":
+        _alert_send(data)
+    elif cmd == "alert-send-blind":
+        _alert_send(data, blind=True)
     else:
         raise SystemExit(f"unknown command {cmd}")
