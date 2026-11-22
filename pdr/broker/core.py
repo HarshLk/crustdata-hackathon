@@ -177,7 +177,8 @@ def execute(conn: sqlite3.Connection, *, settings: Settings, provider: str, endp
                 c.execute("UPDATE call_intents SET status=? WHERE cache_key=?", ("done" if ok else "failed", key))
             crashpoint("call.after_cache")
             return CallResult(ok=ok, status=resp.status, body=resp.body, cache_hit=False, credits=spent,
-                              ledger_entry_id=e.entry_id, error=None if ok else f"http {resp.status}"), spent
+                              ledger_entry_id=e.entry_id, error=None if ok else f"http {resp.status}",
+                              headers=dict(resp.headers)), spent
         if resp is not None:
             last_status, last_err = resp.status, f"http {resp.status}"
         with tx(conn) as c:
@@ -226,7 +227,7 @@ def _cached(conn: sqlite3.Connection, key: str):
 
 def _cache_hit_result(conn, ctx: RunContext, key: str, provider: str, endpoint: str, request: dict, step: str,
                       row) -> CallResult:
-    status, _headers, body = row
+    status, headers, body = row
     started = now_utc()
     with tx(conn) as c:
         e = write_ledger(c, settings=ctx.settings, run_id=ctx.run_id, dispute_key=ctx.dispute_key, key=key, step=step,
@@ -234,7 +235,7 @@ def _cache_hit_result(conn, ctx: RunContext, key: str, provider: str, endpoint: 
                          outcome="empty" if is_empty(endpoint, json.loads(body)) else "ok",
                          summary=summarize(endpoint, request), started_at=started, ended_at=started)
     return CallResult(ok=True, status=status, body=json.loads(body), cache_hit=True, credits=Decimal("0"),
-                      ledger_entry_id=e.entry_id)
+                      ledger_entry_id=e.entry_id, headers=json.loads(headers or "{}"))
 
 
 def _wait_for_running(conn, key: str, max_wait: float) -> None:

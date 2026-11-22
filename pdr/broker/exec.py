@@ -62,7 +62,7 @@ def run_detached(conn, ctx: RunContext, key: str, provider: str, endpoint: str, 
             last = rows[-1]["entry_id"] if rows else ""
             if row is not None:
                 return CallResult(ok=True, status=row[0], body=json.loads(row[2]), cache_hit=False, credits=spent,
-                                  ledger_entry_id=last), spent
+                                  ledger_entry_id=last, headers=json.loads(row[1] or "{}")), spent
             err = rows[-1].get("request_summary", "failed") if rows else "failed"
             return CallResult(ok=False, status=None, body=None, cache_hit=False, credits=spent,
                               ledger_entry_id=last, error=err), spent
