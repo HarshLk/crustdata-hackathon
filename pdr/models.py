@@ -457,6 +457,10 @@ class Action(Entity):
     status: ActionStatus = ActionStatus.drafted
     sent_at: Optional[AwareDatetime] = None
     send_attempts: int = 0
+    # additive (c2): the rendered content whose sha256 is content_version, and the deductions' keys
+    body_md: str = ""
+    dispute_keys: list[str] = Field(default_factory=list)
+    subject: str = ""
 
 
 class SchemaMap(Entity):
