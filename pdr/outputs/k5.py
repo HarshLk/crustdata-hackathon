@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from pdr.models import Deduction, Evidence, Verdict
-from pdr.outputs.atomic import atomic_write
+from pdr.outputs.atomic import atomic_write, cleanup_stale
 from pdr.outputs.derived import REGISTRY
 
 OUT_NAME = "verdicts.jsonl"
@@ -73,6 +73,7 @@ def render_all(store: Any, settings: Any) -> list[dict]:
 
 def write_all(store: Any, out_dir: str | Path, settings: Any) -> Path:
     """Re-render verdicts.jsonl from the store and replace it atomically. Never appends."""
+    cleanup_stale(out_dir)
     lines = render_all(store, settings)
     text = "".join(json.dumps(l, ensure_ascii=False, default=str) + "\n" for l in lines)
     return atomic_write(Path(out_dir) / OUT_NAME, text)

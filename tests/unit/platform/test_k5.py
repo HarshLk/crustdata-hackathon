@@ -123,8 +123,23 @@ def test_kill_before_rename_keeps_old_file(tmp_path):
     r = subprocess.run([sys.executable, str(script), str(db), str(out), str(ROOT / "settings.yaml")], env=env, cwd=ROOT)
     assert r.returncode == 137
     assert (out / "verdicts.jsonl").read_bytes() == old  # old file intact
+    assert list((out / ".tmp").iterdir())  # the killed write left its temp file in .tmp/, not beside outputs
+    assert sorted(p.name for p in out.iterdir()) == [".tmp", "verdicts.jsonl"]
     env.pop("PDR_CRASH_AT")
     assert subprocess.run([sys.executable, str(script), str(db), str(out), str(ROOT / "settings.yaml")], env=env,
                           cwd=ROOT).returncode == 0
     lines = _lines(out / "verdicts.jsonl")
     assert sorted(l["dispute_key"] for l in lines) == sorted([d1.dispute_key, d2.dispute_key])
+    assert sorted(p.name for p in out.iterdir()) == ["verdicts.jsonl"]  # `ls -a out`: only real outputs
+
+
+def test_cleanup_stale_and_clean_write(tmp_path):
+    from pdr.outputs.atomic import atomic_write, cleanup_stale
+    atomic_write(tmp_path / "a.txt", "x")
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["a.txt"]
+    (tmp_path / ".tmp").mkdir()
+    (tmp_path / ".tmp" / "a.txt.123.part").write_text("half")
+    (tmp_path / ".verdicts.jsonl.abc.tmp").write_text("old layout")
+    assert cleanup_stale(tmp_path) == 2
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["a.txt"]
+    assert cleanup_stale(tmp_path / "missing") == 0

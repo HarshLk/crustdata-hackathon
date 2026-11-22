@@ -82,6 +82,7 @@ def test_run_end_to_end_with_stubbed_lanes(tmp_path, monkeypatch):
     assert "terms_checked" in r.output  # one line per stage change
     lines = [json.loads(l) for l in (tmp_path / "out" / "verdicts.jsonl").read_text().splitlines()]
     assert [l["dispute_key"] for l in lines] == [d.dispute_key for d in deds]
+    assert not (tmp_path / "out" / ".tmp").exists()
     runs = open_store().query("SELECT ended_at FROM runs")
     assert len(runs) == 1 and runs[0]["ended_at"]
     # views
@@ -92,6 +93,19 @@ def test_run_end_to_end_with_stubbed_lanes(tmp_path, monkeypatch):
     assert invoke("ledger", "--by", "nonsense").exit_code == 2
     r = invoke("economics")
     assert r.exit_code == 0 and "break-even fee rate" in r.output
+
+
+def test_run_cleans_stale_temps_first(tmp_path, monkeypatch):
+    store = open_store()
+    deds = fill(store)
+    (tmp_path / "out" / ".tmp").mkdir(parents=True)
+    (tmp_path / "out" / ".tmp" / "verdicts.jsonl.x.part").write_text("half")
+    monkeypatch.setattr(cli, "_load", lambda path, ctx: deds)
+    monkeypatch.setattr(cli, "_engine_run", _fake_engine)
+    r = invoke("run", "--in", str(tmp_path), "--out", str(tmp_path / "out"))
+    assert r.exit_code == 0, r.output
+    assert "removed 1 stale temp file" in r.output
+    assert ".tmp" not in {p.name for p in (tmp_path / "out").iterdir()}
 
 
 def test_run_without_lanes_degrades_and_exits_nonzero(tmp_path, monkeypatch):

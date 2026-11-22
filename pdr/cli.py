@@ -73,7 +73,17 @@ def _main(ctx: typer.Context,
         _state["settings_path"] = str(settings)
     if ctx.invoked_subcommand in NO_START_CHECK:
         return
-    reconcile(command_ctx())
+    rctx = command_ctx()
+    _cleanup(Path(rctx.settings.output.case_file.dir))  # covers `pdr report` on the default folder
+    reconcile(rctx)
+
+
+def _cleanup(out: Path) -> None:
+    """Remove temp files a killed output write left behind."""
+    from pdr.outputs.atomic import cleanup_stale
+    n = cleanup_stale(out)
+    if n:
+        _err(f"removed {n} stale temp file(s) from {out}")
 
 
 @app.command()
@@ -191,6 +201,7 @@ def run(in_: Path = typer.Option(..., "--in", help="request: a folder or file of
 
     settings, store = settings_and_store()
     out = out or Path(settings.output.case_file.dir)
+    _cleanup(out)
     ctx = command_ctx(time_limit, record=True)
     set_console(True)
     store.on_stage = lambda key, stage: log_event("stage", str(getattr(stage, "value", stage)), "saved", dispute_key=key)
