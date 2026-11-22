@@ -1,4 +1,4 @@
-PYTHON ?= python
+PYTHON ?= $(shell command -v python3 || command -v python)
 export PYTHONPATH := .
 export PDR_OFFLINE := 1
 

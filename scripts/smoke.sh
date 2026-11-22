@@ -2,7 +2,7 @@
 # Offline end-to-end check on case 6: run, approve, kill during send, restart, verify exactly-once.
 set -euo pipefail
 cd "$(dirname "$0")/.."
-PY="${PYTHON:-python}"
+PY="${PYTHON:-$(command -v python3 || command -v python)}"
 export PYTHONPATH=. PDR_OFFLINE=1 PYTHONWARNINGS=ignore
 export PDR_DATA_DIR="$(mktemp -d)"
 OUT="$PDR_DATA_DIR/out"
