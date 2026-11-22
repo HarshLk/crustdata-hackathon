@@ -68,11 +68,14 @@ def place_label(pl: dict) -> str:
 def lane_geo(lane: dict) -> tuple[list[str], list[str]]:
     """Route places and distinct route states (in route order) for one lane entry."""
     places = [pl for pl in lane.get("places", []) if isinstance(pl, dict) and pl.get("name")]
-    states: list[str] = []
+    states: list[str] = [str(s) for s in lane.get("route_states", []) or []]
     for pl in places:
         for s in (pl.get("state"), pl.get("state_local")):
             if s and s not in states:
                 states.append(str(s))
+    for s in (lane.get("regional_state_names") or {}).values():
+        if s and s not in states:
+            states.append(str(s))
     return [place_label(pl) for pl in places], states
 
 

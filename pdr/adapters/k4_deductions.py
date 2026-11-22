@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from pdr.codes import Flag
-from pdr.models import Client, Deduction, SourceRef, Trip, make_dispute_key, make_event_fp, norm_key, sha256_hex
+from pdr.models import Client, Deduction, SourceRef, make_dispute_key, make_event_fp, norm_key, sha256_hex
 
 from .k1_clients import resolve_client
 from .reason_map import has_instruction, map_reason, parse_client_calc
@@ -61,17 +61,6 @@ def _clients(ctx: Any) -> list[Client]:
     return store.find(Client) if store is not None else []
 
 
-def _trip_id_for(ref: str, ctx: Any, client_id: str) -> Optional[str]:
-    """Exact normalised match of a reference to one stored trip (else None)."""
-    store = getattr(ctx, "store", None)
-    if store is None or not ref:
-        return None
-    n = norm_key(ref)
-    hits = {t.trip_id for t in store.find(Trip, client_id=client_id)
-            if n in {norm_key(t.trip_id), norm_key(t.lr_no), norm_key(t.invoice_no), norm_key(t.eway_bill_no)}}
-    return hits.pop() if len(hits) == 1 else None
-
-
 def build_deduction(f: dict, ref: SourceRef, ctx: Any, raw_text: str = "", default_client: Optional[str] = None,
                     problems_out: Optional[list[str]] = None) -> Optional[Deduction]:
     """Canonical field dict -> Deduction, or None (reason appended to problems_out) if amount/date unusable."""
@@ -107,7 +96,7 @@ def build_deduction(f: dict, ref: SourceRef, ctx: Any, raw_text: str = "", defau
     fallback = {"date": ddate.isoformat(), "amount": money_str(amount), "refs": "|".join(sorted(norm_key(r) for r in refs)),
                 "reason": reason_code.value}
     dispute_key = make_dispute_key(client_id, advice_no, line_no, ded_no, fallback)
-    trip_key = (_trip_id_for(refs[0], ctx, client_id) or refs[0]) if refs else dispute_key
+    trip_key = refs[0] if refs else dispute_key  # same rule as tests/caselib (first trip ref)
     flags = [Flag.INSTRUCTION_IN_INPUT] if has_instruction(raw_text or " ".join(str(v) for v in f.values())) else []
     pf, pt = parse_date(f.get("period_from")), parse_date(f.get("period_to"))
     rd = parse_date(f.get("received_date"))

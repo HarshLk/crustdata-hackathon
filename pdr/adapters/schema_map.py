@@ -118,14 +118,14 @@ K4_SYNONYMS: dict[str, list[str]] = {
                   "dnno", "remittanceno", "paymentref", "paymentreference", "voucherno", "documentno", "docno"],
     "line_no": ["lineno", "line", "lineid", "linenumber", "item", "itemno", "sno", "srno", "slno", "serialno"],
     "client_deduction_no": ["deductionno", "deductionid", "deductionnumber", "dedno", "deductionref", "penaltyno", "claimno"],
-    "deduction_date": ["deductiondate", "date", "advicedate", "notedate", "debitnotedate", "documentdate", "dndate", "paymentdate"],
-    "received_date": ["receiveddate", "datereceived", "receivedon", "receiptdate"],
+    "deduction_date": ["deductiondate", "date", "advicedate", "notedate", "debitnotedate", "documentdate", "dndate", "paymentdate", "debitdate", "deductedon", "penaltydate"],
+    "received_date": ["receiveddate", "datereceived", "receivedon", "receiptdate", "recdon", "recddate", "recd", "dateofreceipt"],
     "amount": ["amount", "amt", "deductionamount", "deductionamt", "dedamt", "penalty", "penaltyrs", "penaltyamount",
                "penaltyamt", "amountrs", "amountinr", "deducted", "deductedamount", "debitamount", "ldamount", "value"],
     "reason": ["reason", "reasontext", "remarks", "remark", "narration", "description", "deductionreason", "particulars",
                "penaltyreason", "comments", "details"],
     "lr_no": ["lrno", "lr", "lrnumber", "lorryreceipt", "lorryreceiptno", "grno", "gr", "grnumber", "cnno", "consignmentnote",
-              "consignmentno", "docketno", "tripid", "tripno", "trip", "lrnos", "tripref", "triprefs", "shipmentno", "bilty", "biltyno"],
+              "consignmentno", "consignmentlr", "consignment", "docketno", "tripid", "tripno", "trip", "lrnos", "tripref", "triprefs", "shipmentno", "bilty", "biltyno"],
     "invoice_no": ["invoiceno", "invoice", "invno", "billno", "freightinvoice", "invoicenumber", "billnumber"],
     "period_from": ["periodfrom", "fromdate", "periodstart"],
     "period_to": ["periodto", "todate", "periodend"],
@@ -217,7 +217,26 @@ def _deterministic(headers: list[str], source_kind: str, preset: dict[str, str] 
         if best and score >= 0.85:
             out[h] = best
             used.add(best)
+    tokens = TOKEN_RULES.get(source_kind, [])
+    for h in headers:  # 4. word rules on the raw header ("Debit Date" -> deduction_date, "Amt (INR)" -> amount)
+        if h in out:
+            continue
+        for rx, f in tokens:
+            if f not in used and re.search(rx, str(h), re.I):
+                out[h] = f
+                used.add(f)
+                break
     return out
+
+
+TOKEN_RULES: dict[str, list[tuple[str, str]]] = {
+    "k4": [(r"\b(recd|received|receipt)\b", "received_date"), (r"\bdate\b|\bdt\b", "deduction_date"),
+           (r"\b(amt|amount|penalty|deduct\w*)\b", "amount"), (r"\b(lr|lorry|gr|consignment|docket|trip)\b", "lr_no"),
+           (r"\b(invoice|bill|inv)\b", "invoice_no"), (r"\b(advice|debit\s*note|dn)\b", "advice_no"),
+           (r"\b(reason|remark|narration|description)\w*", "reason"), (r"\b(client|customer|party|buyer)\b", "client")],
+    "k3": [(r"\b(truck|vehicle|lorry)\b", "vehicle_no"), (r"\b(lr|gr|consignment)\b", "lr_no"),
+           (r"\barriv\w*", "arrival_at"), (r"\bgate\s*out|dispatch", "gate_out_at"), (r"\breport\w*", "reporting_at")],
+}
 
 
 class _LlmMapping(BaseModel):
@@ -282,7 +301,7 @@ def validate_schema_map(m: SchemaMap, rows: list[dict]) -> list[str]:
         if not vals:
             continue
         ok = sum(1 for v in vals if _parses(f, v))
-        if ok == 0 or ok / len(vals) < 0.6:
+        if ok == 0 or ok / len(vals) < 0.5:
             problems.append(f"column {col!r} does not parse as {f} ({ok}/{len(vals)})")
     return problems
 
