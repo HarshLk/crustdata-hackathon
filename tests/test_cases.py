@@ -94,6 +94,12 @@ def _run_case(case_dir: Path, tmp_path: Path):
     return store, keys, expected, overrides, verdicts
 
 
+@pytest.fixture(autouse=True)
+def _inline_paid_calls(monkeypatch):
+    """Verdict cases run paid calls inline: a detached child rebuilds the fake transport, resetting its faults."""
+    monkeypatch.setenv("PDR_PAIDCALL_MODE", "inline")
+
+
 @pytest.mark.parametrize("case_dir", CASES, ids=lambda p: p.name)
 def test_case(case_dir, tmp_path):
     _run_case(case_dir, tmp_path)
