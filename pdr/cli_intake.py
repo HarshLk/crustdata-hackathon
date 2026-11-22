@@ -26,6 +26,10 @@ def intake(client: str, files: List[Path], effective_from: Optional[str] = typer
     """Store agreement files for a client and propose terms (unconfirmed) with page and verbatim text."""
     from pdr.intake.confirm import render
     from pdr.intake.extract import run_intake
+    missing = [str(f) for f in files if not f.exists()]
+    if missing:
+        typer.echo(f"no such file: {', '.join(missing)}", err=True)
+        raise typer.Exit(1)
     ctx = _ctx()
     eff = date.fromisoformat(effective_from) if effective_from else None
     for ag, res in run_intake(client, [str(f) for f in files], ctx, who=_who(who), effective_from=eff, doc_type=doc_type):
@@ -80,6 +84,9 @@ def export_terms(client: str, out: Path) -> None:
 def load_terms(path: Path) -> None:
     """Load agreements and terms from a terms.yaml into the store."""
     from pdr.adapters.k2_agreements import load_terms_file
+    if not path.exists():
+        typer.echo(f"no such file: {path}", err=True)
+        raise typer.Exit(1)
     store = _ctx().store
     ags, terms = load_terms_file(path)
     for x in [*ags, *terms]:

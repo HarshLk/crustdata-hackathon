@@ -199,6 +199,10 @@ def run(in_: Path = typer.Option(..., "--in", help="request: a folder or file of
     from pdr.outputs.k5 import current_verdicts, write_all
     from pdr.runctx import finish_run
 
+    raw = str(in_)
+    if not in_.exists() and "\n" not in raw and (" " not in raw.strip() or "/" in raw):
+        _err(f"no such file or folder: {in_}")
+        raise typer.Exit(1)
     settings, store = settings_and_store()
     out = out or Path(settings.output.case_file.dir)
     _cleanup(out)
