@@ -53,7 +53,7 @@ def test_budget_below_worst_case_raises_and_makes_no_call(tmp_path, fake):
     ctx = make_ctx(tmp_path / "b.db", run_cost_credits=Decimal(2))
     fake.add({"endpoint": SEARCH, "response": _results()})
     with pytest.raises(BudgetReached):
-        paid_call("crustdata", "/web/enrich/live", {"urls": ["a", "b", "c"]}, ctx=ctx, step="fetch",
+        paid_call("crustdata", "/web/enrich/live", {"urls": ["https://a.in/1", "https://b.in/2", "https://c.in/3"]}, ctx=ctx, step="fetch",
                   worst_case_credits=Decimal(3))
     assert fake.calls == [] and ledger.rows(ctx.store) == []
     ctx2 = make_ctx(tmp_path / "c.db", per_deduction_credits=Decimal(1))
@@ -82,9 +82,9 @@ def test_throttle_delays_the_11th_call_in_a_minute(ctx, fake, instant_time):
 
 
 def test_cost_falls_back_to_price_table_without_header(ctx, fake):
-    fake.add({"endpoint": "/web/enrich/live", "url_contains": "x", "response": [{"url": "x1"}, {"url": "x2"}],
+    fake.add({"endpoint": "/web/enrich/live", "url_contains": "x.in", "response": [{"url": "https://x.in/1"}, {"url": "https://x.in/2"}],
               "headers": {"x-credits-used": ""}})
-    r = paid_call("crustdata", "/web/enrich/live", {"urls": ["x1", "x2"]}, ctx=ctx, step="fetch",
+    r = paid_call("crustdata", "/web/enrich/live", {"urls": ["https://x.in/1", "https://x.in/2"]}, ctx=ctx, step="fetch",
                   worst_case_credits=2)
     assert r.credits == Decimal(2)
 
