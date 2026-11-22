@@ -138,9 +138,38 @@ def _site_lane_ok(a: Agreement, trip: Trip) -> bool:
     return True
 
 
+_TRIP_FIELDS = {"lr_no", "trip", "trip_refs", "invoice_no", "invoice_ref", "eway_bill_no"}
+
+
+def input_problems(ded: Deduction) -> list[CheckResult]:
+    """Fields the reader could not map or parse: each one is INCOMPLETE, so the verdict is cannot_verify."""
+    src = ded.source_ref.file if ded.source_ref else "the input"
+    probs = list(getattr(ded, "input_problems", None) or [])
+    if not (ded.reason_text or "").strip() and not any(p.startswith("missing_field:reason") for p in probs):
+        probs.append("missing_field:reason")
+    out = []
+    for p in probs:
+        kind, _, detail = p.partition(":")
+        if kind == "client_unmatched":
+            out.append(_res("gate_input", CheckStatus.INCOMPLETE, Reason.AMBIGUOUS_MATCH,
+                            f"client '{detail}' on the deduction could not be matched to a client on file",
+                            f"reader problem: {p}"))
+        elif kind == "missing_field" and detail.split()[0] in _TRIP_FIELDS:
+            out.append(_res("gate_input", CheckStatus.INCOMPLETE, Reason.TRIP_NOT_FOUND,
+                            f"input field '{detail}' could not be read from {src}", f"reader problem: {p}"))
+        elif kind == "missing_field":
+            out.append(_res("gate_input", CheckStatus.INCOMPLETE, Reason.INTERNAL_ERROR,
+                            f"input field '{detail}' could not be read from {src}", f"reader problem: {p}"))
+        else:
+            out.append(_res("gate_input", CheckStatus.INCOMPLETE, Reason.INTERNAL_ERROR,
+                            f"input problem in {src}: {p}", f"reader problem: {p}"))
+    return out
+
+
 def resolve(ded: Deduction, store) -> Identity:
     """Strict identity: client, trip, agreement set in force, confirmed terms. Problems become gate results."""
     idn = Identity()
+    idn.problems.extend(input_problems(ded))
     client, r = _match_client(ded, store)
     (idn.problems if r.status == CheckStatus.INCOMPLETE else idn.notes).append(r)
     if client is None:

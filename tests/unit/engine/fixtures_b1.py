@@ -35,7 +35,13 @@ def settings(**overrides):
     return settings_from_dict(data)
 
 
-def ctx(store=None, run_id="r-test", **overrides):
+_RUN = [0]
+
+
+def ctx(store=None, run_id=None, **overrides):
+    if run_id is None:
+        _RUN[0] += 1
+        run_id = f"r-test-{_RUN[0]}"
     return RunContext(run_id=run_id, dispute_key=None, settings=settings(**overrides), store=store or MemStore(),
                       deadline=datetime.now(timezone.utc) + timedelta(hours=1))
 
@@ -109,6 +115,7 @@ def world(store=None, terms=None, trips=None, deds=None, clients=None, agreement
         store.put(a)
     for t in terms if terms is not None else [penalty_term(), fm_named(), notice_term()]:
         store.put(t)
+    kini_snapshot(store)
     for t in trips if trips is not None else [trip()]:
         store.put(t)
     keys = []
@@ -125,7 +132,7 @@ def stub_free_checks():
     from pdr.models import CheckResult
     import sys
     import types
-    added = []
+    added = offline()
     for stage, mod in ((Stage.terms_checked, "pdr.engine.checks_terms"), (Stage.records_checked, "pdr.engine.checks_records")):
         if mod in sys.modules and registry.checks_for(stage):
             continue
@@ -141,10 +148,28 @@ def stub_free_checks():
     return added
 
 
+def offline() -> list[str]:
+    """Register a strict FakeTransport for every provider so no test can reach a live API."""
+    try:
+        from pdr.broker import TRANSPORTS, register_transport
+        from tests.fakes.transport import FakeTransport
+    except ImportError:
+        return []
+    out = []
+    for name in ("crustdata", "llm", "web"):
+        if name not in TRANSPORTS:
+            register_transport(name, FakeTransport())
+            out.append("transport:" + name)
+    return out
+
+
 def unregister(ids):
     import sys
     from pdr.engine import registry
     for i in ids:
+        if i.startswith("transport:"):
+            from pdr.broker import register_transport
+            register_transport(i[10:], None)
         if i.startswith("module:"):
             sys.modules.pop(i[7:], None)
         registry._REGISTRY.pop(i, None)
@@ -162,11 +187,22 @@ class FakeFinder:
         return self.result_fn(req)
 
 
+KINI_PASSAGE = "Over 1,500 trucks stranded near Kini toll plaza as the blockade halted traffic on NH-48"
+KINI_TEXT = "Kolhapur, 6 Nov. " + KINI_PASSAGE + ". Police cleared the highway by evening."
+
+
+def kini_snapshot(store):
+    """Store the snapshot the Kini evidence cites, so the citation audit can re-verify it."""
+    from pdr.models import sha256_hex
+    store.snapshot_put(sha256_hex(KINI_TEXT), "https://example.org/kini-blockade", KINI_TEXT, None)
+    return store
+
+
 def kini_evidence(eid="ext-kini-1", place="Kini toll plaza", stance="supports"):
     from datetime import date as _d
-    from pdr.models import Evidence
+    from pdr.models import Evidence, sha256_hex
     return Evidence(evidence_id=eid, kind="external_news", url="https://example.org/kini-blockade",
-                    passage="Over 1,500 trucks stranded near Kini toll plaza as the blockade halted traffic on NH-48",
+                    passage=KINI_PASSAGE,
                     published_at=ist(6, 9), event_from=_d(2026, 11, 3), event_to=_d(2026, 11, 6), place_named=place,
-                    retrieved_at=ist(22, 9), fetch_status="ok", content_hash="abc", stance=stance,
+                    retrieved_at=ist(22, 9), fetch_status="ok", content_hash=sha256_hex(KINI_TEXT), stance=stance,
                     link="https://example.org/kini-blockade#:~:text=Over")

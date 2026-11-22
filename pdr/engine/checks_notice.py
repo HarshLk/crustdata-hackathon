@@ -30,7 +30,7 @@ def term_evidence(term: Term, agreement=None) -> Evidence:
 
 
 def record_evidence(trip: Trip, record_type: str, fld: str, value, ts: Optional[datetime], ref: Optional[SourceRef]) -> Evidence:
-    """Internal-record Evidence for a notice, halt, hold or report (deterministic id)."""
+    """Internal-record Evidence for a notice, halt, hold or report; fld is the Trip attribute (audit re-reads it)."""
     eid = "rec-" + sha256_hex(f"{trip.trip_id}|{record_type}|{fld}|{value}|{ref.file if ref else ''}|{ref.row if ref else ''}")[:16]
     return Evidence(evidence_id=eid, kind="internal_record", client_id=trip.client_id, record_type=record_type,
                     record_id=trip.trip_id, field=fld, value=value, timestamp=ts, ref=ref, link=f"#ev-{eid}")
@@ -106,17 +106,17 @@ def claims(trip: Trip) -> list[Claim]:
     out = []
     for a in trip.assertions:
         out.append(Claim(a.kind, a.event_type, a.at, a.place,
-                         record_evidence(trip, a.kind, "text", a.text, a.at, a.ref)))
+                         record_evidence(trip, a.kind, "assertions", a.text, a.at, a.ref)))
     for n in trip.notices:
         out.append(Claim("notice", None, n.sent_at, None,
-                         record_evidence(trip, "notice", "sent_at", n.sent_at.isoformat(), n.sent_at, n.ref)))
+                         record_evidence(trip, "notice", "notices", n.sent_at.isoformat(), n.sent_at, n.ref)))
     for h in trip.holds:
         out.append(Claim("hold", EventType.govt_detention, h.held_from, h.place,
-                         record_evidence(trip, "hold", "held_from", h.held_from.isoformat(), h.held_from, h.memo_ref)))
+                         record_evidence(trip, "hold", "holds", h.held_from.isoformat(), h.held_from, h.memo_ref)))
     for h in trip.halts:
         if h.source in PEOPLE_SOURCES:
             out.append(Claim("flagged_halt", None, h.start, h.place,
-                             record_evidence(trip, h.source.value, "halt", f"{h.start.isoformat()}/{h.end.isoformat()}",
+                             record_evidence(trip, h.source.value, "halts", f"{h.start.isoformat()}/{h.end.isoformat()}",
                                              h.start, h.ref)))
     return out
 
@@ -233,7 +233,7 @@ def notice_in_window(c: CheckContext):
                   citations=term_cits, depends_on=[a.notice_term.term_id],
                   note="no notice record in the clause's window; no paid search run")
     n = ok[0]
-    ev = record_evidence(c.trip, "notice", "sent_at", n.sent_at.isoformat(), n.sent_at, n.ref)
+    ev = record_evidence(c.trip, "notice", "notices", n.sent_at.isoformat(), n.sent_at, n.ref)
     return _r("notice_in_window", CheckStatus.NO_GROUND, citations=term_cits + keep(c, [ev]),
               depends_on=[a.notice_term.term_id],
               note=f"notice sent {n.sent_at.isoformat()} by {n.channel} to {n.addressee}, {desc}")

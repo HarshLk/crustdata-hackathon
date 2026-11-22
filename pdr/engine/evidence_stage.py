@@ -59,6 +59,12 @@ def delay_span(c: CheckContext) -> Optional[tuple[datetime, datetime]]:
     return (due, actual) if due and actual else None
 
 
+def reset_run_memo() -> None:
+    """Forget per-run search results and group totals (start of each run; the broker cache still holds them)."""
+    _RUN_RESULTS.clear()
+    GROUP_TOTALS.clear()
+
+
 def build_request(c: CheckContext, plan: dict) -> Optional[EvidenceRequest]:
     """EvidenceRequest from route places, the in-transit window and covered event types; None without a window."""
     win = in_transit_window(c.trip, c.ctx.settings)
@@ -123,11 +129,11 @@ def corroborate(c: CheckContext, res: EvidenceResult, iv) -> list[tuple[datetime
         if h.source in CORROBORATING and place_match(h.place, affected, trip.route_places):
             s, e = max(h.start, iv[0]), min(h.end, iv[1])
             if s <= e:
-                out.append((s, e, record_evidence(trip, h.source.value, "halt",
+                out.append((s, e, record_evidence(trip, h.source.value, "halts",
                                                   f"{h.start.isoformat()}/{h.end.isoformat()} at {h.place}", h.start, h.ref)))
     for a in trip.assertions:
         if a.kind == "driver_report" and a.at and iv[0] <= a.at <= iv[1] and place_match(a.place, affected, trip.route_places):
-            out.append((a.at, a.at, record_evidence(trip, a.kind, "text", a.text, a.at, a.ref)))
+            out.append((a.at, a.at, record_evidence(trip, a.kind, "assertions", a.text, a.at, a.ref)))
     return out
 
 

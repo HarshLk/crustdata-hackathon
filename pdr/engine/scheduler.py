@@ -24,6 +24,7 @@ def _safe(fn, key, *a, **kw):
 def run(dispute_keys: list[str], ctx: RunContext) -> list[Verdict]:
     """Pass 1 settles what free checks can; pass 2 groups the rest by EvidenceRequest.key()."""
     keys = list(dict.fromkeys(dispute_keys))  # a resubmitted key is processed once
+    evidence_stage.reset_run_memo()
     verdicts: dict[str, Verdict] = {}
     pending: list[str] = []
     for key in keys:
