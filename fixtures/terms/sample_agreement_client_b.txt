@@ -1,0 +1,12 @@
+Stand-in Handling and Transport Contract, Bravo Demo Warehousing (built from D6 clauses)
+STAND-IN SAMPLE AGREEMENT built from real public clauses (REFERENCE.md section 3). Not a signed contract.
+Between Bravo Demo Warehousing Ltd (the Client) and the Carrier. Effective 2026-04-01 to 2027-03-31.
+
+--- page 7 ---
+Clause 13. Liquidated Damages from the Service Provider @ Rs.2000/- per day of delay in delivery beyond the due date, a part of a day being counted as a full day.
+
+--- page 41 ---
+Clause 20.1-20.2. Force majeure shall mean war, riots, floods and natural disasters (other than ordinary weather), fire and unexpected acts of Government. Strikes, agitations, road blockades or lockouts, whether by the Service Provider's staff, its sub-contractors or any other persons, shall not be treated as force majeure.
+
+--- page 42 ---
+Clause 20.2. The Service Provider shall intimate the occurrence of force majeure in writing to the Regional Manager within 48 hours.

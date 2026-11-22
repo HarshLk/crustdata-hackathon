@@ -75,3 +75,22 @@ def test_case_files_are_consistent(case_dir):
         if amt:
             assert f"{amt:,.2f}" in notes, f"NOTES.md must show the arithmetic for {amt:,.2f}"
     assert client_ids or meta.get("kind") == "lookalike"
+
+
+VARIANT_FILES = [(d, f) for d in CASES if (d / "variants").is_dir() for f in sorted((d / "variants").iterdir())]
+
+
+@pytest.mark.parametrize("case_dir,variant", VARIANT_FILES, ids=lambda x: getattr(x, "name", str(x)))
+def test_variant_gives_same_key(case_dir, variant, tmp_path):
+    """A renamed, reordered or pasted-text copy of the K4 input gives the same dispute key through the real reader."""
+    reader = pytest.importorskip("pdr.adapters.reader")
+    from datetime import datetime, timedelta, timezone
+    from pdr.contracts import RunContext
+    from tests.caselib import case_settings
+    store = MemStore()
+    keys, _, overrides = load_case(case_dir, store)
+    ctx = RunContext("variant", None, case_settings(overrides), store, datetime.now(timezone.utc) + timedelta(minutes=5))
+    got = reader.load_request(variant, ctx)
+    assert [d.dispute_key for d in got] == keys
+    ref = read_case(case_dir)["deductions"][0]
+    assert got[0].amount == ref.amount and got[0].trip_refs == ref.trip_refs

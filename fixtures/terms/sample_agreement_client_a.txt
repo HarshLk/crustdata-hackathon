@@ -1,0 +1,13 @@
+Stand-in Transport Service Agreement, Alpha Demo Agro (built from D1, D6, D7 clauses)
+STAND-IN SAMPLE AGREEMENT built from real public clauses (REFERENCE.md section 3). Not a signed contract.
+Between Alpha Demo Agro Industries Pvt Ltd (the Client) and the Carrier. Effective 2026-04-01 to 2027-03-31.
+
+--- page 3 ---
+Clause 10(a). Seizure or detention by a government agency, or other causes beyond control, must be reported and an alternative arranged with written permission.
+
+--- page 7 ---
+Clause 13. Liquidated Damages from the Service Provider @ Rs.2000/- per day of delay in delivery beyond the due date, a part of a day being counted as a full day.
+
+--- page 35 ---
+Clause 15(iv). Neither party shall be liable for delay caused by force majeure, namely war, epidemics, civil commotion, fire, floods, landslides, bandhs, road blockades and agitations, closure of roads by government order, and seizure or detention by a government agency.
+Clause 15(iv). The party affected shall notify the other in writing within10 days from the date of occurrence thereof, with supporting documents.

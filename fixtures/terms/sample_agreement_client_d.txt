@@ -1,0 +1,10 @@
+Stand-in Transport Agreement, Delta Demo Traders (built from D1, D11 clauses)
+STAND-IN SAMPLE AGREEMENT built from real public clauses (REFERENCE.md section 3). Not a signed contract.
+Between Delta Demo Traders Ltd (the Client) and the Carrier. Effective 2026-04-01 to 2027-03-31.
+
+--- page 6 ---
+Clause 9.1. Liquidated damages @ Rs.2000/- per day of delay in delivery, a part of a day being counted as a full day.
+
+--- page 11 ---
+Clause 14. Neither party shall be liable for any delay caused by civil commotion.
+Clause 14. The party affected shall notify the other in writing within10 days from the date of occurrence thereof.

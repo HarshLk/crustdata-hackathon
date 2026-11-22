@@ -1,0 +1,13 @@
+Stand-in GeM contract: SLA Goods Transport Service (D2) with GTC 4.0 (D1) excerpts
+STAND-IN SAMPLE AGREEMENT built from real public clauses (REFERENCE.md section 3). Not a signed contract.
+Between Golf Demo Public Sector Buyer (the Client) and the Carrier. Effective 2026-04-01 to 2027-03-31.
+
+--- page 3 ---
+Clause 8 item 1. Delay of a vehicle: 1% of the trip cost per vehicle per day of delay, subject to the maximum of 15% of the trip cost for each vehicle.
+Clause 8 item 1. subject to the maximum of 15% of the trip cost for each vehicle
+
+--- page 4 ---
+Clause 10.1. The Service Provider shall notify the Buyer of the cause, evidence and nature of such effect, and the contract may be amended accordingly.
+
+--- page 34 ---
+Clause GTC 15(i); SOP item 2. Where the delay is attributable to the Buyer / Consignee, the delivery period shall be re-fixed without penalty. SOP item 2: loading at the Buyer's premises shall be completed within 4 hours of the vehicle reporting.

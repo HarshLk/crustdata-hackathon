@@ -1,0 +1,10 @@
+Stand-in Road Transport Contract, Charlie Demo Petro (built from D10 clauses)
+STAND-IN SAMPLE AGREEMENT built from real public clauses (REFERENCE.md section 3). Not a signed contract.
+Between Charlie Demo Petro Products Ltd (the Client) and the Carrier. Effective 2026-04-01 to 2027-03-31.
+
+--- page 31 ---
+Clause 8(d). The Corporation shall levy penalty on the carrier @ Rs. 2000/- per day of delay, a part of a day being counted as a full day, recovered from the bills.
+
+--- page 32 ---
+Clause 14. Force majeure: floods, earthquakes, acts of God, riots, road blockades and agitations.
+Clause 14. The carrier shall notify the occurrence of force majeure to the Corporation within 24 hours of its occurrence.
