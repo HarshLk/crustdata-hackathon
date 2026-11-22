@@ -52,7 +52,8 @@ def test_trips_split_and_sourced(ctx, tmp_path):
     assert {o.source for o in t.arrival_at} == {TsSource.consignee_gate_log}
     assert len(t.arrival_at) == 2 and not t.arrival_at[0].tz_assumed
     assert len(t.halts) == 1 and t.halts[0].place.startswith("Aurangabad") and t.halts[0].source == TsSource.gps
-    assert t.route_places[1] == "Aurangabad, Chhatrapati Sambhajinagar, Maharashtra" and t.route_states == ["Maharashtra"]
+    assert t.route_places == ["Pune", "Aurangabad", "Nagpur"] and t.route_states == ["Maharashtra"]
+    assert t.route_place_details["Aurangabad"] == {"district": "Chhatrapati Sambhajinagar", "state": "Maharashtra"}
     kinds = {a.kind: a for a in t.assertions}
     assert kinds["ops_note"].event_type == EventType.bandh and t.driver_ref in kinds["ops_note"].text
     assert "[driver" in kinds["driver_report"].text

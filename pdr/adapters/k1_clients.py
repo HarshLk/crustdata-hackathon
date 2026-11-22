@@ -66,17 +66,28 @@ def place_label(pl: dict) -> str:
 
 
 def lane_geo(lane: dict) -> tuple[list[str], list[str]]:
-    """Route places and distinct route states (in route order) for one lane entry."""
+    """Plain route place names (route order, de-duplicated) and the route's states (English names only)."""
     places = [pl for pl in lane.get("places", []) if isinstance(pl, dict) and pl.get("name")]
-    states: list[str] = [str(s) for s in lane.get("route_states", []) or []]
+    names = list(dict.fromkeys(" ".join(str(pl["name"]).split()) for pl in places))
+    states: list[str] = list(dict.fromkeys(str(s) for s in (lane.get("route_states") or []) if s))
     for pl in places:
-        for s in (pl.get("state"), pl.get("state_local")):
-            if s and s not in states:
-                states.append(str(s))
-    for s in (lane.get("regional_state_names") or {}).values():
-        if s and s not in states:
-            states.append(str(s))
-    return [place_label(pl) for pl in places], states
+        if pl.get("state") and str(pl["state"]) not in states:
+            states.append(str(pl["state"]))
+    return names, states
+
+
+def lane_place_details(lane: dict) -> dict[str, dict[str, str]]:
+    """place name -> {district, state, state_local} (only the keys the lanes file gives)."""
+    regional = lane.get("regional_state_names") or {}
+    out: dict[str, dict[str, str]] = {}
+    for pl in lane.get("places", []):
+        if not isinstance(pl, dict) or not pl.get("name"):
+            continue
+        d = {k: str(pl[k]) for k in ("district", "state", "state_local") if pl.get(k)}
+        if "state_local" not in d and pl.get("state") in regional:
+            d["state_local"] = str(regional[pl["state"]])
+        out.setdefault(" ".join(str(pl["name"]).split()), d)
+    return out
 
 
 def lane_for_trip(trip: Trip, lanes: dict[str, dict]) -> Optional[dict]:
@@ -96,11 +107,12 @@ def attach_routes(trips: list[Trip], lanes: dict[str, dict]) -> list[Trip]:
     """Fills route_places / route_states from lanes.yaml for trips lacking them."""
     out = []
     for t in trips:
-        lane = lane_for_trip(t, lanes) if (not t.route_places or not t.route_states) else None
+        lane = lane_for_trip(t, lanes) if (not t.route_places or not t.route_states or not t.route_place_details) else None
         if lane:
             places, states = lane_geo(lane)
             t = t.model_copy(update={"route_places": t.route_places or places,
-                                     "route_states": t.route_states or states})
+                                     "route_states": t.route_states or states,
+                                     "route_place_details": t.route_place_details or lane_place_details(lane)})
         out.append(t)
     return out
 

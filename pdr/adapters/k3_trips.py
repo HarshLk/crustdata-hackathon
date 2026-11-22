@@ -17,7 +17,7 @@ from pdr import guard, vault
 from pdr.codes import EventType, TsSource
 from pdr.models import Assertion, Client, Halt, Hold, NoticeRecord, Observation, SourceRef, Trip, norm_key
 
-from .k1_clients import attach_routes, place_label, resolve_client
+from .k1_clients import attach_routes, resolve_client
 from .k4_deductions import read_table
 from .schema_map import mapping_for, parse_amount, parse_dt, split_refs
 
@@ -163,7 +163,7 @@ def _geofence(lat: float, lon: float, lanes: dict[str, dict]) -> Optional[str]:
         for pl in lane.get("places", []):
             if pl.get("lat") is not None and pl.get("lon") is not None:
                 if _haversine_km((lat, lon), (float(pl["lat"]), float(pl["lon"]))) <= float(pl.get("radius_km", 10)):
-                    return place_label(pl)
+                    return " ".join(str(pl["name"]).split())
     return None
 
 
