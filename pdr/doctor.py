@@ -79,6 +79,8 @@ def run_checks(settings_path: str | None = None, data_dir: str | None = None, on
         ok, src = key_present(k)
         out.append(Check(f"key {k}", "ok" if ok else "warn",
                          f"set ({src})" if ok else "not set: model reads will not finish (verdicts stay cannot_verify)"))
+    if settings is not None:
+        out.extend(llm_checks(settings))
     if online:
         url = settings.providers.crustdata.base_url if settings else "https://api.crustdata.com"
         host = urlparse(url).hostname or ""
@@ -88,6 +90,27 @@ def run_checks(settings_path: str | None = None, data_dir: str | None = None, on
         except OSError as e:
             out.append(Check("crustdata reachable", "fail", f"{host}:443 unreachable ({e}); free checks still run"))
     return out
+
+
+def llm_checks(settings) -> list[Check]:
+    """Active model provider, model ids, key env var (name only, never the value), prices set or not."""
+    from pdr.broker.pricing import prices_set
+    from pdr.llm_openai import key_env
+    cfg = settings.providers.llm
+    provider = (getattr(cfg, "provider", "") or "anthropic").strip()
+    models = [cfg.model_extract, cfg.model_parse]
+    detail = f"{provider}; models extract={cfg.model_extract} parse={cfg.model_parse}"
+    if provider == "openai_compatible":
+        detail += f"; base_url={getattr(cfg, 'base_url', '') or '(not set)'}"
+    name = key_env(cfg)
+    ok, src = key_present(name)
+    priced = prices_set(settings, models)
+    return [Check("llm provider", "ok" if provider in ("anthropic", "openai_compatible") else "fail", detail),
+            Check(f"llm key {name}", "ok" if ok else "warn",
+                  f"set ({src})" if ok else "not set: model reads will not finish"),
+            Check("llm prices", "ok" if priced else "warn",
+                  "set" if priced else "not set (0): model calls show tokens, cost 'unpriced'; "
+                  "set providers.llm.prices from the provider's price page")]
 
 
 def failed(checks: list[Check]) -> bool:

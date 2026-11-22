@@ -12,7 +12,12 @@ providers:
   crustdata: { base_url: "https://api.crustdata.com", api_version: "2025-11-01", rate_per_minute: 10,
                retry_limit: 3, backoff_seconds: [2, 5, 12], timeout_seconds: 60 }
   llm:       { provider: anthropic, model_extract: claude-sonnet-5-5, model_parse: claude-haiku-5-5,
-               retry_limit: 2, timeout_seconds: 60 }
+               retry_limit: 2, timeout_seconds: 60,
+               # provider: anthropic | openai_compatible (base_url = chat-completions root; api_key_env "" = default name)
+               base_url: "", api_key_env: "",
+               # prices: USD per million tokens; set from the provider's price page (0 = unpriced, tokens still shown)
+               prices: { claude-sonnet-5-5: { usd_per_mtok_in: 0, usd_per_mtok_out: 0 },
+                         claude-haiku-5-5: { usd_per_mtok_in: 0, usd_per_mtok_out: 0 } } }
   paidcall_mode: detached         # detached | inline (inline is automatic on Windows)
   paid_concurrency: 3             # paid calls in flight within one evidence group
 evidence:

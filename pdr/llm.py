@@ -128,19 +128,41 @@ def build_request(task: str, source_text: str, schema: type[BaseModel], ctx: Run
         + json.dumps(schema.model_json_schema(), sort_keys=True)
     )
     text = (source_text or "")[:MAX_SOURCE_CHARS]
-    return {
+    body = {
         "model": _model_for(task, ctx),
         "max_tokens": MAX_TOKENS,
         "temperature": 0,
         "system": system,
         "messages": [{"role": "user", "content": f"<source>\n{text}\n</source>"}],
     }
+    if provider_of(ctx) == "openai_compatible":
+        from pdr.llm_openai import to_chat_request
+        return to_chat_request(body)
+    return body
 
 
-def _ensure_transport() -> bool:
-    """A registered 'llm' transport (tests) or the real one when ANTHROPIC_API_KEY is set."""
+def provider_of(ctx: RunContext) -> str:
+    """providers.llm.provider: anthropic | openai_compatible."""
+    return (getattr(ctx.settings.providers.llm, "provider", "") or "anthropic").strip()
+
+
+def endpoint_for(ctx: RunContext) -> str:
+    """Broker endpoint; differs per provider so the cache key never mixes providers (the model is in the body)."""
+    if provider_of(ctx) == "openai_compatible":
+        from pdr.llm_openai import ENDPOINT
+        return ENDPOINT
+    return "/v1/messages"
+
+
+def _ensure_transport(ctx: RunContext | None = None) -> bool:
+    """A registered 'llm' transport (tests) or the real one for the configured provider."""
     if "llm" in broker.TRANSPORTS:
         return True
+    if ctx is not None and provider_of(ctx) == "openai_compatible":
+        from pdr.llm_openai import OpenAICompatibleTransport, key_env
+        cfg = ctx.settings.providers.llm
+        broker.register_transport("llm", OpenAICompatibleTransport(getattr(cfg, "base_url", ""), key_env(cfg)))
+        return True  # a missing key gives a failed ledger row, no request
     if os.environ.get("ANTHROPIC_API_KEY"):
         broker.register_transport("llm", AnthropicTransport())
         return True
@@ -150,6 +172,9 @@ def _ensure_transport() -> bool:
 def _response_text(body: Any) -> str | None:
     if isinstance(body, str):
         return body
+    if isinstance(body, dict) and "choices" in body:
+        from pdr.llm_openai import response_text
+        return response_text(body)
     if isinstance(body, dict):
         content = body.get("content")
         if isinstance(content, list):
@@ -176,10 +201,10 @@ def parse_json_text(text: str) -> Any:
 def llm_json(task: str, source_text: str, schema: type[BaseModel], ctx: RunContext) -> BaseModel | None:
     """Run one task; the parsed, schema-valid object, or None."""
     try:
-        if not _ensure_transport():
+        if not _ensure_transport(ctx):
             return None
         request = build_request(task, source_text, schema, ctx)
-        res = broker.paid_call("llm", "/v1/messages", request, ctx=ctx, step=f"llm:{task}",
+        res = broker.paid_call("llm", endpoint_for(ctx), request, ctx=ctx, step=f"llm:{task}",
                                worst_case_credits=Decimal("0"))
         if not res.ok:
             return None

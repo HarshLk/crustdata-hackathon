@@ -23,18 +23,22 @@ def rows(store: Any, run_id: str | None = None, dispute_key: str | None = None) 
 
 def totals(store: Any, by: Literal["deduction", "run", "client"] = "deduction", *,
            run_id: str | None = None) -> dict[str, dict]:
-    """{key: {credits, cost_usd, cost_inr, calls, paid_calls, cache_hits}}; key "" when the row has none."""
+    """{key: {credits, cost_usd, cost_inr, calls, paid_calls, cache_hits, tokens_in, tokens_out, unpriced_calls}}; key "" when the row has none."""
     out: dict[str, dict] = {}
     for e in rows(store, run_id=run_id):
         k = {"deduction": e.dispute_key, "run": e.run_id, "client": e.client_id}[by] or ""
         t = out.setdefault(k, {"credits": Decimal("0"), "cost_usd": Decimal("0"), "cost_inr": Decimal("0"),
-                               "calls": 0, "paid_calls": 0, "cache_hits": 0})
+                               "calls": 0, "paid_calls": 0, "cache_hits": 0,
+                               "tokens_in": 0, "tokens_out": 0, "unpriced_calls": 0})
         t["credits"] += e.units
         t["cost_usd"] += e.cost_usd
         t["cost_inr"] += e.cost_inr
         t["calls"] += 1
         t["cache_hits"] += int(e.cache_hit)
         t["paid_calls"] += int(not e.cache_hit)
+        t["tokens_in"] += e.tokens_in or 0
+        t["tokens_out"] += e.tokens_out or 0
+        t["unpriced_calls"] += int(e.priced is False and not e.cache_hit)
     return out
 
 

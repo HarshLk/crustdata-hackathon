@@ -15,6 +15,7 @@ from typing import Any
 from pdr import guard
 from pdr.broker import throttle
 from pdr.broker.db import connect, db_path, is_memory, tx
+from pdr.broker.pricing import llm_usage
 from pdr.broker.transport import Response, TransportError, TransportOffline, TransportTimeout, cache_key, header
 from pdr.contracts import BudgetReached, CallResult, RunContext
 from pdr.crashpoints import crashpoint
@@ -91,15 +92,18 @@ def is_empty(endpoint: str, body: Any) -> bool:
 def write_ledger(conn: sqlite3.Connection, *, settings: Settings, run_id: str, dispute_key: str | None,
                  key: str, step: str, provider: str, endpoint: str, credits: Decimal, cache_hit: bool,
                  attempt_no: int, outcome: str, summary: str, started_at: datetime,
-                 ended_at: datetime | None = None) -> LedgerEntry:
+                 ended_at: datetime | None = None, usage: dict | None = None) -> LedgerEntry:
     price = Decimal(str(settings.budget.credit_price_usd))
     cost_usd = credits * price
+    if usage:  # model call: priced from tokens (pdr.broker.pricing), credits stay 0
+        cost_usd = Decimal(usage.get("cost_usd") or 0)
     entry = LedgerEntry(
         entry_id=uuid.uuid4().hex, run_id=run_id, dispute_key=dispute_key, cache_key=key, step=step,
         provider=provider, endpoint=endpoint, units=credits, unit_kind="credits", unit_price_usd=price,
         cost_usd=cost_usd, cost_inr=cost_usd * Decimal(str(settings.budget.usd_inr)), cache_hit=cache_hit,
         attempt_no=attempt_no, outcome=outcome, request_summary=summary[:300], started_at=started_at,
-        ended_at=ended_at, client_id=(dispute_key or "").split("|")[0] or None)
+        ended_at=ended_at, client_id=(dispute_key or "").split("|")[0] or None,
+        **{k: usage.get(k) for k in ("model", "tokens_in", "tokens_out", "priced")} if usage else {})
     conn.execute("INSERT INTO ledger(entry_id, run_id, dispute_key, cache_key, body, cost_inr, cache_hit, started_at)"
                  " VALUES (?,?,?,?,?,?,?,?)",
                  (entry.entry_id, run_id, dispute_key, key, entry.model_dump_json(), str(entry.cost_inr),
@@ -186,7 +190,7 @@ def execute(conn: sqlite3.Connection, *, settings: Settings, provider: str, endp
                 e = write_ledger(c, settings=settings, run_id=run_id, dispute_key=dispute_key, key=key, step=step,
                                  provider=provider, endpoint=endpoint, credits=credits, cache_hit=False,
                                  attempt_no=attempt, outcome=outcome, summary=summary, started_at=started,
-                                 ended_at=now_utc())
+                                 ended_at=now_utc(), usage=llm_usage(settings, provider, request, resp.body))
                 c.execute("UPDATE call_intents SET status=? WHERE cache_key=?", ("done" if ok else "failed", key))
             crashpoint("call.after_cache")
             return CallResult(ok=ok, status=resp.status, body=resp.body, cache_hit=False, credits=spent,

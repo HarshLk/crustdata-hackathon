@@ -159,3 +159,7 @@ Checked against `main` at the end of lane D's work (22 Nov 2026):
   (marked in the file).
 - **Stand-in terms and clients:** all fixtures use stand-in terms built from public clauses, labelled `is_stand_in`
   and flagged `STAND_IN_TERMS`. Replace them with the kickoff client's confirmed agreements.
+
+### Using your own model key
+
+Model calls go through `providers.llm` in `settings.yaml`. For Anthropic, keep `provider: anthropic` and export `ANTHROPIC_API_KEY`. For any OpenAI-compatible endpoint (OpenAI, a gateway, a local server), set `provider: openai_compatible`, `base_url` (the chat-completions root, e.g. `https://api.openai.com/v1`), `model_extract` / `model_parse` to that provider's model ids, and export the key under the name in `api_key_env` (default `OPENAI_API_KEY`). Fill `providers.llm.prices` (USD per million input / output tokens, per model) from the provider's price page; at 0 the ledger shows token counts and marks the cost "unpriced". `pdr doctor` shows the active provider, model ids, whether the key variable is set (name only) and whether prices are set. Answers are cached per provider and model, so switching never mixes them.

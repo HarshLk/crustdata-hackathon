@@ -108,6 +108,7 @@ def report(store: Any, settings: Any, rows: Iterable[LedgerEntry] | None = None)
                         "win_rate_used": "assumed" if win_pct > 0 else "every disputable rupee recovered (no win rate set)"},
         "fee_inr": None,
         "margin_inr": None,
+        "model": model_usage(rows),
     }
     if fee_pct > 0:
         fee = expected * fee_pct / 100
@@ -118,6 +119,19 @@ def report(store: Any, settings: Any, rows: Iterable[LedgerEntry] | None = None)
             t["fee_inr"] = f.quantize(CENT)
             t["margin_inr"] = (f - t["cost_inr"]).quantize(CENT)
     return out
+
+
+def model_usage(rows: Iterable[LedgerEntry]) -> dict:
+    """Model tokens over paid (non-cache) calls; 'unpriced' when any call had no price set."""
+    tin = tout = calls = unpriced = 0
+    for e in rows:
+        if e.provider != "llm" or e.cache_hit:
+            continue
+        calls += 1
+        tin += e.tokens_in or 0
+        tout += e.tokens_out or 0
+        unpriced += int(e.priced is False)
+    return {"calls": calls, "tokens_in": tin, "tokens_out": tout, "unpriced_calls": unpriced}
 
 
 def table(rows: list[dict], cols: list[str] | None = None) -> str:
@@ -146,5 +160,9 @@ def format_report(r: dict) -> str:
         lines.append(f"fee at {a['fee_rate_pct']}% [ASSUMPTION]: Rs {r['fee_inr']}   margin: Rs {r['margin_inr']}")
     else:
         lines.append("fee and margin: not shown (economics.fee_rate_pct is 0; set it as a team assumption)")
+    m = r.get("model") or {}
+    if m.get("calls"):
+        lines.append(f"model calls: {m['calls']} ({m['tokens_in']} tokens in, {m['tokens_out']} out)"
+                     + (f"; {m['unpriced_calls']} unpriced (providers.llm.prices is 0)" if m["unpriced_calls"] else ""))
     lines.append(a["note"])
     return "\n".join(lines)

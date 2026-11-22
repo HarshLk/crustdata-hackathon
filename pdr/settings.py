@@ -45,6 +45,9 @@ class LlmProvider(_Section):
     model_parse: str
     retry_limit: int
     timeout_seconds: float
+    base_url: str = ""  # openai_compatible only: e.g. https://api.openai.com/v1
+    api_key_env: str = ""  # name of the env var holding the key; "" = ANTHROPIC_API_KEY / OPENAI_API_KEY
+    prices: dict[str, dict[str, Decimal]] = Field(default_factory=dict)  # model -> usd_per_mtok_in / usd_per_mtok_out
 
 
 class Providers(_Section):
