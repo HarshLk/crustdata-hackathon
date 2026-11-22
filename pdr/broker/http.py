@@ -1,9 +1,13 @@
 """Real HTTP transports (httpx): "crustdata" (POST JSON, bearer key) and "web" (plain GET/HEAD, free)."""
 from __future__ import annotations
 
+import html
 import os
+import re
+import time
 from pathlib import Path
 from typing import Any
+from urllib.parse import urljoin, urlparse
 
 import httpx
 
@@ -58,16 +62,43 @@ class CrustdataHttp:
         return Response(r.status_code, keep, body)
 
 
+_REFRESH = re.compile(r'content="(\d+);\s*url=([^"]+)"', re.I)
+MAX_INTERSTITIAL_WAIT = 90.0  # seconds; fresh google.com/goto links show a timed "Verifying" page first
+
+
 class WebHttp:
-    """request = {"method": "GET"|"HEAD", "url": ..., "follow_redirects": false}."""
+    """request = {"method": "GET"|"HEAD", "url": ..., "follow_redirects": false}.
+
+    Freshly minted google.com/goto links answer 200 with a meta-refresh interstitial and cookies; after
+    the stated delay the refresh URL (with those cookies) gives the 302. Older links give the 302 at once.
+    """
+
+    def __init__(self, sleep=time.sleep, max_wait: float = MAX_INTERSTITIAL_WAIT, transport=None):
+        self.client = httpx.Client(headers={"User-Agent": UA}, transport=transport)
+        self.sleep = sleep
+        self.max_wait = max_wait
+
+    def _get(self, method: str, url: str, follow: bool, timeout: float) -> httpx.Response:
+        return _wrap(lambda: self.client.request(method, url, timeout=timeout, follow_redirects=follow))
 
     def send(self, endpoint: str, request: dict, *, cache_key: str = "", timeout: float = 20) -> Response:
         method = (request.get("method") or endpoint or "GET").upper()
-        r = _wrap(lambda: httpx.request(method, request["url"], headers={"User-Agent": UA}, timeout=timeout,
-                                        follow_redirects=bool(request.get("follow_redirects", False))))
+        follow = bool(request.get("follow_redirects", False))
+        url = request["url"]
+        r = self._get(method, url, follow, timeout)
+        host = urlparse(url).netloc.lower()
+        m = _REFRESH.search(r.text[:4000]) if r.status_code == 200 and "google." in host else None
+        if m and float(m.group(1)) <= self.max_wait:
+            self.sleep(float(m.group(1)) + 1)
+            r = self._get(method, urljoin(url, html.unescape(m.group(2))), follow, timeout)
+            if r.status_code >= 400:  # refresh target refused: the original link should now redirect
+                r = self._get(method, url, follow, timeout)
         keep = {k: v for k, v in r.headers.items() if k.lower() in ("location", "content-type", "last-modified")}
         body = "" if method == "HEAD" or 300 <= r.status_code < 400 else r.text
         return Response(r.status_code, keep, body)
+
+
+_WEB: WebHttp | None = None
 
 
 def real_transport(provider: str, settings: Any = None):
@@ -76,5 +107,8 @@ def real_transport(provider: str, settings: Any = None):
         return CrustdataHttp(getattr(cfg, "base_url", "https://api.crustdata.com"),
                              getattr(cfg, "api_version", "2025-11-01"))
     if provider == "web":
-        return WebHttp()
+        global _WEB
+        if _WEB is None:
+            _WEB = WebHttp()  # one client per process, so Google's cookies are reused
+        return _WEB
     raise TransportError(f"no transport registered for provider {provider!r}")

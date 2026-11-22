@@ -1,0 +1,16 @@
+{
+ "cache_key": "92485e2f21c1378a091de558f31b157ecff522f97704d7ef631080a66813bf04",
+ "provider": "web",
+ "endpoint": "GET",
+ "request": {
+  "method": "GET",
+  "url": "https://www.google.com/goto?url=CAES-QEBxCJF19z6nggM4MjQr8vzySM5DgJ7ZMnKomMVp9s7gn_kGPx0nG2dhBfdtmEDBs0L4DOznuqm0FMiFOm9YYfmQc0wN8gkqZJNWQDfb6ntpl3tvE4aJQ3GHC5z-0csKkcRCHJRRKU8LdkH_Dfz9ui6mCCwuwPtvNhBxfjnr2iCx7PQSjglJEIitcxzoU_AneEbwQKU1OzgWzCJ4f89q-O1NZUYuMTJX0Wbmm9fOXzqYENILk6P51xDxf1hiy1io-dd8Yw4sDrtWTv7BJux3vrx5hB4M2DyrwNJ3meoQmAi8_sMUYxv-bWyjNCaqAtpY_EwSmipCFkMHn8&gsessionid=B611yDBs2FT0H50-9NoNoBkq13JjDK-g0iO5fNB7KPZgEI6YEahf7A",
+  "follow_redirects": false
+ },
+ "status": 302,
+ "headers": {
+  "location": "https://timesofindia.indiatimes.com/city/kolhapur/travellers-likely-to-face-traffic-troubles-along-pune-bengaluru-hway-shetti-led-blockade-kicks-in-at-kini-today/articleshow/135472186.cms",
+  "content-type": "text/html; charset=UTF-8"
+ },
+ "body": ""
+}

@@ -1,0 +1,16 @@
+{
+ "cache_key": "1bcb33bcfb9c2e1cfed493b0d40efc13afad8edd02d4c7c710653be25577fbaa",
+ "provider": "web",
+ "endpoint": "GET",
+ "request": {
+  "method": "GET",
+  "url": "https://www.google.com/goto?url=CAESxgEBxCJF11eCEiSPzXJcHh50cSmcW0OMBWKcjnjnAw_G154iP3PJgnNpxLZwwsF7pmR2bCE0-5fvsNZuK_NtC7xHgU8h-a86dkx7QbpYcl-SxFJuu8NBSxo-1WHu_fwxI4AQRFC5bS-N4xJkaneSUQ3_dlJhcVg2lm1AsKIxmKsRqni7LViDVWG7_3LmdbeUJZkhifN-gM_t25-JZ5Qdcn77pMYqOSPMJlR8YHlbZpRzeniWLqvfRSgWK2X__CleWUThz74YZMQ&gsessionid=B611yDBs2FT0H50-9NoNoBkq13JjDK-g0iO5fNB7KPZgEI6YEahf7A",
+  "follow_redirects": false
+ },
+ "status": 302,
+ "headers": {
+  "location": "https://www.chinimandi.com/raju-shetti-mobilises-sugarcane-farmers-for-november-3-highway-blockade-over-rs-4500-first-instalment-demand/",
+  "content-type": "text/html; charset=UTF-8"
+ },
+ "body": ""
+}

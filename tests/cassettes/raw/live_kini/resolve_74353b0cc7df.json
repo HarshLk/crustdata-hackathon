@@ -1,0 +1,16 @@
+{
+ "cache_key": "74353b0cc7df02718e393105d9444a5de86468a23834d9b6689d205089898f16",
+ "provider": "web",
+ "endpoint": "GET",
+ "request": {
+  "method": "GET",
+  "url": "https://www.google.com/goto?url=CAEShAIBxCJF14dHJDN12HaJKSOk9KuAeY_txsJeeiT5893XU6l8LMIiK8aVc2A_eadSS_7VZQsRzLiQ9ANj151VpE8mvZTA4fr8UGkfyW90Po__DcREYV0X306SfvwAwR02LkrohO5POCKcCIpwW-O559RfCc76Pb_3SIpMsvaHtR9gQ5HbF5R2_n3njHFLoPK5d719U9RmQMqhgq8B4QTHEIMWVQlPxNHhrOJFuI-KpbNy_QGPTzJSAbef8y6n7Fbo554k7PFOC7OToLlwUeaK0YFwNw59vY0E6wtmr4nzVJZOZOOcCgBiDONsGGF7Hjw7eQCL3-46_kt26GBrULWI3qnJlAt-EA&gsessionid=B611yDBs2FT0H50-9NoNoBkq13JjDK-g0iO5fNB7KPZgEI6YEahf7A",
+  "follow_redirects": false
+ },
+ "status": 302,
+ "headers": {
+  "location": "https://timesofindia.indiatimes.com/city/kolhapur/shetti-led-blockade-reduce-traffic-to-a-crawl-on-pune-bengaluru-highway-stranded-midway-without-food-say-affected-truckers/articleshow/135508988.cms",
+  "content-type": "text/html; charset=UTF-8"
+ },
+ "body": ""
+}

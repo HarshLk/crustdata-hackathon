@@ -1,0 +1,101 @@
+{
+ "cache_key": "1a4ce51715d0f3aff5eb1ae9eef328dd6578ebc52ec1d600770f2ac02fe107da",
+ "provider": "crustdata",
+ "endpoint": "/web/search/live",
+ "request": {
+  "query": "Kini toll naka farmers",
+  "sources": [
+   "news"
+  ],
+  "start_date": 1793644200,
+  "end_date": 1794076199,
+  "page": 1
+ },
+ "status": 200,
+ "headers": {
+  "content-type": "application/json",
+  "x-credits-used": "1"
+ },
+ "body": {
+  "metadata": {
+   "empty_pages": [],
+   "failed_pages": [],
+   "total_results": 10
+  },
+  "query": "Kini toll naka farmers",
+  "results": [
+   {
+    "position": 1,
+    "snippet": "Kolhapur: The indefinite highway blockade launched by the Swabhimani Shetkari Sanghatana at Kini Toll Plaza, demanding a first instalment of Rs 4500 per.",
+    "source": "news",
+    "title": "Maharashtra: Sugarcane farmers continue highway blockade at Kini for second day; insist on Rs 4,500 first instalment",
+    "url": "https://www.google.com/goto?url=CAESywEBxCJF15YW083nfUyVj5bolL__Ocun1QJMlPQ6EYvtWpg5sjJ7tXhnCckPCvHRKVU2nKGBJLrFSqVYqfVMgEzI3Ao04cpKMrB7V-1PZeWkcxKzW7cfnKe-v_cThowzYtjnzxEnGPLK3cbqKmXhGIaSoYGLhpBUv-Mk5N4zke3Lj5ZqaqUwqSvmSBSG1mCGWZkLJ1wtuv3Spd-LnsRNc5GFn41nLk1cxqtKBScCaobrWDanVcANpXg7mwYV5kuwXNRHOTWd21JXttHqug&gsessionid=n6kCl90VZZgDoWM4fchCIwcR4Z9fs-2O0nUick-dsWsMTSGv-zU8gQ"
+   },
+   {
+    "position": 2,
+    "snippet": "The trucks continues to remain stranded across both sides of the protest venue. The diversions are at Karad, Peth Naka towards Pune side, at Sangli Phata, Toap,...",
+    "source": "news",
+    "title": "Pune-Bengaluru highway blockade: Sugarcane farmers continue protest at Kini toll naka over prices, trucks",
+    "url": "https://www.google.com/goto?url=CAESoAIBxCJF14rqbMGVm4jkFohwI7GB4Wp4sZ0wnaMv207yjOKtJDjcPlpbMAuNQni7LjCMA7xviK13oKIg_CFul2tw03EMkyc7mHkx9t98t9Fci-P8L9CitYn6S7PqhxdMua0JkByz1YH6jzOmBZSeYAgHnGPQW_EtdjhEaV0DUR8g2E374O8dLX5O8pmb14hViMcsibjTC6WbuJaDrsrIkAHAQ4WnnV6nrhzQwHzpl0_10Wi5H0ovi7HfE4mr6vXoRNZK266c4ueyLdS-ZoM2gAJ3u1ArQ9KvT0gKhxGh7S6i9wUudfnqvv9wAp2pzQEuUtrxemKzVwOcwZ9bz8zZQaOGRDRK9m03INkILQ4QT1gxh8IGYN4aCXeQSWkkYkU5TXk&gsessionid=n6kCl90VZZgDoWM4fchCIwcR4Z9fs-2O0nUick-dsWsMTSGv-zU8gQ"
+   },
+   {
+    "position": 3,
+    "snippet": "Traffic diversions have been announced on NH-48 following the commencement of the sugarcane farmers' agitation by the Swabhimani Shetkari Sanghatana at Kini...",
+    "source": "news",
+    "title": "NH-48 Traffic Diversions: Routes For Heavy Vehicles And Cars At Kini Toll Naka",
+    "url": "https://allaboutbelgaum.com/news/nh-48-traffic-diversion-kini-toll-naka-farmers-protest/"
+   },
+   {
+    "position": 4,
+    "snippet": "The sugarcane growers are demanding an initial payment of Rs 4500 per tonne for sugarcane, calling it a fair price for their produce.",
+    "source": "news",
+    "title": "Mumbai-Bengaluru highway traffic hit as Maharashtra sugarcane farmers ramp up protest",
+    "url": "https://www.google.com/goto?url=CAESrwEBxCJF1xZO-4R3BN-5n1HpKA7SKF3jScJISBSV0ImlyEp0BUYg0uipocmjMe66CD4JrwtAIijuGh4OMZitAg3F96uAVx8ife9iyW80lZPkasngEHyyT8xPNouodDlG2mrVg0_zcKTuXnEKK0pMesnPwotFlrsWxaIcbkp9LRdwDhJddVGWKq6Agy8_Jj7VvdoVQuz7zHMRo7QiVVFyImSQSkjZCK9UkbrSu9mj99e-&gsessionid=n6kCl90VZZgDoWM4fchCIwcR4Z9fs-2O0nUick-dsWsMTSGv-zU8gQ"
+   },
+   {
+    "position": 5,
+    "snippet": "Maharashtra: Farmers block Pune Bengaluru Highway at Kini toll plaza for higher cane price ... Kolhapur: Demanding a first instalment of Rs 4,500 per tonne for...",
+    "source": "news",
+    "title": "Maharashtra: Farmers block Pune Bengaluru Highway at Kini toll plaza for higher cane price",
+    "url": "https://www.google.com/goto?url=CAESsgEBxCJF18CfOfpNGU4IsaJglOwwHr2QoRn1gpq7Y2T4g7U3KqKhYbt9SU53sjBD5zi_E5GN3RaGcDXbN0FGn4LjwChXYkcYuPLmbqL-Pkdi8WgmC8WsbRf-62ZIRV-A_aRSa16aQ5dPJc__nJR8vSiNsF09NpeVi7HH9uNOxif0ai6nitLBikgPfXUg4mQQE4l99m5Bjnq0qNpvkExz-ubJDAyZ1fNtKi8mog5qpfBOTA2M&gsessionid=n6kCl90VZZgDoWM4fchCIwcR4Z9fs-2O0nUick-dsWsMTSGv-zU8gQ"
+   },
+   {
+    "position": 6,
+    "snippet": "Shetti-led Swabhimani Shetkari Sanghatana blockade at Kini toll halts Pune-Bengaluru highway; trucks stranded, diversions imposed, cane price demand Rs...",
+    "source": "news",
+    "title": "Shetti-led blockade reduce traffic to a crawl on Pune-Bengaluru highway; stranded midway & without food,",
+    "url": "https://www.google.com/goto?url=CAEShAIBxCJF172JpHvPOMg1vN7Z4p4Z2sNi8A1Lu5rlgB3xGcLppkimfwGLBbI_UXzrNDu7W1UTRUfi_1ezRrtoimjODwESurK0BAiT-WCE6KPAsn92wjA9N5ho9Xhx0GXdOlyAseOBNJkRfJP_t1wUM78RnlYgqKSYrhs6V9bTgsUVilL3vFCTGboAzJUk_rRNX-6XUoAYTCmJ7k9p_F4gqp4HYfBZwfyuQ7Co-vjVy-ejNUP0nVKmBx1OBoGoPrRRmnzEzUT-ywsTmpLuFzxVVCu_TMno_UIuR4w_zRDKHkaI4I5vDz4tNGpwNoaVxAT4m9s88Ti95jQtMYZBveJpbxxddxjvQA&gsessionid=n6kCl90VZZgDoWM4fchCIwcR4Z9fs-2O0nUick-dsWsMTSGv-zU8gQ"
+   },
+   {
+    "position": 7,
+    "snippet": "Belagavi Police Commissioner Nikam Prakash Amrat has imposed prohibitory orders under Section 163 of BNSS from 6 AM on November 5 to 6 AM on November 7,...",
+    "source": "news",
+    "title": "Section 163 Prohibitory Orders Imposed in Belagavi Ahead of Farmers’ Jail Bharo Movement",
+    "url": "https://www.google.com/goto?url=CAEStgEBxCJF15n1HrpWESLY4cTv_e4LSuG0WmcfNOxzHdkZG3uUDNrK0-shs-1hV-fCa_QDMHoldZq4ayM5ymd-6vxzh88DXKvEZWYtXdWXuvPCps9_FqFHyN4z3dWNce283agCQvePleb7GgBYxb2XEIDAWoJKDWs4vJtoUqBMbc35mxv0w3nlm0UZmUN8LNMpbscyKCGLnp762-jQrP2ABQ5IZQMVfwhrYZjefEMqHu9U3zyuiY6N9A&gsessionid=n6kCl90VZZgDoWM4fchCIwcR4Z9fs-2O0nUick-dsWsMTSGv-zU8gQ"
+   },
+   {
+    "position": 8,
+    "snippet": "Sugarcane farmers' NH-48 blockade enters day 2, leaving 120km stretch deserted; trucks stranded; CM Fadnavis says Hasan Mushrif will start talks.",
+    "source": "news",
+    "title": "Farmers’ highway blockade enters second day; 120km stretch remains deserted; CM says Mushrif will initiat",
+    "url": "https://timesofindia.indiatimes.com/city/kolhapur/farmers-highway-blockade-enters-second-day-120km-stretch-remains-deserted-cm-says-mushrif-will-initiate-talks-to-resolve-issue/articleshow/135548661.cms"
+   },
+   {
+    "position": 9,
+    "snippet": "Farmers led by Raju Shetti halted traffic near Kini toll plaza, demanding an initial sugarcane payment of ₹4500 per tonne from sugar mills.",
+    "source": "news",
+    "title": "Sugarcane Farmers Halt Pune-Bengaluru Highway At Kini, Demand ₹4,500 Per Tonne",
+    "url": "https://www.google.com/goto?url=CAESowEBxCJF17QrzZZwaTKnaXKMY6HBWZIEzaU5BpTh1RFN5tyGmMVN-K7EKRLFFSZ_sIb5n8W1GiJm3DTw_cAA72s-zNe-pCmy1kZsjFxsRcWrdLEJuRidHIh6To2n7kSiLIyoIm69zZNP1aOtOAUKJvDOIPSKTDJfPI0aJG7OQgqw593T8XNhVBLUrclWrKDDYnPFMN_NBWsN7jN_jaCsp-9YIh33&gsessionid=n6kCl90VZZgDoWM4fchCIwcR4Z9fs-2O0nUick-dsWsMTSGv-zU8gQ"
+   },
+   {
+    "position": 10,
+    "snippet": "Sugarcane farmers protest in Maharashtra forced cancellation of 166 buses, causing losses of Rs five crore, while Gokul cooperative's milk sales were hit by...",
+    "source": "news",
+    "title": "Maharashtra Sugarcane Price Protest: Farmers Threaten Bandh In Three Districts From Friday",
+    "url": "https://www.google.com/goto?url=CAESkgEBxCJF15fMPpDg0-aaXaVjEK6t5p9E8weSvboDPIlpFeCUmkePmt_TASuzYveWNMRn4-oTEcXMrgyUcO6HhRwt9WVHl3CSjNaSrT1kvJ6UUJ99OoiecWPaHD-8umFfqiUdtJWjJFKrggO2CUV-G2kxB-vD28lN6oLy18gsrO2nLrs4g6liRkmTbWuxcw6eIlebmg&gsessionid=n6kCl90VZZgDoWM4fchCIwcR4Z9fs-2O0nUick-dsWsMTSGv-zU8gQ"
+   }
+  ],
+  "success": true,
+  "timestamp": 1795344863499
+ }
+}

@@ -1,0 +1,16 @@
+{
+ "cache_key": "a2045029598a002acf93a12b71fc9c46e1e987e66f1c3ddb2ea915b19a4982cd",
+ "provider": "web",
+ "endpoint": "GET",
+ "request": {
+  "method": "GET",
+  "url": "https://www.google.com/goto?url=CAESywEBxCJF15YW083nfUyVj5bolL__Ocun1QJMlPQ6EYvtWpg5sjJ7tXhnCckPCvHRKVU2nKGBJLrFSqVYqfVMgEzI3Ao04cpKMrB7V-1PZeWkcxKzW7cfnKe-v_cThowzYtjnzxEnGPLK3cbqKmXhGIaSoYGLhpBUv-Mk5N4zke3Lj5ZqaqUwqSvmSBSG1mCGWZkLJ1wtuv3Spd-LnsRNc5GFn41nLk1cxqtKBScCaobrWDanVcANpXg7mwYV5kuwXNRHOTWd21JXttHqug&gsessionid=n6kCl90VZZgDoWM4fchCIwcR4Z9fs-2O0nUick-dsWsMTSGv-zU8gQ",
+  "follow_redirects": false
+ },
+ "status": 302,
+ "headers": {
+  "location": "https://www.chinimandi.com/maharashtra-sugarcane-farmers-continue-highway-blockade-at-kini-for-second-day-insist-on-rs-4500-first-instalment/",
+  "content-type": "text/html; charset=UTF-8"
+ },
+ "body": ""
+}

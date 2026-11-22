@@ -1,0 +1,16 @@
+{
+ "cache_key": "92a70ee78561dc51b5b4ad95e885e90f2df4e193805b16acbe48f8550f3bbdf8",
+ "provider": "web",
+ "endpoint": "GET",
+ "request": {
+  "method": "GET",
+  "url": "https://www.google.com/goto?url=CAESoAIBxCJF14rqbMGVm4jkFohwI7GB4Wp4sZ0wnaMv207yjOKtJDjcPlpbMAuNQni7LjCMA7xviK13oKIg_CFul2tw03EMkyc7mHkx9t98t9Fci-P8L9CitYn6S7PqhxdMua0JkByz1YH6jzOmBZSeYAgHnGPQW_EtdjhEaV0DUR8g2E374O8dLX5O8pmb14hViMcsibjTC6WbuJaDrsrIkAHAQ4WnnV6nrhzQwHzpl0_10Wi5H0ovi7HfE4mr6vXoRNZK266c4ueyLdS-ZoM2gAJ3u1ArQ9KvT0gKhxGh7S6i9wUudfnqvv9wAp2pzQEuUtrxemKzVwOcwZ9bz8zZQaOGRDRK9m03INkILQ4QT1gxh8IGYN4aCXeQSWkkYkU5TXk&gsessionid=n6kCl90VZZgDoWM4fchCIwcR4Z9fs-2O0nUick-dsWsMTSGv-zU8gQ",
+  "follow_redirects": false
+ },
+ "status": 302,
+ "headers": {
+  "location": "https://timesofindia.indiatimes.com/city/kolhapur/pune-bengaluru-highway-blockade-sugarcane-farmers-continue-protest-at-kini-toll-naka-over-prices-trucks-stranded-as-traffic-diversions-remain-in-place/articleshow/135522814.cms",
+  "content-type": "text/html; charset=UTF-8"
+ },
+ "body": ""
+}

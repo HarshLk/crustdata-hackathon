@@ -1,0 +1,16 @@
+{
+ "cache_key": "6a6e833c2b63a9811318889702f3acdaadf1bc360a3493f0b09c9f9808a00d73",
+ "provider": "web",
+ "endpoint": "GET",
+ "request": {
+  "method": "GET",
+  "url": "https://www.google.com/goto?url=CAESiAIBxCJF19qrTSAhmHlyNUa7Qsm9_5pE2IclCg4EPyGHKh3PQRkEoeHLTY__iduGFQ3mwzHEE6YzTaiF6a5hdL83lDNk8le7H7rTqdZ5e669yBQexXM0nG5PCiE9vt3NDzP3SDa81wiI3BDdABPvPXndj7AOX7dRVFVuswh2Obqm4PMNesW3ls2Jud0pHui4PUHiNm2I4aAYJ6NztRD-Ntvh73Wv97n5FvJEroQLhXeX2kyIPCZsYzZMF3woynd3G93ZsXUuzTEx01cN2iwG1gI3ZLIjXC-7U3a90n8FsNm6pD274d10hjbIoSaTc_RzqlHLgBJ5aS4xtuayBv7Jb0iTJiD_1PQIyvI&gsessionid=B611yDBs2FT0H50-9NoNoBkq13JjDK-g0iO5fNB7KPZgEI6YEahf7A",
+  "follow_redirects": false
+ },
+ "status": 302,
+ "headers": {
+  "location": "https://timesofindia.indiatimes.com/city/kolhapur/farmers-highway-blockade-enters-second-day-120km-stretch-remains-deserted-cm-says-mushrif-will-initiate-talks-to-resolve-issue/articleshow/135548661.cms",
+  "content-type": "text/html; charset=UTF-8"
+ },
+ "body": ""
+}

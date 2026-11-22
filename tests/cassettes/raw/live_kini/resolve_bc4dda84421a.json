@@ -1,0 +1,16 @@
+{
+ "cache_key": "bc4dda84421a6febe5c4eb9690764713e3bd375d7675b2d8c290523b2e9a8b42",
+ "provider": "web",
+ "endpoint": "GET",
+ "request": {
+  "method": "GET",
+  "url": "https://www.google.com/goto?url=CAESxQEBxCJF12Ka9tGC2lkT8lcQ6fUZ7jfPfBEin8vfSvdzOvOQxGiXs2aX2aySwNC5nK-BHdpH4F6wv1TqNJOBxSjEAmZ0sMwWaorThFnG521KxKIdlt8a71veOQaO6OB0Wb8FPtRiq-X3RhhqfGRJHW2EHIM9A95g6hg2BfUNVuVtbMTH26fqu6yMZpd0dXiWOAMwjGJmtuTS-1t6_I51JbYTuDJ7K-oF1eay757_YZp6A9xSvP-w1J9nnLIeY0ykFRVmV_N-eA&gsessionid=B611yDBs2FT0H50-9NoNoBkq13JjDK-g0iO5fNB7KPZgEI6YEahf7A",
+  "follow_redirects": false
+ },
+ "status": 302,
+ "headers": {
+  "location": "https://indianexpress.com/article/cities/pune/tomato-banana-prices-up-msrtc-trips-cancelled-farmers-blockade-disrupts-highway-10952704/",
+  "content-type": "text/html; charset=UTF-8"
+ },
+ "body": ""
+}
