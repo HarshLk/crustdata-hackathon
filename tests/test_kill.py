@@ -121,7 +121,7 @@ def _assert_exactly_once(data_dir: Path) -> None:
     seen = collections.Counter(json.loads(f.read_text())["action_id"] for f in files)
     assert all(seen[i] == 1 for i in ids), seen
     assert _temps(data_dir) == [], "stale temp files left after restart"
-    assert sorted(p.name for p in (data_dir / "outbox").iterdir() if p.name != ".tmp") == [f.name for f in files]
+    assert sorted(p.name for p in (data_dir / "outbox").iterdir()) == [f.name for f in files]  # `ls -a outbox`
     store = SqliteStore(data_dir / "state.db")
     for i in ids:
         a = store.get(Action, i)

@@ -51,7 +51,15 @@ class LocalOutbox:
                 n += 1
             except OSError:
                 pass
+        self._drop_tmp_dir()
         return n
+
+    def _drop_tmp_dir(self) -> None:
+        """Remove the temp folder when empty, so `ls -a outbox` shows only messages."""
+        try:
+            os.rmdir(self.path / TMP_DIR)
+        except OSError:
+            pass
 
     def deliver(self, action_id: str, body: dict, attachments: list[Path]) -> None:
         """Write the message once; a second deliver of the same id is a no-op."""
@@ -74,8 +82,10 @@ class LocalOutbox:
             target = self._file(action_id)
             if target.exists():  # a concurrent deliver won; keep the first
                 os.unlink(tmp)
+                self._drop_tmp_dir()
                 return
             os.replace(tmp, target)
+            self._drop_tmp_dir()
         except BaseException:
             if os.path.exists(tmp):
                 os.unlink(tmp)

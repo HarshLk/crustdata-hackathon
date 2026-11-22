@@ -271,7 +271,9 @@ def test_real_audit_passes_on_valid_fixture(c):
 def test_messages_ignore_temp_files_and_cleanup(tmp_path):
     ob = LocalOutbox(tmp_path / "ob")
     ob.deliver("K|1:abc", {"x": 1}, [])
+    assert not (tmp_path / "ob" / ".tmp").exists()  # removed after a clean rename
+    (tmp_path / "ob" / ".tmp").mkdir()
     (tmp_path / "ob" / ".tmp" / "msg-stale.part").write_text("{half")
     (tmp_path / "ob" / ".tmp-legacy.json").write_text("{half")
     assert [p.name for p in ob.messages()] == ["K_1_abc.json"]
-    assert ob.cleanup() == 2 and [p.name for p in ob.messages()] == ["K_1_abc.json"]
+    assert ob.cleanup() == 2 and [p.name for p in (tmp_path / "ob").iterdir()] == ["K_1_abc.json"]
