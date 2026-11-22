@@ -8,16 +8,16 @@
     "trip_refs": [
       "LR-A-1007"
     ],
-    "deduction_date": "2026-11-02",
-    "amount": "20000.00",
-    "reason_text": "Late delivery penalty 10 day(s) @ Rs 2,000 per day",
+    "deduction_date": "2026-10-26",
+    "amount": "18000.00",
+    "reason_text": "Late delivery penalty 9 day(s) @ Rs 2,000 per day",
     "invoice_ref": "INV-A-1007",
     "client_calc": {
       "rate": "2000",
       "unit": "flat_per_day",
-      "units_counted": "10",
-      "from_ts": "2026-10-14T18:00:00+05:30",
-      "to_ts": "2026-10-24T12:00:00+05:30"
+      "units_counted": "9",
+      "from_ts": "2026-10-07T18:00:00+05:30",
+      "to_ts": "2026-10-16T12:00:00+05:30"
     },
     "source_ref": {
       "file": "deductions.csv",

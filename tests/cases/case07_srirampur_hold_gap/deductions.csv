@@ -1,2 +1,2 @@
 client,advice_no,line_no,client_deduction_no,deduction_date,received_date,amount,reason,lr_no,invoice_no,calc_rate,calc_unit,calc_base_amount,calc_units,calc_from,calc_to
-Alpha Demo Agro Industries Pvt Ltd,APA/2026/1007,1,,2026-11-02,,20000.00,"Late delivery penalty 10 day(s) @ Rs 2,000 per day",LR-A-1007,INV-A-1007,2000,flat_per_day,,10,2026-10-14T18:00:00+05:30,2026-10-24T12:00:00+05:30
+Alpha Demo Agro Industries Pvt Ltd,APA/2026/1007,1,,2026-10-26,,18000.00,"Late delivery penalty 9 day(s) @ Rs 2,000 per day",LR-A-1007,INV-A-1007,2000,flat_per_day,,9,2026-10-07T18:00:00+05:30,2026-10-16T12:00:00+05:30

@@ -629,7 +629,7 @@ KINI_SOURCES = """
 | Source | URL | Publication date (meta tag) | Retrieved (UTC) | Passage |
 | --- | --- | --- | --- | --- |
 | Outlook | https://www.outlookindia.com/national/maharashtra-farmers-protest-blocks-nh-48-strands-1500-trucks | 2026-11-06T12:38:46+05:30 | 2026-11-22T09:31:08Z | "The blockade has disrupted traffic along nearly 120 km between Nagthane in Satara district and Sangli Phata in Kolhapur district. Heavy vehicles remained stranded" |
-| Times of India | timesofindia.indiatimes.com/city/kolhapur/shetti-led-blockade-reduce-traffic-to-a-crawl-on-pune-bengaluru-highway-... | 2026-11-03T23:12:00+05:30 | 2026-11-22T09:19:41Z | "The blockade started at 12.15am. The road is blocked from both sides at the Kini toll booth" (TO CONFIRM exact wording in the page text) |
+| Times of India | timesofindia.indiatimes.com/city/kolhapur/shetti-led-blockade-reduce-traffic-to-a-crawl-on-pune-bengaluru-highway-... | 2026-11-03T23:12:00+05:30 | 2026-11-22T09:19:41Z | "The blockade started at 12.15am." (event start, 3 Nov; the page text also places the Kini toll booth "about 20km from Kolhapur towards Pune") |
 | ETInfra | infra.economictimes.indiatimes.com/news/roads-highways/pune-bengaluru-national-highway-blocked-by-farmers-agitating-for-sugarcane-prices/135531083 | none machine-readable ("Published On Nov 05, 2026" only in text) | 2026-11-22T09:3x | rejected: no_date |
 
 The search results are google.com/goto links (as in the real response), resolved by the `web` redirect entries.
@@ -782,13 +782,13 @@ def a_ded(tid: str, advice: str, amount: str, days: str, due: str, arrival: str,
 
 
 # =============================================================================== case 7: Srirampur hold, honest gap
-c7_trip = a_trip("LR-A-1007", "ASSAM-HALDIA", "Guwahati", "Haldia", "2026-10-10 08:00", "2026-10-14 18:00",
-                 "2026-10-24 12:00", vehicle="AS01ZZ1007",
-                 assertions=[("ops_note", "govt_detention", "2026-10-11 20:00", "Srirampur, Kokrajhar, Assam",
+c7_trip = a_trip("LR-A-1007", "ASSAM-HALDIA", "Guwahati", "Haldia", "2026-10-03 08:00", "2026-10-07 18:00",
+                 "2026-10-16 12:00", vehicle="AS01ZZ1007",
+                 assertions=[("ops_note", "govt_detention", "2026-10-04 20:00", "Srirampur, Kokrajhar, Assam",
                               "Driver called the ops desk: truck held at the Srirampur check point on the Assam-West Bengal "
                               "border by officials; no written order given.")],
-                 notices=[("2026-10-12 10:00", "Force majeure notice: LR-A-1007 held at Srirampur check point")])
-c7_ded = a_ded("LR-A-1007", "APA/2026/1007", "20000.00", "10", "2026-10-14 18:00", "2026-10-24 12:00", "2026-11-02")
+                 notices=[("2026-10-05 10:00", "Force majeure notice: LR-A-1007 held at Srirampur check point")])
+c7_ded = a_ded("LR-A-1007", "APA/2026/1007", "18000.00", "9", "2026-10-07 18:00", "2026-10-16 12:00", "2026-10-26")
 SPECS.append({
     "slug": "case07_srirampur_hold_gap", "prd": "7", "kind": "evidence", "open_track": True,
     "title": "Pet-coke load Assam -> Haldia held at Srirampur check point; no detention memo, no GPS",
@@ -805,12 +805,22 @@ corroboration. PRD stage 3: a regulatory hold needs the detention memo; none is 
 Result: `cannot_verify / EVIDENCE_PARTIAL`, naming the GPS extract (and the detention memo or written order).
 
 **Terms (Client A):** FM names "seizure or detention by a government agency"; notice within 10 days, sent
-12 Oct 10:00 (about 14 h after the ops note); hold rule covers government detention.
+5 Oct 10:00 (about 14 h after the ops note); hold rule covers government detention.
 
-**Facts:** gate-out Guwahati 10 Oct 2026 08:00; ops note 11 Oct 20:00 "held at the Srirampur check point ... no written
-order given"; due Haldia 14 Oct 18:00; consignee gate-in 24 Oct 12:00. No GPS extract, no memo.
+**Facts:** gate-out Guwahati 3 Oct 2026 08:00; ops note 4 Oct 20:00 "held at the Srirampur check point ... no written
+order given"; due Haldia 7 Oct 18:00; consignee gate-in 16 Oct 12:00. No GPS extract, no memo. (Trip dates are set
+inside what the TOI report of 7 Oct itself states: lorries stopped around Srirampur and stranded "for more than a
+fortnight" at publication. The Logistics Insider report of 23 Oct says held "since September 17".)
 
-**Arithmetic:** delay 14 Oct 18:00 -> 24 Oct 12:00 = 9 days 18 h -> 10 days (part day counts) x Rs 2,000 = Rs 20,000 =
+**Which source qualifies, and why:** the fake model reading (`cassette/llm.json`, one response for every model call;
+quotes not found in a page are discarded per page) gives one proposal per report. TOI: "have been stopped around
+Srirampur and Bakshirhat" states the effect, event 22 Sep (a fortnight before publication) to 7 Oct (publication),
+overlapping the in-transit window 3-16 Oct -> qualifies. Logistics Insider (published 23 Oct, after the window plus the
+24 h allowance) -> rejected `published_out_of_window`; its only effect wording is "held", which the deterministic effect
+test would not accept either (engine vocabulary gap reported by d2). One
+qualifying source and no GPS/FASTag/driver record -> EVIDENCE_PARTIAL naming the GPS extract.
+
+**Arithmetic:** delay 7 Oct 18:00 -> 16 Oct 12:00 = 8 days 18 h -> 9 days (part day counts) x Rs 2,000 = Rs 18,000 =
 deducted. Nothing disputable until the memo and GPS extract arrive.
 
 **Sources (real responses, 22 Nov 2026):**
@@ -913,10 +923,11 @@ TOI_HELD = ("According to traders and transporters, more than 300 lorries loaded
 C7_LLM = [
     {"event_type": "govt_detention", "event_quote": LI_HELD, "status": "happened", "status_quote": LI_HELD,
      "places_affected": [_q(LI_HELD, "Srirampur")], "event_from": "2026-09-17", "event_to": "2026-10-23",
-     "date_quote": LI_HELD, "effect_quote": LI_HELD},
+     "date_quote": LI_HELD, "effect_quote": LI_HELD},  # "held": rejected no_effect by the engine's effect words
     {"event_type": "govt_detention", "event_quote": TOI_HELD, "status": "happened", "status_quote": TOI_HELD,
      "places_affected": [_q(TOI_HELD, "Srirampur")], "event_from": "2026-09-22", "event_to": "2026-10-07",
-     "date_quote": TOI_HELD, "effect_quote": TOI_HELD},
+     "date_quote": "have been stranded at the Assam-West Bengal border for more than a fortnight",
+     "effect_quote": TOI_HELD},
 ]
 for s in SPECS:
     if s["slug"] == "case07_srirampur_hold_gap":
@@ -1160,6 +1171,8 @@ SPECS.append({
     "title": "Top results are google.com redirects; the first fetch is blocked",
     "fixture_clients": ["a"], "trips": [c22_trip], "deductions": [c22_ded], "cassette": cassette(*KINI_PAGES),
     "faults": ["block_first@/web/enrich/live"],
+    # inline paid calls: a detached child rebuilds the fake per process, so "first" would repeat in every child
+    "settings_overrides": {"providers": {"paidcall_mode": "inline"}},
     "expected": {c22_ded["dispute_key"]: {"outcome": "disputable", "grounds": ["FORCE_MAJEURE"],
                                           "amount_disputable": "2000.00", "flags": [SI_], "max_paid_calls": EV_MAX}},
     "notes": "# Case 22: provider behaviour\n\n**Rule:** PRD 6a / DESIGN 8.3: google.com/goto links are resolved (free, "

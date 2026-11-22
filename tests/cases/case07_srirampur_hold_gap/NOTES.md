@@ -6,12 +6,22 @@ corroboration. PRD stage 3: a regulatory hold needs the detention memo; none is 
 Result: `cannot_verify / EVIDENCE_PARTIAL`, naming the GPS extract (and the detention memo or written order).
 
 **Terms (Client A):** FM names "seizure or detention by a government agency"; notice within 10 days, sent
-12 Oct 10:00 (about 14 h after the ops note); hold rule covers government detention.
+5 Oct 10:00 (about 14 h after the ops note); hold rule covers government detention.
 
-**Facts:** gate-out Guwahati 10 Oct 2026 08:00; ops note 11 Oct 20:00 "held at the Srirampur check point ... no written
-order given"; due Haldia 14 Oct 18:00; consignee gate-in 24 Oct 12:00. No GPS extract, no memo.
+**Facts:** gate-out Guwahati 3 Oct 2026 08:00; ops note 4 Oct 20:00 "held at the Srirampur check point ... no written
+order given"; due Haldia 7 Oct 18:00; consignee gate-in 16 Oct 12:00. No GPS extract, no memo. (Trip dates are set
+inside what the TOI report of 7 Oct itself states: lorries stopped around Srirampur and stranded "for more than a
+fortnight" at publication. The Logistics Insider report of 23 Oct says held "since September 17".)
 
-**Arithmetic:** delay 14 Oct 18:00 -> 24 Oct 12:00 = 9 days 18 h -> 10 days (part day counts) x Rs 2,000 = Rs 20,000 =
+**Which source qualifies, and why:** the fake model reading (`cassette/llm.json`, one response for every model call;
+quotes not found in a page are discarded per page) gives one proposal per report. TOI: "have been stopped around
+Srirampur and Bakshirhat" states the effect, event 22 Sep (a fortnight before publication) to 7 Oct (publication),
+overlapping the in-transit window 3-16 Oct -> qualifies. Logistics Insider (published 23 Oct, after the window plus the
+24 h allowance) -> rejected `published_out_of_window`; its only effect wording is "held", which the deterministic effect
+test would not accept either (engine vocabulary gap reported by d2). One
+qualifying source and no GPS/FASTag/driver record -> EVIDENCE_PARTIAL naming the GPS extract.
+
+**Arithmetic:** delay 7 Oct 18:00 -> 16 Oct 12:00 = 8 days 18 h -> 9 days (part day counts) x Rs 2,000 = Rs 18,000 =
 deducted. Nothing disputable until the memo and GPS extract arrive.
 
 **Sources (real responses, 22 Nov 2026):**

@@ -4,6 +4,8 @@ title: Top results are google.com redirects; the first fetch is blocked
 clients:
 - CLA
 kind: evidence
-settings_overrides: {}
+settings_overrides:
+  providers:
+    paidcall_mode: inline
 faults:
 - block_first@/web/enrich/live
