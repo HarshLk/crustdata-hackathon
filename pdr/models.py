@@ -286,6 +286,8 @@ class Trip(Entity):
     notices: list[NoticeRecord] = Field(default_factory=list)
     assertions: list[Assertion] = Field(default_factory=list)
     driver_ref: Optional[str] = None  # never a name or phone
+    # place name (as in route_places) -> {"district", "state", "state_local"}; from lanes.yaml, never invented
+    route_place_details: dict[str, dict[str, str]] = Field(default_factory=dict)
 
 
 # --------------------------------------------------------------------------- deductions
