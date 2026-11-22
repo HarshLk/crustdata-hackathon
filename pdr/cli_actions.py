@@ -76,6 +76,17 @@ def list_actions(status: Optional[str] = typer.Option(None, "--status")) -> None
         typer.echo(f"{a.action_id}  {a.kind}  {a.status}  INR {a.amount_claimed}  waiting for: {', '.join(miss) or '-'}")
 
 
+@app.command()
+def outbox() -> None:
+    """List delivered K7 messages (one file per action id; temp files are never listed)."""
+    from pdr.adapters.k7_outbox import get_k7
+    k7 = get_k7(_ctx().settings)
+    msgs = k7.messages() if hasattr(k7, "messages") else []
+    for p in msgs:
+        typer.echo(str(p))
+    typer.echo(f"{len(msgs)} message(s)")
+
+
 def _out(out: Optional[Path], settings) -> Path:
     return out or Path(settings.output.case_file.dir)
 

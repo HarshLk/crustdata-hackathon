@@ -19,7 +19,18 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 PY = sys.executable
-SEND_POINTS = ["send.after_lookup", "send.after_intent", "send.after_deliver", "send.after_mark_sent"]
+SEND_POINTS = ["send.after_lookup", "send.after_intent", "send.outbox_before_rename", "send.after_deliver",
+               "send.after_mark_sent"]
+
+
+def _messages(data_dir: Path) -> list[Path]:
+    from pdr.adapters.k7_outbox import LocalOutbox
+    return LocalOutbox(data_dir / "outbox").messages()
+
+
+def _temps(data_dir: Path) -> list[Path]:
+    t = data_dir / "outbox" / ".tmp"
+    return list(t.iterdir()) if t.is_dir() else []
 
 
 # --------------------------------------------------------------------------- driver (subprocess side)
@@ -105,11 +116,12 @@ def _assert_exactly_once(data_dir: Path) -> None:
     from pdr.models import Action
     from pdr.store import SqliteStore
     ids = json.loads((data_dir / "ids.json").read_text())
-    files = sorted((data_dir / "outbox").glob("*.json"))
+    files = _messages(data_dir)
     assert len(files) == len(ids), [f.name for f in files]
     seen = collections.Counter(json.loads(f.read_text())["action_id"] for f in files)
     assert all(seen[i] == 1 for i in ids), seen
-    assert not list((data_dir / "outbox").glob(".tmp-*"))
+    assert _temps(data_dir) == [], "stale temp files left after restart"
+    assert sorted(p.name for p in (data_dir / "outbox").iterdir() if p.name != ".tmp") == [f.name for f in files]
     store = SqliteStore(data_dir / "state.db")
     for i in ids:
         a = store.get(Action, i)
@@ -138,6 +150,19 @@ def test_kill_at_each_send_point(tmp_path, point):
     _assert_exactly_once(tmp_path)
 
 
+def test_kill_between_temp_write_and_rename(tmp_path):
+    """Deterministic version of the random-kill path: nothing visible before restart, exactly one after."""
+    assert _run(["setup", str(tmp_path), "3"]).returncode == 0
+    died = _run(["send", str(tmp_path)], crash_at="send.outbox_before_rename")
+    assert died.returncode == 137, died.stderr[-2000:]
+    assert _messages(tmp_path) == []  # the half-written message is not a message
+    assert len(_temps(tmp_path)) == 1  # it sits in outbox/.tmp/, outside the listing
+    assert [p.name for p in (tmp_path / "outbox").iterdir()] == [".tmp"]
+    again = _run(["send", str(tmp_path)])
+    assert again.returncode == 0, again.stderr[-2000:]
+    _assert_exactly_once(tmp_path)  # one message per action, temp dir emptied by reconcile
+
+
 def test_crash_points_registered():
     from pdr.crashpoints import KNOWN
     assert set(SEND_POINTS) <= set(KNOWN)
@@ -153,7 +178,7 @@ def _assert_pipeline(data_dir: Path) -> None:
     assert (data_dir / "out" / "index.html").exists()
     store = SqliteStore(data_dir / "state.db")
     sent = [a for a in store.find(Action) if str(a.status) in ("sent", "sending")]
-    files = sorted((data_dir / "outbox").glob("*.json")) if (data_dir / "outbox").exists() else []
+    files = _messages(data_dir)
     assert len(files) == len(sent) and all(str(a.status) == "sent" for a in sent)
     per_key = collections.Counter(k for a in sent for k in a.dispute_keys)
     assert all(n == 1 for n in per_key.values()), per_key
@@ -195,7 +220,7 @@ def test_random_sigkill(tmp_path):
         time.sleep(rng.uniform(0.25, 1.1))  # start-up ~0.3s, then ~0.2s per action
         p.send_signal(signal.SIGKILL)
         p.wait(timeout=30)
-        n_files = len(list((d / "outbox").glob("*.json"))) if (d / "outbox").exists() else 0
+        n_files = len(_messages(d))
         interrupted += p.returncode == -signal.SIGKILL and n_files < 4
         again = _run(["send", str(d)])
         assert again.returncode == 0, again.stderr[-2000:]

@@ -181,7 +181,17 @@ def _trip_view(trip: Trip | None, ded: Deduction, settings: Any) -> dict:
             "window": f"{_ts(win[0])} to {_ts(win[1])}" if win else "", "holds": holds, "notices": notices, "assertions": notes}
 
 
-def _action_view(store: Any, a: Action) -> dict:
+def _outbox_names(settings: Any) -> set[str] | None:
+    """Delivered K7 message file names (LocalOutbox.messages), or None when K7 cannot list."""
+    try:
+        from pdr.adapters.k7_outbox import get_k7
+        k7 = get_k7(settings)
+        return {p.name for p in k7.messages()} if hasattr(k7, "messages") else None
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _action_view(store: Any, a: Action, outbox: set[str] | None = None) -> dict:
     missing = approval.missing_roles(store, a)
     status = ActionStatus(a.status).value
     label = status.replace("_", " ")
@@ -196,7 +206,8 @@ def _action_view(store: Any, a: Action) -> dict:
             "status_label": label, "amount": a.amount_claimed, "roles": a.required_roles, "missing": missing,
             "approvals": [{"decision": r.decision, "approver": r.approver, "role_required": r.role_required,
                            "decided_at": _ts(r.decided_at), "comment": scrub(r.comment)} for r in rows],
-            "sent_at": _ts(a.sent_at) if a.sent_at else "", "attempts": a.send_attempts, "body": a.body_md, "approve_cmd": cmd}
+            "sent_at": _ts(a.sent_at) if a.sent_at else "", "attempts": a.send_attempts, "body": a.body_md, "approve_cmd": cmd,
+            "outbox": None if outbox is None else (f"{safe_name(a.action_id)}.json" if f"{safe_name(a.action_id)}.json" in outbox else "")}
 
 
 def _actions_for(store: Any, key: str) -> list[Action]:
@@ -229,7 +240,7 @@ def case_context(store: Any, ded: Deduction, settings: Any) -> dict:
         "reason_text": scrub(ded.reason_text, ded.client_id), "explanation": scrub(v.explanation, ded.client_id) if v else "",
         "clauses": clauses, "records": letter.records(bundle["evidence"]),
         "supporting": supporting, "contradicting": contradicting, "conflict": bool(supporting and contradicting),
-        "actions": [_action_view(store, a) for a in _actions_for(store, ded.dispute_key)],
+        "actions": [_action_view(store, a, _outbox_names(settings)) for a in _actions_for(store, ded.dispute_key)],
         "ledger": _ledger(store, ded.dispute_key),
     }
     ctx.update(_trip_view(trip, ded, settings))

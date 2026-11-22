@@ -102,6 +102,8 @@ def reconcile(ctx: Any, k7: Any = None) -> dict:
     """Every `sending` action checked at K7 by id: present -> sent; absent -> redeliver same id; blind -> held."""
     store, k7 = ctx.store, _k7(ctx, k7)
     out = {"sent": [], "redelivered": [], "held": []}
+    if hasattr(k7, "cleanup"):
+        k7.cleanup()  # temp files from a write killed before its rename
     caps = k7.capabilities()
     for a in store.actions_in(ActionStatus.sending):
         if caps.get("can_check"):

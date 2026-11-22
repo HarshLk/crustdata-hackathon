@@ -7,6 +7,7 @@ import re
 import pytest
 
 from pdr import actions, approval, send
+from pdr.adapters.k7_outbox import LocalOutbox
 from pdr.outputs import report
 from tests.unit.actions import build
 
@@ -49,7 +50,7 @@ def test_fm_case_page(c, tmp_path):
     for s in [build.FM_CLAUSE, build.PASSAGE, "2026-11-06T09:00+05:30", "2026-11-22T09:41+05:30",
               "https://www.outlookindia.com/kini-blockade#:~:text=", "Snapshot", "stored ", "STAND-IN TERMS", "page 7, clause 14.1",
               "Kini toll plaza", "gps_2026-11.csv, row 412", "client_gate_log", "pod_signed", "sent", "Asha Rao (kam)",
-              "Delay excused by force majeure", "A report that the blockade ended before 5 Nov", "agreements/acme_ta.pdf#page=7"]:
+              "Delay excused by force majeure", "Outbox message", "(one file per action id)", "A report that the blockade ended before 5 Nov", "agreements/acme_ta.pdf#page=7"]:
         assert s in t, s
     assert "Far away depot" not in t and "outside the disputed window" in t  # GPS trimmed
 
@@ -81,7 +82,7 @@ def test_index_queue(c, tmp_path):
 def test_canary_never_rendered(c, tmp_path):
     _all(c, tmp_path)
     ob = tmp_path / "outbox"
-    files = list((tmp_path / "out").glob("*.html")) + list(ob.glob("*.json"))
+    files = list((tmp_path / "out").glob("*.html")) + LocalOutbox(ob).messages()
     assert len(files) >= 6
     for p in files:
         t = H.unescape(p.read_text())

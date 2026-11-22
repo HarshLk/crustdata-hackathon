@@ -120,6 +120,7 @@
 <dt>Approvals</dt><dd>{% for p in a.approvals %}<div>{{ p.decision }} by {{ p.approver }} ({{ p.role_required }}) {{ p.decided_at }}{% if p.comment %}: "{{ p.comment }}"{% endif %}</div>{% else %}none yet{% endfor %}</dd>
 {% if a.missing %}<dt>Waiting for</dt><dd>{{ a.missing|join(", ") }}</dd>{% endif %}
 {% if a.sent_at %}<dt>Sent</dt><dd>{{ a.sent_at }} (attempts {{ a.attempts }})</dd>{% endif %}
+{% if a.outbox is not none %}<dt>Outbox message</dt><dd>{% if a.outbox %}<code>{{ a.outbox }}</code> (one file per action id){% else %}none{% endif %}</dd>{% endif %}
 </dl>
 <details><summary class="small">Letter text</summary><pre class="small wrap" style="white-space:pre-wrap">{{ a.body }}</pre></details>
 {% if a.approve_cmd %}<p class="small muted">Approve in the terminal: <code>{{ a.approve_cmd }}</code></p>{% endif %}

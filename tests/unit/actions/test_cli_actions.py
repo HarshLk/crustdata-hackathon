@@ -30,7 +30,10 @@ def test_cli_flow(tmp_path, monkeypatch):
     assert res.exit_code == 0, res.output
     res = r.invoke(cli.app, ["send"])
     assert res.exit_code == 0 and a.action_id in res.output, res.output
-    assert len(list((tmp_path / "outbox").glob("*.json"))) == 1
+    from pdr.adapters.k7_outbox import LocalOutbox
+    assert len(LocalOutbox(tmp_path / "outbox").messages()) == 1
+    res = r.invoke(cli.app, ["outbox"])
+    assert res.exit_code == 0 and "1 message(s)" in res.output, res.output
     res = r.invoke(cli.app, ["report", "--out", str(tmp_path / "out")])
     assert res.exit_code == 0 and (tmp_path / "out" / "index.html").exists(), res.output
     res = r.invoke(cli.app, ["pack", a.dispute_keys[0], "--out", str(tmp_path / "out")])

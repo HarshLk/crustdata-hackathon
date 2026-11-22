@@ -75,7 +75,7 @@ def test_instruction_in_deduction_creates_no_approval(c):
     assert a.status == ActionStatus.awaiting_approval
     assert c.store.find(Approval) == []
     res = send.run(c)
-    assert res["send_sent"] == [] and outbox(c).files() == []
+    assert res["send_sent"] == [] and outbox(c).messages() == []
 
 
 def test_only_approval_module_constructs_approvals():
@@ -91,7 +91,7 @@ def test_above_threshold_needs_all_roles(c):
     assert a.required_roles == ["kam", "finance", "legal"]
     approval.approve(c, a.action_id, "kam", "Asha Rao")
     assert c.store.get(Action, a.action_id).status == ActionStatus.awaiting_approval
-    assert send.run(c)["send_sent"] == [] and outbox(c).files() == []
+    assert send.run(c)["send_sent"] == [] and outbox(c).messages() == []
     with pytest.raises(approval.ApprovalError):
         approval.approve(c, a.action_id, "intern", "Bob")
     approval.approve(c, a.action_id, "finance", "F. Controller")
@@ -117,7 +117,7 @@ def test_unapproved_action_never_reaches_outbox(c):
     # force the status without approval rows: send must still refuse
     c.store.put(c.store.get(Action, a.action_id).model_copy(update={"status": ActionStatus.approved}))
     res = send.run(c)
-    assert res["send_held"] == [a.action_id] and outbox(c).files() == []
+    assert res["send_held"] == [a.action_id] and outbox(c).messages() == []
     assert c.store.get(Action, a.action_id).status == ActionStatus.held
 
 
@@ -147,13 +147,13 @@ def test_send_once_and_message(c):
     approval.approve(c, a.action_id, "kam", "Asha Rao")
     res = send.run(c)
     assert res["send_sent"] == [a.action_id]
-    files = outbox(c).files()
+    files = outbox(c).messages()
     assert len(files) == 1
     msg = json.loads(files[0].read_text())
     assert msg["action_id"] == a.action_id and msg["approved_by"][0]["name"] == "Asha Rao"
     assert "Asha Rao, kam" in msg["body_md"] and "[[" not in msg["body_md"]
     assert send.run(c)["send_sent"] == []
-    assert len(outbox(c).files()) == 1
+    assert len(outbox(c).messages()) == 1
     st = c.store.get(Action, a.action_id)
     assert st.status == ActionStatus.sent and st.sent_at is not None and st.send_attempts == 1
     # the deduction cannot go into a second dispute
@@ -166,9 +166,9 @@ def test_second_deliver_noop(tmp_path):
     ob = LocalOutbox(tmp_path / "ob")
     ob.deliver("K|1:abc", {"x": 1}, [])
     ob.deliver("K|1:abc", {"x": 2}, [])
-    files = ob.files()
+    files = ob.messages()
     assert len(files) == 1 and json.loads(files[0].read_text())["x"] == 1
-    assert ob.exists("K|1:abc") and not list((tmp_path / "ob").glob(".tmp-*"))
+    assert ob.exists("K|1:abc") and not list((tmp_path / "ob" / ".tmp").glob("*"))
 
 
 class BlindK7:
@@ -206,7 +206,7 @@ def test_reconcile_present_and_absent(c):
     assert res["redelivered"] == [a.action_id] and outbox(c).exists(a.action_id)
     c.store.put(c.store.get(Action, a.action_id).model_copy(update={"status": ActionStatus.sending}))
     res = send.reconcile(c)  # present -> sent, no second file
-    assert res["sent"] == [a.action_id] and len(outbox(c).files()) == 1
+    assert res["sent"] == [a.action_id] and len(outbox(c).messages()) == 1
 
 
 def test_changed_verdict_holds_at_send(c):
@@ -215,7 +215,7 @@ def test_changed_verdict_holds_at_send(c):
     approval.approve(c, a.action_id, "kam", "Asha Rao")
     c.store.put(v.model_copy(update={"superseded_by": "V-new"}))
     res = send.run(c)
-    assert res["send_held"] == [a.action_id] and outbox(c).files() == []
+    assert res["send_held"] == [a.action_id] and outbox(c).messages() == []
 
 
 def test_audit_failure_holds(c, monkeypatch):
@@ -226,7 +226,7 @@ def test_audit_failure_holds(c, monkeypatch):
     monkeypatch.setitem(sys.modules, "pdr.engine.audit", mod)
     a = actions.draft_for_verdict(build.fm_verdict(c.store), c)
     approval.approve(c, a.action_id, "kam", "Asha Rao")
-    assert send.run(c)["send_held"] == [a.action_id] and outbox(c).files() == []
+    assert send.run(c)["send_held"] == [a.action_id] and outbox(c).messages() == []
 
 
 def test_document_request_and_fm_notice(c):
@@ -254,7 +254,7 @@ def test_tampered_snapshot_holds_at_send(c):
     ev = c.store.get(Evidence, "E-NEWS")
     c.store.put(ev.model_copy(update={"content_hash": "f" * 64}))
     res = send.run(c)
-    assert res["send_held"] == [a.action_id] and outbox(c).files() == []
+    assert res["send_held"] == [a.action_id] and outbox(c).messages() == []
     trail = c.store.trail() if hasattr(c.store, "trail") else []
     assert any(r["event"] == "held" and "external_snapshot" in str(r["detail"]) for r in trail)
 
@@ -266,3 +266,12 @@ def test_real_audit_passes_on_valid_fixture(c):
     ev = [c.store.get(Evidence, i) for i in v.evidence_ids]
     bad = [f for f in audit(v, ev, c, with_refuter=False) if not f.passed]
     assert bad == []
+
+
+def test_messages_ignore_temp_files_and_cleanup(tmp_path):
+    ob = LocalOutbox(tmp_path / "ob")
+    ob.deliver("K|1:abc", {"x": 1}, [])
+    (tmp_path / "ob" / ".tmp" / "msg-stale.part").write_text("{half")
+    (tmp_path / "ob" / ".tmp-legacy.json").write_text("{half")
+    assert [p.name for p in ob.messages()] == ["K_1_abc.json"]
+    assert ob.cleanup() == 2 and [p.name for p in ob.messages()] == ["K_1_abc.json"]

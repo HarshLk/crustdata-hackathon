@@ -13,6 +13,9 @@ def safe_name(action_id: str) -> str:
     return "".join(ch if ch.isalnum() or ch in "-_." else "_" for ch in action_id)
 
 
+TMP_DIR = ".tmp"  # temp files live here, outside the message listing, on the same filesystem
+
+
 class LocalOutbox:
     """Idempotent by construction: existence of the file is the check, rename is the commit."""
 
@@ -26,10 +29,29 @@ class LocalOutbox:
         return self.path / f"{safe_name(action_id)}.json"
 
     def exists(self, action_id: str) -> bool:
-        return self._file(action_id).exists()
+        return self._file(action_id).is_file()
 
-    def files(self) -> list[Path]:
-        return sorted(self.path.glob("*.json")) if self.path.exists() else []
+    def messages(self) -> list[Path]:
+        """Only delivered messages: `<action_id>.json` files, never temp files or folders."""
+        if not self.path.is_dir():
+            return []
+        return sorted(p for p in self.path.iterdir()
+                      if p.is_file() and p.suffix == ".json" and not p.name.startswith("."))
+
+    files = messages  # older name
+
+    def cleanup(self) -> int:
+        """Delete temp files left by a write that was killed before its rename; returns how many."""
+        n = 0
+        stale = list((self.path / TMP_DIR).glob("*")) if (self.path / TMP_DIR).is_dir() else []
+        stale += list(self.path.glob(".tmp-*")) if self.path.is_dir() else []  # pre-.tmp/ layout
+        for p in stale:
+            try:
+                p.unlink()
+                n += 1
+            except OSError:
+                pass
+        return n
 
     def deliver(self, action_id: str, body: dict, attachments: list[Path]) -> None:
         """Write the message once; a second deliver of the same id is a no-op."""
@@ -38,14 +60,17 @@ class LocalOutbox:
         msg: dict[str, Any] = {**body, "action_id": action_id, "attachments": [str(a) for a in attachments]}
         from pdr import guard  # nothing leaves the machine without the guard (DESIGN 10)
         guard.check("k7", msg, body.get("client_id"))
-        self.path.mkdir(parents=True, exist_ok=True)
+        tmp_dir = self.path / TMP_DIR
+        tmp_dir.mkdir(parents=True, exist_ok=True)
         data = json.dumps(msg, ensure_ascii=False, indent=2, sort_keys=True, default=str).encode("utf-8")
-        fd, tmp = tempfile.mkstemp(prefix=".tmp-", suffix=".json", dir=self.path)
+        fd, tmp = tempfile.mkstemp(prefix="msg-", suffix=".part", dir=tmp_dir)
         try:
             with os.fdopen(fd, "wb") as fh:
                 fh.write(data)
                 fh.flush()
                 os.fsync(fh.fileno())
+            from pdr.crashpoints import crashpoint
+            crashpoint("send.outbox_before_rename")
             target = self._file(action_id)
             if target.exists():  # a concurrent deliver won; keep the first
                 os.unlink(tmp)
