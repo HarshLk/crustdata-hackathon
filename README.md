@@ -140,4 +140,22 @@ More: [`docs/ethics.md`](docs/ethics.md), [`docs/finance.md`](docs/finance.md),
 
 ## What is stubbed or not done
 
-_Updated at the end of the build from what is on `main`._
+Checked against `main` at the end of lane D's work (22 Nov 2026):
+
+- **Model provider: no key.** `pdr/llm.py` has a real Anthropic transport, but no model key exists in the environment.
+  Every model call in tests is a hand-written fake (`cassette/llm.json` in cases 7, 8, 17). Without a key, passage
+  reading falls back to the deterministic proposer, and agreement intake and free-text parsing do not run live.
+  Confirmed terms are loaded with `pdr load-terms`.
+- **Official-source adapters: none yet.** `evidence.sources` lists only `crustdata_news`. District orders, IMD and
+  traffic-police pages are fetched only if a news search returns them.
+- **Live web page (`pdr serve`): not built.** `pdr/ui/` is empty. The static case file (`pdr report`) is the interface;
+  approvals happen in the CLI.
+- **Event watch (`pdr watch`): settings only** (`event_watch.*`), no command.
+- **Retention deletion: setting only** (`privacy.retention_days`). No job deletes trip-level personal data yet.
+- **Stretch interpolation: not built.** Corroboration matches a GPS place to a place named in the passage. A halt
+  between two named ends of a blocked stretch (e.g. at Kini, inside "Nagthane to Sangli Phata") is not matched. The
+  case 1 halt is placed at Nagthane for that reason.
+- **Lanes:** `fixtures/lanes.yaml` was written from map knowledge and needs a second person's check against a map
+  (marked in the file).
+- **Stand-in terms and clients:** all fixtures use stand-in terms built from public clauses, labelled `is_stand_in`
+  and flagged `STAND_IN_TERMS`. Replace them with the kickoff client's confirmed agreements.
