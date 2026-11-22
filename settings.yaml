@@ -1,0 +1,91 @@
+# Service settings (schema in pdr/settings.py). None of these is a contract value:
+# rates, caps, windows, notice periods and FM lists come only from a client's confirmed Terms.
+# Values marked "demo" were set for the build; replace from a dated source at kickoff.
+version_note: "kickoff"
+budget:
+  run_cost_credits: 40            # set at kickoff
+  per_deduction_credits: 8
+  run_time_seconds: 600
+  credit_price_usd: 0.30
+  usd_inr: 88.0                   # demo; set at kickoff from a dated source; 0 refuses to start
+providers:
+  crustdata: { base_url: "https://api.crustdata.com", api_version: "2025-11-01", rate_per_minute: 10,
+               retry_limit: 3, backoff_seconds: [2, 5, 12], timeout_seconds: 60 }
+  llm:       { provider: anthropic, model_extract: claude-sonnet-5-5, model_parse: claude-haiku-5-5,
+               retry_limit: 2, timeout_seconds: 60 }
+  paidcall_mode: detached         # detached | inline (inline is automatic on Windows)
+  paid_concurrency: 3             # paid calls in flight within one evidence group
+evidence:
+  disruption_types:               # type -> query words; limits what we SEARCH, never what a clause covers
+    bandh: ["bandh"]
+    strike: ["strike", "hartal"]
+    chakka_jam: ["chakka jam"]
+    blockade: ["blockade", "rasta roko"]
+    flood: ["flood"]
+    landslide: ["landslide"]
+    road_closure: ["road closed", "highway closed"]
+    curfew: ["curfew"]
+    govt_detention: ["trucks stranded", "check post"]
+  window_allowance_hours: 24
+  max_searches_per_deduction: 3
+  max_fetches_per_deduction: 5
+  max_blocked_fetches: 3
+  min_page_chars: 1500
+  block_phrases: ["Verifying your request", "Just a moment", "Access Denied", "The request could not be satisfied"]
+  human_mode_retry: true
+  min_qualifying_sources: 1
+  regional_query: true
+  search_when_corroboration_missing: true
+  search_for_referrals: false
+  refuter: true                   # independent second read of passages that would carry a dispute
+  sources: [crustdata_news]       # plus official-source adapters as added
+economics:                        # never read by a verdict; only the gate reads the cost side
+  search_gate_ratio: 1.0          # skip paid search when recoverable amount < ratio x estimated search cost; 0 disables
+  estimated_search_credits: 7     # used until the ledger has its own average
+  fee_rate_pct: 0                 # ASSUMPTION, set by the team (T-2); used only by `pdr economics`
+  assumed_win_rate_pct: 0         # ASSUMPTION; used only by `pdr economics`
+records:
+  conflict_allowance_minutes: 60
+causation:
+  allowance_hours: 12             # demo; set at kickoff; debated in the design question
+approvals:
+  send_dispute: [kam]
+  above_threshold_inr: 100000     # demo; set at kickoff; 0 disables
+  above_threshold_roles: [finance, legal]
+  override_out_of_window: [kam]
+escalation:
+  legal_notice_above_inr: 50000   # demo; set by the 3PL
+  arbitration_above_inr: 500000   # demo; set by the 3PL
+letter:
+  response_days: 15
+  grouping: per_dispute           # per_dispute | monthly_per_client
+privacy:
+  retention_days: 180             # demo; set by the 3PL
+output:
+  format: jsonl
+  fields:                         # name, then source path in Verdict or a derived-field name
+    - [dispute_key, dispute_key]
+    - [outcome, outcome]
+    - [grounds, grounds]
+    - [reason, primary_reason]
+    - [amount_deducted, amount_deducted]
+    - [recomputed_penalty, recomputed_penalty]
+    - [amount_disputable, amount_disputable]
+    - [cites, derived:citations]
+    - [missing_items, missing_items]
+    - [flags, flags]
+    - [next_action, next_action]
+    - [explanation, explanation]
+    - [settings_version, settings_version]
+    - [run_cost_inr, run_cost_inr]
+  rename: { outcome: {}, fields: {} }
+  case_file: { dir: out, regenerate_after_each_verdict: true }
+adapters:
+  k3: { field_map: {} }
+  k4: { field_map: {} }
+  k7: { kind: local_outbox, path: data/outbox }
+event_watch:
+  states: []
+  queries_per_state: ["bandh call", "chakka jam"]
+  lookahead_days: 7
+  daily_credit_cap: 20
