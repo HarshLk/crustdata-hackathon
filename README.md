@@ -7,11 +7,12 @@ amount to recover) or **cannot verify** (naming what is missing), and sends each
 Built at ContextCon 05 (22 Nov 2026). Design: [`docs/architecture.md`](docs/architecture.md); context documents in
 `docs/context/`.
 
-Contents: [What the service is](#1-what-the-service-is) · [What it does now](#2-what-it-does-now) ·
-[What comes next](#3-what-comes-next) · [How it runs](#4-how-it-runs) · [What we tried](#5-what-we-tried) ·
-[Why this way](#6-why-this-way)
+Contents: [The service](#the-service) · [What it does now](#what-it-does-now) ·
+[What it could do in the future](#what-it-could-do-in-the-future) · [The future of this service](#the-future-of-this-service) ·
+[How to run it](#how-to-run-it) · [How it's built](#how-its-built) · [Its sources and checks](#its-sources-and-checks) ·
+[The approaches we tried](#the-approaches-we-tried)
 
-## 1. What the service is
+## The service
 
 A client (a manufacturer or retailer) deducts penalties from the money it owes its logistics provider (a 3PL): late
 delivery, short placement, missed slots. Many of these deductions are wrong under the client's own agreement: the rate
@@ -33,7 +34,7 @@ written off; large ones go to lawyers or arbitration.
 | **Pass mark** | On the hidden set: zero wrong "disputable" verdicts; every other verdict correct or an honest "cannot verify" that names what is missing; no dispute without a source that states the event on that route and date; no dispute sent twice, including after a kill; no paid call repeated after a restart. |
 | **Data sources called** | Listed in full below. |
 
-## 2. What it does now
+## What it does now
 
 Everything in this section works on `main` today and was checked from a fresh clone on 22 Nov 2026 (offline, with
 recorded responses):
@@ -68,43 +69,23 @@ Honest limits:
   12b, 12c, 12d, 13, 14, 16, 18, 20) give their verdict through the CLI.
 - The rest is listed under "What is stubbed or not done" below.
 
-### Every data source the service calls
+### Where it still needs a person
 
-Nothing leaves the machine except through `pdr.broker.paid_call`, which runs the outbound guard first and writes one
-ledger row per call (including retries, blocked fetches and zero-cost cache hits).
+The service does the checking, the arithmetic, the evidence search, the letter and the sending. A person is needed at
+these points, by design:
 
-| Source | Endpoint | Used for | What is sent | Cost |
-| --- | --- | --- | --- | --- |
-| Crustdata web search | `POST https://api.crustdata.com/web/search/live` (`sources: ["news"]`, Unix-second date window, never `location`) | Finding dated reports of a disruption on a route and date window (evidence stage, pass 2 only) | A query built from an allow-list: route place or state + event word (e.g. "Nagthane blockade"), plus the date window. Never agreement text, amounts, trip ids, driver data or the client's name | 1 credit per page with results; zero-result searches are free (read from `x-credits-used`) |
-| Crustdata web fetch | `POST https://api.crustdata.com/web/enrich/live` (up to 10 URLs; one `human_mode` retry when blocked) | Fetching each source we would cite, to read the passage and the publication date; pages are snapshotted by content hash | Public article URLs only | 1 credit per URL, charged even when blocked |
-| Crustdata company identify | `POST https://api.crustdata.com/company/identify` | Showing why a lookalike issuer differs from the client (never resolving the match) | A company's public name, alone | about 1 credit per batched call |
-| Model provider (Anthropic Messages API, `POST /v1/messages`; models in `settings.yaml` `providers.llm`) | Data processor | Reading only: proposing contract terms from agreement text (intake), parsing unseen deduction formats and column names, proposing passages from article text, an independent refuter read. It never decides a verdict, writes a letter or approves anything | Agreement text (intake), deduction text (parsing), article text (passage reading). Driver identifiers are pseudonymised first; nothing about the client goes with article text | tokens, ledgered. No model key was available during the build: all model calls are faked in tests and the deterministic reader runs instead |
-| Publisher pages (redirect resolution) | Plain `GET` with redirects off on `google.com/goto?...` links | Turning search-result redirect links into the real article URL before fetching (the article is then fetched through Crustdata) | The redirect URL only | free, ledgered |
-| Official pages (district magistrate orders, IMD press releases, traffic-police advisories) | fetched through Crustdata `/web/enrich/live` when found | Preferred evidence over news (`evidence.sources` in settings) | Public URLs | as fetch |
-| The client's own records | K1 clients and lanes, K2 agreements and confirmed terms, K4 deductions (local files) | Identity, terms, the client's stated calculation | read locally, never sent anywhere | free |
-| The 3PL's own records | K3 trips, gate logs, GPS, notices, ops notes (local files) | Timeline, corroboration, notice | read locally; driver names and phones go to `vault.db` at the door | free |
-
-Not called: OpenStreetMap (lanes come from a person-checked `fixtures/lanes.yaml`), Crustdata watchers, any
-personal-data enrichment.
-
-### Agents: models read, code decides, people authorise
-
-| Part | Kind | Does | Can never |
-| --- | --- | --- | --- |
-| **Request reader** | Model + validation | Maps an unseen input (sheet, PDF, pasted email, a sentence of instruction) onto the logical model | Supply a value that is not in the source text |
-| **Intake reader** | Model + validation | Proposes contract Terms with page, clause and verbatim text | Confirm a term; only a person does |
-| **Evidence scout** | Code-planned search + model reader | Finds dated public reports for a route and window; proposes which sentences state event, place, date, effect | Write its own queries from client data; decide a verdict |
-| **Adjudicator** | Deterministic code | Runs the checks, recomputes the correct penalty, combines results into a verdict | Use a fact without a citation; treat an unfinished check as "no ground" |
-| **Auditor** | Code + an independent model read | Re-verifies every citation of a disputable verdict before it is written, and again before anything is sent | Upgrade a verdict; it can only downgrade or hold |
-| **Clerk** | Deterministic code | Executes approved actions exactly once | Act on anything without approval rows for that exact version |
-| **People** | Billing lead, account manager, finance, legal | Confirm terms, approve actions, override with a logged reason | — |
-
-The only component that can move a verdict toward "disputable" is deterministic code working from confirmed terms
-and cited records. Models can only propose evidence or veto it.
+| Point | Who | Why a person |
+| --- | --- | --- |
+| Confirming each extracted contract term, and marking the agreement set complete | Billing lead (legal for disputed clauses) | Every verdict rests on the terms; a misread clause would be wrong everywhere |
+| Approving each dispute letter | Key account manager; finance and legal as well above a threshold | A letter to a paying client cannot be unsent |
+| Releasing a deduction that is past its dispute window | Key account manager, with a written reason | A judgment call about the client relationship |
+| Deciding what "cannot verify" could not | Whoever holds the missing item | The verdict names the item: a notice email, an annexure, a GPS extract, a detention memo |
+| Wording that only arguably covers an event ("civil commotion" for a blockade) | A person, with the exact clause shown | No ruling settles it; the service refuses to guess |
+| Confirming a column mapping for an input format it has not seen | Operator | One screen, once per format |
 
 ### What is stubbed or not done
 
-Checked against `main` at the end of lane D's work (22 Nov 2026):
+Checked against `main` on 22 Nov 2026:
 
 - **Model provider: no key.** `pdr/llm.py` has a real Anthropic transport, but no model key exists in the environment.
   Every model call in tests is a hand-written fake (`cassette/llm.json` in cases 7, 8, 17). Without a key, passage
@@ -116,15 +97,12 @@ Checked against `main` at the end of lane D's work (22 Nov 2026):
   approvals happen in the CLI.
 - **Event watch (`pdr watch`): settings only** (`event_watch.*`), no command.
 - **Retention deletion: setting only** (`privacy.retention_days`). No job deletes trip-level personal data yet.
-- **Stretch interpolation: not built.** Corroboration matches a GPS place to a place named in the passage. A halt
-  between two named ends of a blocked stretch (e.g. at Kini, inside "Nagthane to Sangli Phata") is not matched. The
-  case 1 halt is placed at Nagthane for that reason.
 - **Lanes:** `fixtures/lanes.yaml` was written from map knowledge and needs a second person's check against a map
   (marked in the file).
 - **Stand-in terms and clients:** all fixtures use stand-in terms built from public clauses, labelled `is_stand_in`
   and flagged `STAND_IN_TERMS`. Replace them with the kickoff client's confirmed agreements.
 
-## 3. What comes next
+## What it could do in the future
 
 Planned, **not built** on `main` at the time of writing (plan: `docs/context/` and the add-on plan, decisions D-35 to
 D-41):
@@ -144,10 +122,44 @@ have `/web/enrich/live` follow the redirect, report the final URL, and not charg
 Until then, two improvements are planned: re-trying unresolved links a few minutes later in the same run (they
 redirect normally once the gate lifts), and official-source adapters that need no search-result links at all.
 
-Known gaps: official-source adapters (district orders, IMD, traffic police), stretch interpolation for GPS halts,
+Known gaps: official-source adapters (district orders, IMD, traffic police),
 retention deletion, event watch, and a second person's check of `fixtures/lanes.yaml`.
 
-## 4. How it runs
+**Why not now.** Each of these was left out for a reason, not for lack of interest:
+
+| Next step | Why it waits |
+| --- | --- |
+| Decision log, model costs, alerts | Built and tested on branches `addon/e1`, `addon/e2`, `addon/e4`. Kept out of `main` so that nothing untested together could touch the exactly-once path before submission |
+| Case chat | It can only answer from the decision log, which is not merged yet, and it needs a model key we did not have |
+| Live approval page | A server is one more thing that can die mid-demo. The static case file gives the same view with nothing to crash |
+| Real WhatsApp alerts | Neither WhatsApp provider accepts an idempotency key, so "sent once" becomes "sent at most once"; that trade-off deserves a decision, not a rush |
+| Official-source adapters | Each source (district orders, weather office, traffic police) has its own format and archive; worth doing per state once a real client's lanes are known |
+| Replacing stand-in agreements | Needs a real client's signed agreements and a person to confirm the terms |
+| Search deeper, retry of held-back links | Small, but they change the paid-call path, which we froze once the kill tests were green |
+
+## The future of this service
+
+Today a person confirms the terms and approves each letter, and the service does everything between. Where this goes
+once agents can be trusted with the whole job:
+
+- **From deduction to recovered money.** The job is not finished when a letter is sent; it is finished when the
+  credit note arrives. The next loop reads the client's reply, matches the reversal against the bank statement, and
+  escalates (legal notice, MSME facilitation, arbitration file) on the cost thresholds the finance controller sets.
+- **Before the deduction happens.** Most force-majeure claims are lost for want of notice sent in time. A daily watch
+  on the client's active lanes can spot a bandh or blockade as it is announced and draft the notice the contract
+  requires, inside the notice window. The same approve-then-send-once path already exists.
+- **Evidence recorded on the day.** TCI lost a Rs 62.8 lakh claim after 12 years because its evidence was not recorded
+  at the time. An agent that snapshots the report, the GPS halt and the notice on the day the truck is stopped turns a
+  dispute into a lookup.
+- **Both directions of the same contract.** The engine that checks a client's penalty against the agreement can check
+  the 3PL's own claims on the client (detention charges at loading and unloading) and a carrier's invoice against its
+  rate contract. It is one adjudicator with different terms loaded.
+- **Fewer approvals as trust is earned.** Approval thresholds are settings. A 3PL can start with a person on every
+  letter and move to a person only on large or novel disputes as the audit trail shows the service is right. The rule
+  that survives every stage: the model reads, deterministic code decides, and nothing irreversible goes out on a guess.
+- **Paid on recovery.** The buyer pays a share of what comes back, so the service is worth exactly what it recovers.
+
+## How to run it
 
 Python 3.11+ with the packages in `requirements.txt` (`pip install -r requirements.txt`, or `pip install -e .` for a
 `pdr` command). Set `PDR_DATA_DIR` to keep runtime data out of the clone (default `./data`). Set `PDR_OFFLINE=1` to
@@ -234,9 +246,134 @@ also has `variants/` (renamed columns, reordered columns, pasted email) that mus
 Folders are generated from `tests/cases/_specs.py` (`python -m tests.cases._build`). The Open-track submission is
 [`docs/open_track_cases.md`](docs/open_track_cases.md).
 
-## 5. What we tried
+## How it's built
 
-Real findings from the build (sources: `docs/context/DECISIONS.md` F-1 to F-12, `docs/evidence_validation.md`, the
+```mermaid
+flowchart TB
+  IN["Inputs: deductions, trips, clients, agreements"] --> RD["Request reader and agreement intake<br/>model proposes, code validates"]
+  RD --> P1{{"Person confirms terms"}}
+  RD -->|driver names, phones| VAULT[("vault.db")]
+  P1 --> ADJ["Adjudicator: seven deterministic stages<br/>1 received, 2 matched, 3 terms, 4 records, 5 notice, 6 evidence, 7 verdict and audit"]
+  ADJ <-->|save and reuse stage results| DB[("state.db")]
+  ADJ -->|stage 6 only| BR["Paid-call broker<br/>guard, cache, budget, rate limit, retries"]
+  RD -.->|model reads| BR
+  BR --> CD["Crustdata: web search, web fetch, company identify"]
+  BR --> LLM["Model provider: reads text, never decides"]
+  BR --> LG[("Cost ledger: one row per call")]
+  DB --> OUT["verdicts.jsonl and static HTML case file"]
+  ADJ --> ACT["Dispute letter drafted from a template"]
+  ACT --> P2{{"Person approves this exact letter"}}
+  P2 --> SEND["Send once: re-audit, record intent, deliver"]
+  SEND --> K7[("Outbox: one file per action")]
+```
+
+| | |
+| --- | --- |
+| **Agents** | Six narrow parts around a deterministic core: request reader, intake reader, evidence scout, adjudicator, auditor, clerk (table below). No agent framework; each is a function with typed input and output |
+| **Models** | One model provider behind `pdr/llm.py` (Anthropic Messages API; model names in `settings.yaml`). Used only to read: propose contract terms, map unseen input formats, propose news passages, and try to refute them. With no key, rule-based readers do the same jobs |
+| **Tools** | Crustdata web search, web fetch and company identify; a plain redirect lookup for search-result links; local file readers for CSV, Excel, JSON, PDF and pasted text |
+| **Data** | The client's deductions and agreements, the 3PL's trip records, and dated public reports. Driver names and phones are split off into `vault.db` when files are read |
+| **Where it calls Crustdata** | Only in stage 6 (evidence), through `pdr/broker/` and `pdr/evidence/crustdata.py`, and only when the free checks leave a delay unexplained, the clause covers the event, notice is in order and the amount is worth the search. Company identify is used to explain a lookalike name |
+| **Where its state lives** | `state.db` (SQLite): entities, stage results stored under a hash of their inputs, call cache, page snapshots, cost ledger, actions, approvals, hash-chained audit trail. `vault.db`: driver identity. The outbox folder: one file per sent letter. All under `$PDR_DATA_DIR` |
+| **What it runs on** | Python 3.11+, SQLite, a command line (`pdr`). One process, plus a short-lived child process for each paid call so a kill cannot lose a paid result. No server, no queue, no container needed |
+
+Full diagrams (pipeline, paid call, evidence search, action states, data model, what leaves the machine):
+[`docs/architecture.md`](docs/architecture.md).
+
+### The agents: models read, code decides, people authorise
+
+| Part | Kind | Does | Can never |
+| --- | --- | --- | --- |
+| **Request reader** | Model + validation | Maps an unseen input (sheet, PDF, pasted email, a sentence of instruction) onto the logical model | Supply a value that is not in the source text |
+| **Intake reader** | Model + validation | Proposes contract Terms with page, clause and verbatim text | Confirm a term; only a person does |
+| **Evidence scout** | Code-planned search + model reader | Finds dated public reports for a route and window; proposes which sentences state event, place, date, effect | Write its own queries from client data; decide a verdict |
+| **Adjudicator** | Deterministic code | Runs the checks, recomputes the correct penalty, combines results into a verdict | Use a fact without a citation; treat an unfinished check as "no ground" |
+| **Auditor** | Code + an independent model read | Re-verifies every citation of a disputable verdict before it is written, and again before anything is sent | Upgrade a verdict; it can only downgrade or hold |
+| **Clerk** | Deterministic code | Executes approved actions exactly once | Act on anything without approval rows for that exact version |
+| **People** | Billing lead, account manager, finance, legal | Confirm terms, approve actions, override with a logged reason | — |
+
+The only component that can move a verdict toward "disputable" is deterministic code working from confirmed terms
+and cited records. Models can only propose evidence or veto it.
+
+### Why it is built this way
+
+| Choice | Reason |
+| --- | --- |
+| **Models read, code decides, people authorise** | A model may propose terms, mappings and passages. Only deterministic code working from confirmed terms and cited records can move a verdict toward "disputable", and only a person can approve a letter |
+| **A wrong "disputable" is the worst outcome** | It costs the 3PL its client's trust. When in doubt the answer is `cannot_verify` naming what is missing; the auditor can only downgrade |
+| **No default rules** | Rates, caps, windows, notice periods and force-majeure lists come only from the client's confirmed terms. `settings.yaml` has no place for a contract value |
+| **Free checks before paid calls** | Most deductions are settled by the agreement and the records. Searches run only for what is left, grouped by route and date, and only when the amount at stake justifies the cost |
+| **Memoised stages** | Each stage result is stored under a hash of its inputs. Restart after a kill, re-run after a settings change and re-run after new data are the same mechanism: run again, reuse what is unchanged |
+| **One outbox file per action** | A letter is written under its action id with an atomic rename, and every command first reconciles `sending` against the outbox. A kill can never send a letter twice |
+| **Static case file rather than a live app** | Nothing to crash on stage; the judges and the finance team read the same HTML rendered from the store |
+
+## Its sources and checks
+
+### Every data source it calls
+
+Nothing leaves the machine except through `pdr.broker.paid_call`, which runs the outbound guard first and writes one
+ledger row per call (including retries, blocked fetches and zero-cost cache hits).
+
+| Source | Endpoint | Used for | What is sent | Cost |
+| --- | --- | --- | --- | --- |
+| Crustdata web search | `POST https://api.crustdata.com/web/search/live` (`sources: ["news"]`, Unix-second date window, never `location`) | Finding dated reports of a disruption on a route and date window (evidence stage, pass 2 only) | A query built from an allow-list: route place or state + event word (e.g. "Nagthane blockade"), plus the date window. Never agreement text, amounts, trip ids, driver data or the client's name | 1 credit per page with results; zero-result searches are free (read from `x-credits-used`) |
+| Crustdata web fetch | `POST https://api.crustdata.com/web/enrich/live` (up to 10 URLs; one `human_mode` retry when blocked) | Fetching each source we would cite, to read the passage and the publication date; pages are snapshotted by content hash | Public article URLs only | 1 credit per URL, charged even when blocked |
+| Crustdata company identify | `POST https://api.crustdata.com/company/identify` | Showing why a lookalike issuer differs from the client (never resolving the match) | A company's public name, alone | about 1 credit per batched call |
+| Model provider (Anthropic Messages API, `POST /v1/messages`; models in `settings.yaml` `providers.llm`) | Data processor | Reading only: proposing contract terms from agreement text (intake), parsing unseen deduction formats and column names, proposing passages from article text, an independent refuter read. It never decides a verdict, writes a letter or approves anything | Agreement text (intake), deduction text (parsing), article text (passage reading). Driver identifiers are pseudonymised first; nothing about the client goes with article text | tokens, ledgered. No model key was available during the build: all model calls are faked in tests and the deterministic reader runs instead |
+| Publisher pages (redirect resolution) | Plain `GET` with redirects off on `google.com/goto?...` links | Turning search-result redirect links into the real article URL before fetching (the article is then fetched through Crustdata) | The redirect URL only | free, ledgered |
+| Official pages (district magistrate orders, IMD press releases, traffic-police advisories) | fetched through Crustdata `/web/enrich/live` when found | Preferred evidence over news (`evidence.sources` in settings) | Public URLs | as fetch |
+| The client's own records | K1 clients and lanes, K2 agreements and confirmed terms, K4 deductions (local files) | Identity, terms, the client's stated calculation | read locally, never sent anywhere | free |
+| The 3PL's own records | K3 trips, gate logs, GPS, notices, ops notes (local files) | Timeline, corroboration, notice | read locally; driver names and phones go to `vault.db` at the door | free |
+
+Not called: OpenStreetMap (lanes come from a person-checked `fixtures/lanes.yaml`), Crustdata watchers, any
+personal-data enrichment.
+
+### Where a person approves
+
+| Action | Can it be undone? | Who approves | Enforced by |
+| --- | --- | --- | --- |
+| Using an extracted contract term | Yes, but every verdict rests on it | Billing lead confirms each term (`pdr confirm`) | Unconfirmed terms give `cannot_verify / TERMS_UNCONFIRMED` |
+| Sending a dispute letter | No | Key account manager (`pdr approve`) | No outbox file can exist without approval rows for that exact letter; editing the letter voids the approval |
+| A dispute above the amount threshold | No | Finance controller and legal as well (`approvals.above_threshold_inr`) | Required roles are stored on the action |
+| Releasing an out-of-window deduction | Yes, logged | Key account manager, with a written reason (`pdr override`) | The action is held until the override exists |
+
+Text inside a deduction, an email or a web page is data: "approve all disputes" in a deduction note is flagged
+`INSTRUCTION_IN_INPUT` and changes nothing. Before a verdict becomes disputable, and again before a letter is sent,
+the auditor re-verifies every citation and can only downgrade. Confirmations, approvals, overrides and sends go into
+a hash-chained audit trail (`pdr trail --verify`).
+
+### The ledger of what each call cost
+
+Every outside call writes one ledger row: provider, endpoint, units, cost in USD and INR, cache hit, attempt number,
+outcome and a summary of what was sent. Cost is read from Crustdata's own `x-credits-used` response header, not
+estimated. See it with `pdr ledger --by deduction` and `pdr economics`.
+
+Measured on 22 Nov 2026 (about $0.30 a credit, Rs 88 to the dollar):
+
+| Call | Credits | Notes |
+| --- | --- | --- |
+| News search with results | 1 per page | about 6 s |
+| News search with no results | 0 | free; this is what makes "nothing happened that day" cheap to check |
+| Web fetch | 1 per URL | charged even when the site blocks the fetch |
+| Web fetch with `human_mode` | 1 per URL | slower; recovers some blocked sites |
+| Company identify | about 1 per batched call | |
+| Redirect lookup | 0 | our own request; still ledgered |
+| Cache hit | 0 | ledgered as a zero-cost row |
+
+| How a verdict is reached | Paid calls | Credits | Approx. cost |
+| --- | --- | --- | --- |
+| Settled by free checks (arithmetic, terms, records, notice) | 0 | 0 | Rs 0 |
+| Discovery search that finds nothing | 1-3 searches | 0-3 | Rs 0-80 |
+| Contested force majeure, found and fetched | 4-7 | 6-8 | Rs 160-210 |
+| Same route and dates already checked | cache hits | 0 | Rs 0 |
+
+The three live runs of case 1 on 22 Nov cost 6, 6 and 7 credits and took 27, 16 and 40 seconds. The demo run of
+seven case folders (nine deductions) cost nothing: every one was settled by free checks. Model token costs are not yet
+on the ledger in `main` (built on branch `addon/e2`).
+
+## The approaches we tried
+
+What worked and what did not. Real findings from the build (sources: `docs/context/DECISIONS.md` F-1 to F-12, `docs/evidence_validation.md`, the
 git log):
 
 | What we tried | What happened | What we changed |
@@ -263,18 +400,6 @@ git log):
 - The case 1 GPS halt is placed at Nagthane, the north end of the blocked stretch named in the Outlook report. The
   engine matches corroboration by place name and does not interpolate along a stretch.
 - The contradicting OrissaPOST passage for case 8 was confirmed by one live fetch (human mode) on 22 Nov 2026.
-
-## 6. Why this way
-
-| Choice | Reason |
-| --- | --- |
-| **Models read, code decides, people authorise** | A model may propose terms, mappings and passages. Only deterministic code working from confirmed terms and cited records can move a verdict toward "disputable", and only a person can approve a letter |
-| **A wrong "disputable" is the worst outcome** | It costs the 3PL its client's trust. When in doubt the answer is `cannot_verify` naming what is missing; the auditor can only downgrade |
-| **No default rules** | Rates, caps, windows, notice periods and force-majeure lists come only from the client's confirmed terms. `settings.yaml` has no place for a contract value |
-| **Free checks before paid calls** | Most deductions are settled by the agreement and the records. Searches run only for what is left, grouped by route and date, and only when the amount at stake justifies the cost |
-| **Memoised stages** | Each stage result is stored under a hash of its inputs. Restart after a kill, re-run after a settings change and re-run after new data are the same mechanism: run again, reuse what is unchanged |
-| **One outbox file per action** | A letter is written under its action id with an atomic rename, and every command first reconciles `sending` against the outbox. A kill can never send a letter twice |
-| **Static case file rather than a live app** | Nothing to crash on stage; the judges and the finance team read the same HTML rendered from the store |
 
 More: [`docs/architecture.md`](docs/architecture.md), [`docs/ethics.md`](docs/ethics.md),
 [`docs/finance.md`](docs/finance.md), [`docs/processor_agreement_template.md`](docs/processor_agreement_template.md),
