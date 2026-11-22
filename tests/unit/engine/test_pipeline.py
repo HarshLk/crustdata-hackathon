@@ -168,3 +168,22 @@ def test_no_raise_guard():
     v = Verdict(verdict_id="v", deduction_id="d", dispute_key="k", outcome=Outcome.cannot_verify, amount_deducted=Decimal("10"))
     up = v.model_copy(update={"outcome": Outcome.disputable, "amount_disputable": Decimal("10")})
     assert pipeline.no_raise(v, up).outcome == Outcome.cannot_verify
+
+
+def test_contract_value_cap_uses_agreement(no_evidence):
+    """recompute receives the agreement, so a cap on contract value is computed, not a MissingFigure."""
+    from datetime import date
+    from pdr.models import Agreement
+    from tests.unit.engine.fixtures_b1 import fm_excludes, notice_term, term
+    pen = term("T-PEN", "penalty_rule", {"event": "late_delivery", "rate": "5000", "unit": "flat_per_day", "base": "none",
+                                         "part_unit_counts_as_full": True, "day_count": "calendar"}, clause="12.1")
+    cap = term("T-CAP", "cap", {"value": "0.1", "kind": "pct", "base": "contract_value", "scope": "contract"}, clause="12.2")
+    ag = Agreement(agreement_id="A1", client_id="ACME", doc_type="master", title="Transport Agreement", file_ref="ta.pdf",
+                   effective_from=date(2026, 4, 1), contract_value=Decimal("1000000"))
+    store, keys = world(terms=[pen, cap, fm_excludes(), notice_term()], agreements=[ag], deds=[deduction(amount="5000")])
+    st = pipeline.load_state(keys[0], ctx(store))
+    penalty, lines = pipeline._recompute(st, [])
+    assert Decimal(penalty) == Decimal("1000.00")
+    v = process(keys[0], ctx(store))
+    assert v.outcome == Outcome.disputable and Ground.OVER_CAP in v.grounds, v.explanation
+    assert v.amount_disputable == Decimal("4000.00")
