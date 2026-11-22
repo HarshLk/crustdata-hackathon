@@ -31,6 +31,7 @@ def resolve(url: str, ctx: RunContext) -> str | None:
         return None
     loc = header(r.headers or {}, "location") if r.status and 300 <= r.status < 400 else None
     if not loc:
+        ctx.last_call_failed = True  # type: ignore[attr-defined]  # e.g. Google's "Verifying" interstitial (200)
         return None
     loc = urljoin(url, loc)
     if is_redirect_link(loc) or urlparse(loc).netloc.lower().endswith("google.com"):

@@ -71,6 +71,13 @@ def price_credits(cfg: dict, endpoint: str, request: dict, resp: Response | None
     return total
 
 
+def cacheable(provider: str, request: dict, resp: Response) -> bool:
+    """Redirect probes cache only the redirect (a 200 interstitial must be retried later)."""
+    if provider == "web" and not request.get("follow_redirects", False):
+        return 300 <= resp.status < 400
+    return resp.status < 400
+
+
 def is_empty(endpoint: str, body: Any) -> bool:
     if endpoint == SEARCH:
         return not (isinstance(body, dict) and body.get("results"))
@@ -163,9 +170,10 @@ def execute(conn: sqlite3.Connection, *, settings: Settings, provider: str, endp
         spent += credits
         if not retryable:
             ok = resp.status < 400
+            store = ok and cacheable(provider, request, resp)
             crashpoint("call.after_response_before_cache")
             with tx(conn) as c:
-                if ok:
+                if store:
                     c.execute("INSERT OR REPLACE INTO call_cache(cache_key, status, headers, body, stored_at)"
                               " VALUES (?,?,?,?,?)", (key, resp.status, json.dumps(dict(resp.headers), default=str),
                                                      json.dumps(resp.body, default=str), now_utc().isoformat()))
@@ -204,9 +212,10 @@ def execute(conn: sqlite3.Connection, *, settings: Settings, provider: str, endp
 
 # --------------------------------------------------------------------------- paid_call
 
-def paidcall_mode(settings: Settings, store: Any) -> str:
+def paidcall_mode(settings: Settings, store: Any, provider: str = "crustdata") -> str:
+    """detached|inline; inline on Windows, for in-memory stores and for free "web" calls."""
     mode = os.environ.get("PDR_PAIDCALL_MODE") or getattr(settings.providers, "paidcall_mode", "inline")
-    if os.name == "nt" or is_memory(store):
+    if os.name == "nt" or is_memory(store) or provider == "web":
         return "inline"
     return mode
 
@@ -331,7 +340,7 @@ def paid_call(provider: str, endpoint: str, request: dict, *, ctx: RunContext, s
     if not _reserve(conn, ctx, key, worst):  # lost a race with another thread: it will be a cache hit now
         return paid_call(provider, endpoint, request, ctx=ctx, step=step, worst_case_credits=worst_case_credits)
     try:
-        mode = paidcall_mode(ctx.settings, ctx.store)
+        mode = paidcall_mode(ctx.settings, ctx.store, provider)
         envelope = {"request": request, "step": step, "worst_case_credits": str(worst), "run_id": ctx.run_id,
                     "dispute_key": ctx.dispute_key}
         with tx(conn) as c:

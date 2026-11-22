@@ -10,7 +10,7 @@ import httpx
 from pdr.broker.transport import Response, TransportError, TransportTimeout
 
 DEFAULT_ENV_FILE = "/projects/2022B4AA1300P/hackathon/harsh/.env"
-UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36"
+UA = "Mozilla/5.0"  # the bare UA got 302s for 68 of 68 goto links; a full Chrome UA gets the "Verifying" page
 
 
 def load_env_key(name: str = "CRUSTDATA_API_KEY") -> str | None:
