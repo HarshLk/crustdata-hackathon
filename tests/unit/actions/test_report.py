@@ -94,3 +94,17 @@ def test_regenerate_is_safe(c, tmp_path):
     first = (tmp_path / "out" / "index.html").read_text()
     report.render(c.store, tmp_path / "out", c.settings)
     assert (tmp_path / "out" / "index.html").read_text().split("Generated")[1][30:] == first.split("Generated")[1][30:]
+
+
+def test_canary_in_ops_note_pseudonymised_via_vault(c, tmp_path, monkeypatch):
+    monkeypatch.setenv("PDR_DATA_DIR", str(tmp_path / "data"))
+    from pdr import vault
+    from pdr.models import Trip
+    vault.put_driver("ACME", build.CANARY_NAME, build.CANARY_PHONE)
+    fm = build.fm_verdict(c.store)
+    trip = c.store.get(Trip, "TRIP-0091")
+    trip.assertions[1].text = f"{build.CANARY_NAME} called in; blockade confirmed"
+    c.store.put(trip)
+    report.render(c.store, tmp_path / "out", c.settings)
+    t = H.unescape((tmp_path / "out" / report.case_page(fm.dispute_key)).read_text())
+    assert build.CANARY_NAME not in t and "blockade confirmed" in t and "[driver " in t
