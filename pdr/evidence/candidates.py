@@ -74,7 +74,7 @@ READ_WORDS: dict[EventType, list[str]] = {
 ROAD_NOUNS = r"(?:traffic|vehicles?|vehicular|trucks?|lorr(?:y|ies)|trailers?|buses|bus services|tankers?|highways?|roads?|nh[\s\-]?\d+|goods|transport(?:ation)?|movement|motorists|commuters|containers?|consignments?|carriers?)"
 EFFECT_WORDS = (r"(?:stranded|stuck|blocked|halted|halt|standstill|disrupted|disrupts?|diverted|diversions?|"
                 r"stopped|paralysed|paralyzed|crippled|off the roads?|did not ply|remained off|held up|"
-                r"came to a (?:halt|standstill)|deserted|jammed|backed up|queued|suspended|hit)")
+                r"came to a (?:halt|standstill)|deserted|jammed|detained|(?:been|being|are|were|was|is|remain|remained) held|backed up|queued|suspended|hit)")
 _EFFECT = re.compile(r"\b" + EFFECT_WORDS + r"\b", re.IGNORECASE)
 _ROAD = re.compile(r"\b" + ROAD_NOUNS + r"\b", re.IGNORECASE)
 _FUTURE = re.compile(r"\b(?:will|would|may|might|could|likely to|set to|plans? to|planning to|is to|are to|"

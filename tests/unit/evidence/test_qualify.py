@@ -170,3 +170,10 @@ def test_dates_resolved_against_publication():
     assert set(dates_in("remained blocked for a third consecutive day on Thursday", pub)) == {date(2026, 11, 3), date(2026, 11, 5)}
     assert dates_in("Bhubaneswar, Oct 8 (PTI) roads blocked", date(2026, 10, 8)) == [date(2026, 10, 8)]
     assert dates_in("on 8 October 2026 trucks stopped", date(2026, 10, 9)) == [date(2026, 10, 8)]
+
+
+def test_detention_wording_is_an_effect_on_goods_movement():
+    from pdr.evidence.candidates import has_effect
+    assert has_effect("The vehicles have reportedly been held around Srirampur and Bakshirhat since September 17.")
+    assert has_effect("Over 300 trucks were detained at the check post.")
+    assert not has_effect("The meeting was held at Srirampur.")
