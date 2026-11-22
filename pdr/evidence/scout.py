@@ -88,7 +88,7 @@ def find_evidence(req: EvidenceRequest, ctx: RunContext) -> EvidenceResult:
     queries = plan(req, ctx.settings)
     fetched = blocked = 0
     seen_urls: set[str] = set()
-    provider_failed = undated_with_candidates = False
+    provider_failed = undated_with_candidates = gated = False
     try:
         for rung in sorted({q.rung for q in queries}):
             for q in [q for q in queries if q.rung == rung]:
@@ -113,16 +113,17 @@ def find_evidence(req: EvidenceRequest, ctx: RunContext) -> EvidenceResult:
                     continue
                 counts = res.search_log[-1].redirects
                 urls, pending = _pick_urls(results, req, ctx, res, seen_urls, s.max_fetches_per_deduction - fetched,
-                                           counts)
+                                           counts, allow_paid=not gated)
                 if not urls and not pending:
                     continue
                 try:
                     pages = fetch_checked(urls, ctx, _crust()) if urls else []
                     fetched += len(urls)
-                    more, wasted = _resolve_by_fetch(pending, ctx, res, seen_urls, counts)
+                    more, paid, wasted, was_gated = _resolve_by_fetch(pending, ctx, res, seen_urls, counts)
                     pages += more
-                    fetched += len(pending)
+                    fetched += paid
                     blocked += wasted  # a paid goto fetch with no citable page counts as a blocked fetch
+                    gated = gated or was_gated  # Google is gating these links: no more paid goto fetches here
                 except BudgetReached:
                     raise
                 except Exception as e:  # noqa: BLE001
@@ -174,12 +175,13 @@ def find_evidence(req: EvidenceRequest, ctx: RunContext) -> EvidenceResult:
 
 
 def _pick_urls(results: list[dict], req: EvidenceRequest, ctx: RunContext, res: EvidenceResult,
-               seen: set[str], room: int, counts: dict | None = None) -> tuple[list[str], list[str]]:
+               seen: set[str], room: int, counts: dict | None = None, *,
+               allow_paid: bool = True) -> tuple[list[str], list[str]]:
     """Snippet pre-filter and the free redirect rungs, in rank order, up to the fetch room left.
 
     Returns (publisher URLs to fetch, goto links left for the paid crustdata_fetch rung)."""
     counts = {} if counts is None else counts
-    paid = _paid_rung(ctx)
+    paid = allow_paid and _paid_rung(ctx)
     urls: list[str] = []
     pending: list[str] = []
     for r in results:
@@ -223,16 +225,19 @@ def _is_redirect(url: str) -> bool:
 
 
 def _resolve_by_fetch(pending: list[str], ctx: RunContext, res: EvidenceResult, seen: set[str],
-                      counts: dict) -> tuple[list[Page], int]:
+                      counts: dict) -> tuple[list[Page], int, int, bool]:
     """crustdata_fetch rung: the goto link fetched through Crustdata; its page is kept (no second fetch).
 
-    Returns (pages under their publisher URL, paid fetches that gave nothing citable)."""
+    Returns (pages under their publisher URL, fetches paid, paid fetches with nothing citable, Google gating)."""
     if not pending:
-        return [], 0
+        return [], 0, 0, False
     from pdr.evidence import redirect
     pages: list[Page] = []
-    wasted = 0
+    paid = wasted = 0
+    gated = False
     for rz in redirect.resolve_via_fetch(pending, ctx, _crust()):
+        paid += int(rz.paid)
+        gated = gated or rz.gated
         if rz.url is None:
             wasted += int(rz.spent_fetch)
             counts["unresolved_redirect"] = counts.get("unresolved_redirect", 0) + 1
@@ -243,7 +248,7 @@ def _resolve_by_fetch(pending: list[str], ctx: RunContext, res: EvidenceResult, 
             continue
         seen.add(rz.url)
         pages.append(rz.page)
-    return pages, wasted
+    return pages, paid, wasted, gated
 
 
 def estimate_credits(req: EvidenceRequest, ctx: RunContext) -> Decimal:

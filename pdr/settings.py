@@ -81,6 +81,7 @@ class EvidenceSettings(_Section):
     redirect_strategies: list[str] = Field(
         default_factory=lambda: ["direct", "location", "crustdata_fetch"])
     redirect_fetch_human_mode: bool = True
+    redirect_fetch_probe_first: bool = True  # fetch one goto link first; Google's check page -> pay for no more
 
 
 class Economics(_Section):

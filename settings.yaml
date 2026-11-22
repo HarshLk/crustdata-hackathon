@@ -43,6 +43,7 @@ evidence:
   sources: [crustdata_news]       # plus official-source adapters as added
   redirect_strategies: [direct, location, crustdata_fetch]  # goto-link ladder, in order (docs/redirect_resolution.md)
   redirect_fetch_human_mode: true # crustdata_fetch rung: fetch the goto link with human_mode, cite its canonical URL
+  redirect_fetch_probe_first: true  # one goto link first; if Google's check page comes back, pay for no more
   regional_state_names:           # state -> regional-language name, for the regional rung (lane A)
     Odisha: "ଓଡ଼ିଶା"
     Maharashtra: "महाराष्ट्र"

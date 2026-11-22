@@ -68,6 +68,8 @@ class Resolution:
     detail: str = ""
     ledger_entry_id: str | None = None
     spent_fetch: bool = False  # a paid fetch came back without a citable page (counts as a blocked fetch)
+    paid: bool = False  # a fetch credit was used on this link
+    gated: bool = False  # Google's check page (or skipped because the probe link got it)
 
 
 def _location(url: str, ctx: RunContext) -> tuple[str | None, str]:
@@ -131,13 +133,28 @@ def canonical_url(raw_html: str, base: str = "") -> str | None:
 
 
 def resolve_via_fetch(urls: list[str], ctx: RunContext, client: Any = None) -> list[Resolution]:
-    """crustdata_fetch rung for goto links the free rungs left: one batched fetch, the page kept."""
-    from pdr.evidence.pagecheck import check_page
+    """crustdata_fetch rung for goto links the free rungs left; the fetched page is kept.
+
+    With evidence.redirect_fetch_probe_first the first link is fetched alone: if Google answers it with its
+    check page, the rest are not paid for (marked gated); otherwise the rest go in one batch."""
     if client is None:
         from pdr.evidence import crustdata as client
     urls = list(dict.fromkeys(u for u in urls if u))
     if not urls:
         return []
+    probe = bool(getattr(ctx.settings.evidence, "redirect_fetch_probe_first", True)) and len(urls) > 1
+    if not probe:
+        return _fetch_batch(urls, ctx, client)
+    first = _fetch_batch(urls[:1], ctx, client)
+    if first[0].gated:
+        return first + [Resolution(u, None, UNRESOLVED, gated=True,
+                                   detail="crustdata_fetch: not tried, the first link got Google's check page")
+                        for u in urls[1:]]
+    return first + _fetch_batch(urls[1:], ctx, client)
+
+
+def _fetch_batch(urls: list[str], ctx: RunContext, client: Any) -> list[Resolution]:
+    from pdr.evidence.pagecheck import check_page
     human = bool(getattr(ctx.settings.evidence, "redirect_fetch_human_mode", True))
     ctx.last_calls = []  # type: ignore[attr-defined]
     items = client.fetch(urls, ctx, human_mode=human, step="resolve_fetch") or []
@@ -161,9 +178,9 @@ def resolve_via_fetch(urls: list[str], ctx: RunContext, client: Any = None) -> l
                 failed_batches.append(it["batch_request"])
             why = "Google interstitial" if interstitial else f"{page.reason or 'page'} without a publisher URL"
             out.append(Resolution(u, None, UNRESOLVED, detail=f"crustdata_fetch: {why}", ledger_entry_id=lid,
-                                  spent_fetch=True))
+                                  spent_fetch=True, paid=True, gated=interstitial))
             continue
-        out.append(Resolution(u, final, FETCHED, page=page, ledger_entry_id=lid))
+        out.append(Resolution(u, final, FETCHED, page=page, ledger_entry_id=lid, paid=True))
     for req in failed_batches:  # never keep Google's interstitial as the answer: a later run asks again
         forget(ctx, "crustdata", FETCH, req)
     return out

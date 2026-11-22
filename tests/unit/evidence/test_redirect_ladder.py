@@ -13,7 +13,7 @@ from pdr.contracts import EvidenceRequest, RunContext
 from pdr.evidence import find_evidence, redirect
 from tests.fakes.transport import FakeTransport
 
-from .conftest import CASSETTES
+from .conftest import CASSETTES, make_item
 
 RED = CASSETTES / "redirect"
 IST = timezone(timedelta(hours=5, minutes=30))
@@ -129,6 +129,7 @@ def test_canonical_url_rejects_google_and_homepages():
 
 
 def test_crustdata_fetch_rung_cites_canonical_and_keeps_the_page(fake, fctx):
+    fctx.settings.evidence.redirect_fetch_probe_first = False
     for it in FETCHED["body"]:
         fake.add({"endpoint": FETCH, "url": it["url"], "response": it})
     out = redirect.resolve_via_fetch([GOTO_ARTICLE, GOTO_BLOCKED], fctx)
@@ -152,6 +153,25 @@ def test_crustdata_fetch_of_interstitial_is_unresolved_and_forgotten(fake, fctx)
     assert len([c for c in fake.calls if c["endpoint"] == FETCH]) == 2  # a later run asks again
     rows = ledger.rows(fctx.store)
     assert [r.cache_hit for r in rows] == [False, False]
+
+
+def test_probe_first_pays_for_no_more_links_when_google_gates(fake, fctx):
+    gotos = FETCHED["request"]["urls"][:4]
+    for u in gotos:
+        fake.add({"endpoint": FETCH, "url": u, "response": dict(_interstitial(), url=u)})
+    out = redirect.resolve_via_fetch(gotos, fctx)
+    assert [r.url for r in out] == [None] * 4 and all(r.gated for r in out)
+    assert [r.paid for r in out] == [True, False, False, False]
+    assert [c["request"]["urls"] for c in fake.calls] == [gotos[:1]]  # one credit, not four
+
+
+def test_probe_first_then_the_rest_in_one_batch(fake, fctx):
+    gotos = FETCHED["request"]["urls"][:4]
+    for it in FETCHED["body"]:
+        fake.add({"endpoint": FETCH, "url": it["url"], "response": it})
+    out = redirect.resolve_via_fetch(gotos, fctx)
+    assert [c["request"]["urls"] for c in fake.calls] == [gotos[:1], gotos[1:]]
+    assert sum(r.paid for r in out) == 4 and sum(r.url is not None for r in out) == 2
 
 
 def test_reported_final_url_is_used_when_crustdata_gives_one(fake, fctx):
@@ -227,3 +247,23 @@ def test_direct_only_ladder_makes_no_redirect_calls(fake, fctx):
 def test_strategies_setting_order_and_unknown_names(settings):
     settings.evidence.redirect_strategies = ["crustdata_fetch", "bogus", "location", "location"]
     assert redirect.strategies(settings) == ["crustdata_fetch", "location"]
+
+
+def test_gated_links_cost_one_credit_and_the_scout_goes_on_to_later_queries(fake, fctx):
+    """Live case-1 run, 22 Nov: Google gated fresh goto links for both our lookup and Crustdata's fetcher."""
+    fake.add({"endpoint": SEARCH, "query_contains": "blockade", "response": NEWS["body"],
+              "headers": {"x-credits-used": "1"}})
+    for x in NEWS["body"]["results"]:
+        if redirect.is_redirect_link(x["url"]):
+            _interstitial_web(fake, x["url"])
+            fake.add({"endpoint": FETCH, "url": x["url"], "response": dict(_interstitial(), url=x["url"])})
+        else:  # publisher links fetch fine (a long page that names nothing on the route)
+            fake.add({"endpoint": FETCH, "url": x["url"], "response": make_item(x["url"], "Elsewhere", ["Nothing."], None)})
+    res = find_evidence(_kini_request(), fctx)
+    goto_fetches = [c["request"]["urls"] for c in fake.calls if c["endpoint"] == FETCH
+                    and any(redirect.is_redirect_link(u) for u in c["request"]["urls"])]
+    assert goto_fetches == [goto_fetches[0]] and len(goto_fetches[0]) == 1  # one paid probe in the whole group
+    assert len(res.search_log) == fctx.settings.evidence.max_searches_per_deduction  # every query still ran
+    assert not any(redirect.is_google(e.url) for e in res.supporting + res.contradicting)
+    assert {r.reason for r in res.rejected if redirect.is_redirect_link(r.url)} == {"unresolved_redirect",
+                                                                                      "snippet_no_place"}
