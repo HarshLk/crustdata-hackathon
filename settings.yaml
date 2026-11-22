@@ -15,6 +15,7 @@ providers:
                retry_limit: 2, timeout_seconds: 60 }
   paidcall_mode: detached         # detached | inline (inline is automatic on Windows)
   paid_concurrency: 3             # paid calls in flight within one evidence group
+  web: { timeout_seconds: 8, retry_limit: 0, interstitial_wait_seconds: 0 }  # free goto Location lookups; 0 = no wait-out
 evidence:
   disruption_types:               # type -> query words; limits what we SEARCH, never what a clause covers
     bandh: ["bandh"]
@@ -40,6 +41,8 @@ evidence:
   search_for_referrals: false
   refuter: true                   # independent second read of passages that would carry a dispute
   sources: [crustdata_news]       # plus official-source adapters as added
+  redirect_strategies: [direct, location, crustdata_fetch]  # goto-link ladder, in order (docs/redirect_resolution.md)
+  redirect_fetch_human_mode: true # crustdata_fetch rung: fetch the goto link with human_mode, cite its canonical URL
   regional_state_names:           # state -> regional-language name, for the regional rung (lane A)
     Odisha: "ଓଡ଼ିଶା"
     Maharashtra: "महाराष्ट्र"

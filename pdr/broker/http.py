@@ -63,7 +63,7 @@ class CrustdataHttp:
 
 
 _REFRESH = re.compile(r'content="(\d+);\s*url=([^"]+)"', re.I)
-MAX_INTERSTITIAL_WAIT = 90.0  # seconds; fresh google.com/goto links show a timed "Verifying" page first
+MAX_INTERSTITIAL_WAIT = 0.0  # seconds; providers.web.interstitial_wait_seconds (0 = return the 200 page at once)
 
 
 class WebHttp:
@@ -87,7 +87,7 @@ class WebHttp:
         url = request["url"]
         r = self._get(method, url, follow, timeout)
         host = urlparse(url).netloc.lower()
-        m = _REFRESH.search(r.text[:4000]) if r.status_code == 200 and "google." in host else None
+        m = _REFRESH.search(r.text[:4000]) if r.status_code == 200 and "google." in host and self.max_wait > 0 else None
         if m and float(m.group(1)) <= self.max_wait:
             self.sleep(float(m.group(1)) + 1)
             r = self._get(method, urljoin(url, html.unescape(m.group(2))), follow, timeout)
@@ -123,7 +123,8 @@ def real_transport(provider: str, settings: Any = None):
                              getattr(cfg, "api_version", "2025-11-01"))
     if provider == "web":
         global _WEB
-        if _WEB is None:
-            _WEB = WebHttp()  # one client per process, so Google's cookies are reused
+        if _WEB is None:  # one client per process, so Google's cookies are reused
+            web = getattr(getattr(settings, "providers", None), "web", None)
+            _WEB = WebHttp(max_wait=float(getattr(web, "interstitial_wait_seconds", MAX_INTERSTITIAL_WAIT) or 0))
         return _WEB
     raise TransportError(f"no transport registered for provider {provider!r}")

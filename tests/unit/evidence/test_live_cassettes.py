@@ -27,6 +27,7 @@ def test_live_scenario_replays(name, settings, monkeypatch):
     exp = json.loads((LIVE / name / "expected.json").read_text(encoding="utf-8"))
     settings.providers.paidcall_mode = "inline"
     settings.budget.run_cost_credits = 300
+    settings.evidence.redirect_strategies = ["direct", "location"]  # the ladder these runs were recorded with
     t = FakeTransport(cassette_dir=LIVE / name, strict=False)
     monkeypatch.setitem(broker.TRANSPORTS, "crustdata", t)
     monkeypatch.setitem(broker.TRANSPORTS, "web", t)

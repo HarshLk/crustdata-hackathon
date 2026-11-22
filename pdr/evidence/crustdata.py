@@ -53,18 +53,18 @@ def search(query: str, start: datetime, end: datetime, ctx: RunContext, *, step:
     return out
 
 
-def _item(requested: str, it: Any) -> dict:
+def _item(requested: str, it: Any, req: dict | None = None) -> dict:
     it = it if isinstance(it, dict) else {}
     success = it.get("success")
     if isinstance(success, str):
         success = success.strip().lower() == "true"
     return {"url": requested, "final_url": it.get("url") or requested, "success": bool(success),
             "title": it.get("title") or "", "content": it.get("content") or "", "timestamp": it.get("timestamp"),
-            "http_status": it.get("http_status")}
+            "http_status": it.get("http_status"), "batch_request": req}
 
 
 def fetch(urls: list[str], ctx: RunContext, *, human_mode: bool = False, step: str = "fetch") -> list[dict]:
-    """[{url (as requested), final_url, success, title, content (raw HTML), timestamp, http_status}].
+    """[{url (as requested), final_url, success, title, content (raw HTML), timestamp, http_status, batch_request}].
 
     Never trust `success` (blocked pages say true); the page check is the caller's. Failed batches are
     left out and set ctx.last_call_failed.
@@ -84,10 +84,13 @@ def fetch(urls: list[str], ctx: RunContext, *, human_mode: bool = False, step: s
         by_url = {}
         for it in r.body:
             if isinstance(it, dict) and it.get("url"):
-                by_url[it["url"]] = it
-        for j, u in enumerate(batch):  # match by URL, else by position (the API keeps order)
-            it = by_url.get(u) or (r.body[j] if j < len(r.body) else None)
-            out.append(_item(u, it))
+                by_url.setdefault(it["url"], it)
+        # match by URL; items whose url is none of the requested ones (a final URL, or null on failure) go to
+        # the unmatched requests in order (the docs say order may differ, so never reuse a matched item)
+        spare = [it for it in r.body if not (isinstance(it, dict) and it.get("url") in batch)]
+        for u in batch:
+            it = by_url.get(u) or (spare.pop(0) if spare else None)
+            out.append(_item(u, it, req))
     _note(ctx, results, failed)
     return out
 

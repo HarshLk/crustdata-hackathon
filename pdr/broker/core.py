@@ -11,6 +11,7 @@ import uuid
 from datetime import datetime, timezone
 from decimal import Decimal
 from typing import Any
+from urllib.parse import urljoin, urlparse
 
 from pdr import guard
 from pdr.broker import throttle
@@ -71,11 +72,27 @@ def price_credits(cfg: dict, endpoint: str, request: dict, resp: Response | None
     return total
 
 
+def _google_host(url: str) -> bool:
+    h = urlparse(url or "").netloc.lower()
+    return h == "google.com" or h.endswith(".google.com") or h.startswith("google.") or ".google." in h
+
+
 def cacheable(provider: str, request: dict, resp: Response) -> bool:
-    """Redirect probes cache only the redirect (a 200 interstitial must be retried later)."""
+    """Redirect probes cache only a redirect to a non-Google host: a 200 interstitial or a /sorry/ redirect is
+    a failure and is retried later. (A fetched page the caller finds useless is dropped with forget().)"""
     if provider == "web" and not request.get("follow_redirects", False):
-        return 300 <= resp.status < 400
+        loc = header(resp.headers or {}, "location") or ""
+        return 300 <= resp.status < 400 and bool(loc) and not _google_host(urljoin(str(request.get("url") or ""), loc))
     return resp.status < 400
+
+
+def forget(ctx: RunContext, provider: str, endpoint: str, request: dict) -> bool:
+    """Drop one cached response the caller found to be a failure (the ledger rows stay); True if one was cached."""
+    key = cache_key(provider, endpoint, request)
+    conn = connect(ctx.store)
+    with tx(conn) as c:
+        n = c.execute("DELETE FROM call_cache WHERE cache_key=?", (key,)).rowcount
+    return bool(n)
 
 
 def is_empty(endpoint: str, body: Any) -> bool:

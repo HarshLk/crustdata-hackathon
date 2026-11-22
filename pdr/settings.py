@@ -47,9 +47,17 @@ class LlmProvider(_Section):
     timeout_seconds: float
 
 
+class WebProvider(_Section):
+    """Plain free requests (google.com/goto Location lookups): one short attempt, no wait-out by default."""
+    timeout_seconds: float = 8
+    retry_limit: int = 0
+    interstitial_wait_seconds: float = 0  # 0 = never sit out Google's timed "Verifying" page
+
+
 class Providers(_Section):
     crustdata: CrustdataProvider
     llm: LlmProvider
+    web: WebProvider = Field(default_factory=WebProvider)
     paidcall_mode: Literal["detached", "inline"] = "detached"
     paid_concurrency: int = 3
 
@@ -69,6 +77,10 @@ class EvidenceSettings(_Section):
     search_for_referrals: bool
     refuter: bool
     sources: list[str]
+    # google.com/goto resolution ladder, in order: direct, location, crustdata_fetch (docs/redirect_resolution.md)
+    redirect_strategies: list[str] = Field(
+        default_factory=lambda: ["direct", "location", "crustdata_fetch"])
+    redirect_fetch_human_mode: bool = True
 
 
 class Economics(_Section):

@@ -29,5 +29,11 @@ def paid_call(provider: str, endpoint: str, request: dict, *,
     return _impl(provider, endpoint, request, ctx=ctx, step=step, worst_case_credits=worst_case_credits)
 
 
-__all__ = ["paid_call", "register_transport", "TRANSPORTS", "CallResult", "BudgetReached", "GuardViolation",
+def forget(ctx: RunContext, provider: str, endpoint: str, request: dict) -> bool:
+    """Drop a cached response that turned out to be a failure (e.g. Google's interstitial); ledger untouched."""
+    from pdr.broker.core import forget as _impl
+    return _impl(ctx, provider, endpoint, request)
+
+
+__all__ = ["paid_call", "forget", "register_transport", "TRANSPORTS", "CallResult", "BudgetReached", "GuardViolation",
            "Response", "TransportError", "TransportTimeout", "cache_key"]
