@@ -79,6 +79,7 @@ class CallResult:
     credits: Decimal
     ledger_entry_id: str
     error: str | None = None
+    headers: dict | None = None  # raw response headers (additive, lane A: redirect Location)
 
 
 @dataclass
