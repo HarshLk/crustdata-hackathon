@@ -1,0 +1,7 @@
+id: case16_lookalike_issuer
+prd_case: '16'
+title: Deduction issued by a lookalike entity (the client's sister company)
+clients:
+- CLA
+kind: lookalike
+settings_overrides: {}

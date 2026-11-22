@@ -1,0 +1,24 @@
+[
+  {
+    "client_id": "ALPHADEMOAGROFOODSPVTLTD",
+    "client_name_raw": "Alpha Demo Agro Foods Pvt Ltd",
+    "advice_no": "AFPA/2026/1116",
+    "line_no": "1",
+    "reason_code": "late_delivery",
+    "trip_refs": [
+      "LR-A-1116"
+    ],
+    "deduction_date": "2026-11-12",
+    "received_date": "2026-11-13",
+    "amount": "2000.00",
+    "reason_text": "Late delivery penalty 1 day @ Rs 2,000 per day",
+    "invoice_ref": "INV-A-2026-1116",
+    "source_ref": {
+      "file": "deductions.csv",
+      "row": 1
+    },
+    "dispute_key": "ALPHADEMOAGROFOODSPVTLTD|AFPA20261116|1",
+    "event_fp": "b2ed936c0233e9f7",
+    "deduction_id": "ALPHADEMOAGROFOODSPVTLTD|AFPA20261116|1"
+  }
+]

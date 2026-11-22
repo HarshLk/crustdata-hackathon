@@ -1,0 +1,9 @@
+id: case22_redirects_blocked_fetch
+prd_case: '22'
+title: Top results are google.com redirects; the first fetch is blocked
+clients:
+- CLA
+kind: evidence
+settings_overrides: {}
+faults:
+- block_first@/web/enrich/live

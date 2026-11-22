@@ -1,0 +1,13 @@
+{
+  "CLA|APA20261121|1": {
+    "outcome": "cannot_verify",
+    "grounds": [],
+    "primary_reason": "EVIDENCE_PARTIAL",
+    "amount_disputable": "0",
+    "flags": [
+      "STAND_IN_TERMS"
+    ],
+    "missing_item_contains": "GPS",
+    "max_paid_calls": 12
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "CLA|APA20261122|1": {
+    "outcome": "disputable",
+    "grounds": [
+      "FORCE_MAJEURE"
+    ],
+    "primary_reason": null,
+    "amount_disputable": "2000.00",
+    "flags": [
+      "STAND_IN_TERMS"
+    ],
+    "missing_item_contains": null,
+    "max_paid_calls": 12
+  }
+}

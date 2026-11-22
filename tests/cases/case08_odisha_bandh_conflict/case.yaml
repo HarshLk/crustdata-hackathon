@@ -1,0 +1,7 @@
+id: case08_odisha_bandh_conflict
+prd_case: '8'
+title: Cuttack -> Bhubaneswar, late on 8 Oct 2026 (Odisha 12-hour bandh); notice given; sources conflict
+clients:
+- CLA
+kind: evidence
+settings_overrides: {}

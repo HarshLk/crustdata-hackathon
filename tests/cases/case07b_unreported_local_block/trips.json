@@ -1,0 +1,97 @@
+[
+  {
+    "trip_id": "LR-A-0924",
+    "client_id": "CLA",
+    "lr_no": "LR-A-0924",
+    "origin": "Pune",
+    "destination": "Kolhapur",
+    "lane": "PUNE-KOLHAPUR",
+    "route_places": [
+      "Pune",
+      "Shirwal",
+      "Satara",
+      "Nagthane",
+      "Umbraj",
+      "Karad",
+      "Kasegaon",
+      "Peth Naka",
+      "Kini",
+      "Sangli Phata",
+      "Kolhapur"
+    ],
+    "route_states": [
+      "Maharashtra"
+    ],
+    "source_ref": {
+      "file": "trips.json",
+      "field": "LR-A-0924"
+    },
+    "vehicle_no": "MH12ZZ0924",
+    "invoice_no": "INV-A-0924",
+    "freight": "28000.00",
+    "driver_ref": "DRV-A-0924",
+    "gate_out_at": [
+      {
+        "value": "2026-09-24T05:00:00+05:30",
+        "source": "client_gate_log",
+        "ref": {
+          "file": "gate_log.csv",
+          "row": 1,
+          "field": "gate_out_at"
+        }
+      }
+    ],
+    "delivery_due_at": "2026-09-24T18:00:00+05:30",
+    "arrival_at": [
+      {
+        "value": "2026-09-25T09:00:00+05:30",
+        "source": "consignee_gate_log",
+        "ref": {
+          "file": "gate_log.csv",
+          "row": 2,
+          "field": "arrival_at"
+        }
+      }
+    ],
+    "halts": [
+      {
+        "start": "2026-09-24T11:00:00+05:30",
+        "end": "2026-09-24T17:00:00+05:30",
+        "place": "Umbraj, Satara, Maharashtra",
+        "source": "gps",
+        "ref": {
+          "file": "gps.csv",
+          "row": 10,
+          "field": "halt"
+        }
+      }
+    ],
+    "assertions": [
+      {
+        "kind": "driver_report",
+        "event_type": "blockade",
+        "at": "2026-09-24T11:15:00+05:30",
+        "place": "Umbraj, Satara, Maharashtra",
+        "text": "Driver reports the road blocked by villagers near Umbraj; waiting.",
+        "ref": {
+          "file": "notes.csv",
+          "row": 1,
+          "field": "text"
+        }
+      }
+    ],
+    "notices": [
+      {
+        "sent_at": "2026-09-24T15:00:00+05:30",
+        "channel": "email",
+        "addressee": "Client logistics desk",
+        "subject": "Force majeure notice: road blocked near Umbraj, LR-A-0924",
+        "ref": {
+          "file": "notices.csv",
+          "row": 1,
+          "field": "sent_at"
+        }
+      }
+    ]
+  }
+]

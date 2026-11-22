@@ -1,0 +1,2 @@
+client,advice_no,line_no,client_deduction_no,deduction_date,received_date,amount,reason,lr_no,invoice_no,calc_rate,calc_unit,calc_base_amount,calc_units,calc_from,calc_to
+Alpha Demo Agro Foods Pvt Ltd,AFPA/2026/1116,1,,2026-11-12,2026-11-13,2000.00,"Late delivery penalty 1 day @ Rs 2,000 per day",LR-A-1116,INV-A-2026-1116,,,,,,

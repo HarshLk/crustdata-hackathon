@@ -1,0 +1,103 @@
+# Confirmed stand-in terms built from real public clauses (REFERENCE.md section 3). is_stand_in: true.
+agreements:
+- agreement_id: CLA-TSA-2026
+  client_id: CLA
+  doc_type: transport_service_agreement
+  precedence_rank: 1
+  title: Stand-in Transport Service Agreement, Alpha Demo Agro (built from D1, D6, D7 clauses)
+  file_ref: fixtures/terms/sample_agreement_client_a.txt
+  effective_from: '2026-04-01'
+  effective_to: '2027-03-31'
+  lanes:
+  - PUNE-KOLHAPUR
+  - PUNE-MUMBAI
+  - CUTTACK-BHUBANESWAR
+  - ASSAM-HALDIA
+  completeness: complete
+  is_stand_in: true
+  confirmed_by: kam.demo
+  confirmed_at: '2026-09-01T10:00:00+05:30'
+terms:
+- term_id: CLA-PEN-1
+  agreement_id: CLA-TSA-2026
+  client_id: CLA
+  term_type: penalty_rule
+  params:
+    event: late_delivery
+    rate: '2000'
+    unit: flat_per_day
+    base: none
+    part_unit_counts_as_full: true
+    day_count: calendar
+    measured_from: delivery_due_at
+    measured_to: arrival_at
+  page: 7
+  clause_ref: '13'
+  verbatim: Liquidated Damages from the Service Provider @ Rs.2000/- per day of delay in delivery beyond the due date, a part
+    of a day being counted as a full day.
+  effective_from: '2026-04-01'
+  extraction_confidence: 1.0
+  status: confirmed
+  confirmed_by: kam.demo
+  confirmed_at: '2026-09-01T10:00:00+05:30'
+- term_id: CLA-FM-1
+  agreement_id: CLA-TSA-2026
+  client_id: CLA
+  term_type: force_majeure
+  params:
+    events_named:
+    - bandh
+    - blockade
+    - agitation
+    - flood
+    - landslide
+    - road_closure
+    - govt_detention
+    general_words:
+    - civil commotion
+    events_excluded: []
+    relief: excuse_delay
+  page: 35
+  clause_ref: 15(iv)
+  verbatim: Neither party shall be liable for delay caused by force majeure, namely war, epidemics, civil commotion, fire,
+    floods, landslides, bandhs, road blockades and agitations, closure of roads by government order, and seizure or detention
+    by a government agency.
+  effective_from: '2026-04-01'
+  extraction_confidence: 1.0
+  status: confirmed
+  confirmed_by: kam.demo
+  confirmed_at: '2026-09-01T10:00:00+05:30'
+- term_id: CLA-NOT-1
+  agreement_id: CLA-TSA-2026
+  client_id: CLA
+  term_type: notice
+  params:
+    deadline_hours: 240
+    immediate: false
+    method: writing
+    addressee: Client logistics desk
+    applies_to: force_majeure
+  page: 35
+  clause_ref: 15(iv)
+  verbatim: The party affected shall notify the other in writing within10 days from the date of occurrence thereof, with supporting
+    documents.
+  effective_from: '2026-04-01'
+  extraction_confidence: 1.0
+  status: confirmed
+  confirmed_by: kam.demo
+  confirmed_at: '2026-09-01T10:00:00+05:30'
+- term_id: CLA-HOLD-1
+  agreement_id: CLA-TSA-2026
+  client_id: CLA
+  term_type: hold_rule
+  params:
+    covers_govt_detention: true
+  page: 3
+  clause_ref: 10(a)
+  verbatim: Seizure or detention by a government agency, or other causes beyond control, must be reported and an alternative
+    arranged with written permission.
+  effective_from: '2026-04-01'
+  extraction_confidence: 1.0
+  status: confirmed
+  confirmed_by: kam.demo
+  confirmed_at: '2026-09-01T10:00:00+05:30'

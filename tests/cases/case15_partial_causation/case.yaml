@@ -1,0 +1,8 @@
+id: case15_partial_causation
+prd_case: '15'
+title: 'Disruption explains part of a multi-day delay: per-day penalty (partial dispute) vs per-event penalty'
+clients:
+- CLA
+- CLF
+kind: evidence
+settings_overrides: {}

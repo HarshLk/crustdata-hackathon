@@ -1,0 +1,7 @@
+id: case07b_unreported_local_block
+prd_case: 7b
+title: Driver reports a road blocked near a village; no news, advisory or record found
+clients:
+- CLA
+kind: evidence
+settings_overrides: {}

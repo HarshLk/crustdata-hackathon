@@ -1,0 +1,17 @@
+{
+  "source": "real responses, trimmed: ",
+  "entries": [
+    {
+      "endpoint": "/web/search/live",
+      "note": "any search query in this case",
+      "response": {
+        "success": true,
+        "results": []
+      }
+    },
+    {
+      "endpoint": "/company/identify",
+      "response": []
+    }
+  ]
+}

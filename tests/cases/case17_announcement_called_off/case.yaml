@@ -1,0 +1,7 @@
+id: case17_announcement_called_off
+prd_case: '17'
+title: Union announced a bandh for the trip date; later called off; nobody claims a disruption
+clients:
+- CLA
+kind: evidence
+settings_overrides: {}

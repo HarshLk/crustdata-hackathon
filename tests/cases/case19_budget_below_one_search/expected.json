@@ -1,0 +1,27 @@
+{
+  "CLA|APA20261119|1": {
+    "outcome": "cannot_verify",
+    "grounds": [],
+    "primary_reason": "BUDGET_REACHED",
+    "amount_disputable": "0",
+    "flags": [
+      "STAND_IN_TERMS"
+    ],
+    "missing_item_contains": null,
+    "max_paid_calls": 0
+  },
+  "CLG|GPA20261119|1": {
+    "outcome": "disputable",
+    "grounds": [
+      "WRONG_BASE",
+      "OVER_CAP"
+    ],
+    "primary_reason": null,
+    "amount_disputable": "49500.00",
+    "flags": [
+      "STAND_IN_TERMS"
+    ],
+    "missing_item_contains": null,
+    "max_paid_calls": 0
+  }
+}

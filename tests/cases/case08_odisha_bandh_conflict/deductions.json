@@ -1,0 +1,30 @@
+[
+  {
+    "client_id": "CLA",
+    "client_name_raw": "Alpha Demo Agro Industries Pvt Ltd",
+    "advice_no": "APA/2026/1008",
+    "line_no": "1",
+    "reason_code": "late_delivery",
+    "trip_refs": [
+      "LR-A-1008"
+    ],
+    "deduction_date": "2026-10-20",
+    "amount": "2000.00",
+    "reason_text": "Late delivery penalty 1 day(s) @ Rs 2,000 per day",
+    "invoice_ref": "INV-A-1008",
+    "client_calc": {
+      "rate": "2000",
+      "unit": "flat_per_day",
+      "units_counted": "1",
+      "from_ts": "2026-10-08T12:00:00+05:30",
+      "to_ts": "2026-10-08T20:00:00+05:30"
+    },
+    "source_ref": {
+      "file": "deductions.csv",
+      "row": 1
+    },
+    "dispute_key": "CLA|APA20261008|1",
+    "event_fp": "73fe1fed75756431",
+    "deduction_id": "CLA|APA20261008|1"
+  }
+]

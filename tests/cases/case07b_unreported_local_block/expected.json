@@ -1,0 +1,13 @@
+{
+  "CLA|APA20260924|1": {
+    "outcome": "cannot_verify",
+    "grounds": [],
+    "primary_reason": "NO_EVIDENCE_FOUND",
+    "amount_disputable": "0",
+    "flags": [
+      "STAND_IN_TERMS"
+    ],
+    "missing_item_contains": "advisory",
+    "max_paid_calls": 4
+  }
+}

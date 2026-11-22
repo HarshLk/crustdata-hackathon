@@ -1,0 +1,152 @@
+[
+  {
+    "trip_id": "LR-A-1119",
+    "client_id": "CLA",
+    "lr_no": "LR-A-1119",
+    "origin": "Pune",
+    "destination": "Kolhapur",
+    "lane": "PUNE-KOLHAPUR",
+    "route_places": [
+      "Pune",
+      "Shirwal",
+      "Satara",
+      "Nagthane",
+      "Umbraj",
+      "Karad",
+      "Kasegaon",
+      "Peth Naka",
+      "Kini",
+      "Sangli Phata",
+      "Kolhapur"
+    ],
+    "route_states": [
+      "Maharashtra"
+    ],
+    "source_ref": {
+      "file": "trips.json",
+      "field": "LR-A-1119"
+    },
+    "vehicle_no": "MH12ZZ1119",
+    "invoice_no": "INV-A-2026-1119",
+    "freight": "28000.00",
+    "driver_ref": "DRV-A1119",
+    "gate_out_at": [
+      {
+        "value": "2026-11-05T01:00:00+05:30",
+        "source": "client_gate_log",
+        "ref": {
+          "file": "gate_log.csv",
+          "row": 1,
+          "field": "gate_out_at"
+        }
+      }
+    ],
+    "delivery_due_at": "2026-11-05T18:00:00+05:30",
+    "arrival_at": [
+      {
+        "value": "2026-11-06T07:00:00+05:30",
+        "source": "consignee_gate_log",
+        "ref": {
+          "file": "gate_log.csv",
+          "row": 2,
+          "field": "arrival_at"
+        }
+      }
+    ],
+    "assertions": [
+      {
+        "kind": "driver_report",
+        "event_type": "blockade",
+        "at": "2026-11-05T06:30:00+05:30",
+        "place": "Nagthane, Satara, Maharashtra",
+        "text": "Driver reports NH-48 blocked by sugarcane farmers' agitation from Nagthane towards Kini toll plaza; trucks not allowed to move towards Kolhapur.",
+        "ref": {
+          "file": "notes.csv",
+          "row": 1,
+          "field": "text"
+        }
+      }
+    ],
+    "halts": [
+      {
+        "start": "2026-11-05T06:00:00+05:30",
+        "end": "2026-11-06T04:00:00+05:30",
+        "place": "Nagthane, Satara, Maharashtra",
+        "source": "gps",
+        "ref": {
+          "file": "gps.csv",
+          "row": 14,
+          "field": "halt"
+        }
+      }
+    ],
+    "notices": [
+      {
+        "sent_at": "2026-11-05T11:00:00+05:30",
+        "channel": "email",
+        "addressee": "Client logistics desk",
+        "subject": "Force majeure notice: NH-48 blockade at Kini toll plaza, LR-A-1119",
+        "ref": {
+          "file": "notices.csv",
+          "row": 1,
+          "field": "sent_at"
+        }
+      }
+    ]
+  },
+  {
+    "trip_id": "LR-G-1119",
+    "client_id": "CLG",
+    "lr_no": "LR-G-1119",
+    "origin": "Pune",
+    "destination": "Kolhapur",
+    "lane": "PUNE-KOLHAPUR",
+    "route_places": [
+      "Pune",
+      "Shirwal",
+      "Satara",
+      "Nagthane",
+      "Umbraj",
+      "Karad",
+      "Kasegaon",
+      "Peth Naka",
+      "Kini",
+      "Sangli Phata",
+      "Kolhapur"
+    ],
+    "route_states": [
+      "Maharashtra"
+    ],
+    "source_ref": {
+      "file": "trips.json",
+      "field": "LR-G-0612"
+    },
+    "vehicle_no": "MH12ZZ1119",
+    "invoice_no": "INV-G-2026-1119",
+    "freight": "30000.00",
+    "driver_ref": "DRV-0612",
+    "gate_out_at": [
+      {
+        "value": "2026-09-09T20:00:00+05:30",
+        "source": "client_gate_log",
+        "ref": {
+          "file": "gate_log.csv",
+          "row": 1,
+          "field": "gate_out_at"
+        }
+      }
+    ],
+    "delivery_due_at": "2026-09-10T18:00:00+05:30",
+    "arrival_at": [
+      {
+        "value": "2026-09-28T18:00:00+05:30",
+        "source": "consignee_gate_log",
+        "ref": {
+          "file": "gate_log.csv",
+          "row": 2,
+          "field": "arrival_at"
+        }
+      }
+    ]
+  }
+]

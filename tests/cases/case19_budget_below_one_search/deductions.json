@@ -1,0 +1,61 @@
+[
+  {
+    "client_id": "CLA",
+    "client_name_raw": "Alpha Demo Agro Industries Pvt Ltd",
+    "advice_no": "APA/2026/1119",
+    "line_no": "1",
+    "reason_code": "late_delivery",
+    "trip_refs": [
+      "LR-A-1119"
+    ],
+    "deduction_date": "2026-11-12",
+    "received_date": "2026-11-13",
+    "amount": "2000.00",
+    "reason_text": "Late delivery penalty 1 day(s) @ Rs 2,000 per day",
+    "invoice_ref": "INV-A-2026-1119",
+    "client_calc": {
+      "rate": "2000",
+      "unit": "flat_per_day",
+      "units_counted": "1",
+      "from_ts": "2026-11-05T18:00:00+05:30",
+      "to_ts": "2026-11-06T07:00:00+05:30"
+    },
+    "source_ref": {
+      "file": "deductions.csv",
+      "row": 1
+    },
+    "dispute_key": "CLA|APA20261119|1",
+    "event_fp": "86c0ff8d031c44db",
+    "deduction_id": "CLA|APA20261119|1"
+  },
+  {
+    "client_id": "CLG",
+    "client_name_raw": "Golf Demo Public Sector Buyer",
+    "advice_no": "GPA/2026/1119",
+    "line_no": "1",
+    "reason_code": "late_delivery",
+    "trip_refs": [
+      "LR-G-1119"
+    ],
+    "deduction_date": "2026-10-05",
+    "received_date": "2026-10-07",
+    "amount": "54000.00",
+    "reason_text": "Late delivery penalty 1% per vehicle per day x 18 days on invoice value Rs 3,00,000",
+    "client_calc": {
+      "rate": "1",
+      "unit": "pct_per_vehicle_day",
+      "base_amount": "300000.00",
+      "units_counted": "18",
+      "from_ts": "2026-09-10T18:00:00+05:30",
+      "to_ts": "2026-09-28T18:00:00+05:30"
+    },
+    "invoice_ref": "INV-G-2026-1119",
+    "source_ref": {
+      "file": "deductions.csv",
+      "row": 2
+    },
+    "dispute_key": "CLG|GPA20261119|1",
+    "event_fp": "76a88423cf7409af",
+    "deduction_id": "CLG|GPA20261119|1"
+  }
+]

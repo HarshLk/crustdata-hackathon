@@ -1,0 +1,13 @@
+{
+  "CLA|APA20261008|1": {
+    "outcome": "cannot_verify",
+    "grounds": [],
+    "primary_reason": "SOURCES_CONFLICT",
+    "amount_disputable": "0",
+    "flags": [
+      "STAND_IN_TERMS"
+    ],
+    "missing_item_contains": null,
+    "max_paid_calls": 12
+  }
+}

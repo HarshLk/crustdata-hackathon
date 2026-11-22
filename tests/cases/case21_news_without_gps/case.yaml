@@ -1,0 +1,7 @@
+id: case21_news_without_gps
+prd_case: '21'
+title: Case 1 without any GPS, FASTag or driver record for the window
+clients:
+- CLA
+kind: evidence
+settings_overrides: {}

@@ -1,0 +1,58 @@
+[
+  {
+    "trip_id": "LR-A-1116",
+    "client_id": "CLA",
+    "lr_no": "LR-A-1116",
+    "origin": "Pune",
+    "destination": "Kolhapur",
+    "lane": "PUNE-KOLHAPUR",
+    "route_places": [
+      "Pune",
+      "Shirwal",
+      "Satara",
+      "Nagthane",
+      "Umbraj",
+      "Karad",
+      "Kasegaon",
+      "Peth Naka",
+      "Kini",
+      "Sangli Phata",
+      "Kolhapur"
+    ],
+    "route_states": [
+      "Maharashtra"
+    ],
+    "source_ref": {
+      "file": "trips.json",
+      "field": "LR-A-1116"
+    },
+    "vehicle_no": "MH12ZZ1116",
+    "invoice_no": "INV-A-2026-1116",
+    "freight": "28000.00",
+    "driver_ref": "DRV-A1116",
+    "gate_out_at": [
+      {
+        "value": "2026-11-05T01:00:00+05:30",
+        "source": "client_gate_log",
+        "ref": {
+          "file": "gate_log.csv",
+          "row": 1,
+          "field": "gate_out_at"
+        }
+      }
+    ],
+    "delivery_due_at": "2026-11-05T18:00:00+05:30",
+    "arrival_at": [
+      {
+        "value": "2026-11-06T07:00:00+05:30",
+        "source": "consignee_gate_log",
+        "ref": {
+          "file": "gate_log.csv",
+          "row": 2,
+          "field": "arrival_at"
+        }
+      }
+    ],
+    "assertions": []
+  }
+]

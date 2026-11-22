@@ -1,0 +1,10 @@
+id: case19_budget_below_one_search
+prd_case: '19'
+title: Run cost limit set below one search
+clients:
+- CLA
+- CLG
+kind: evidence
+settings_overrides:
+  budget:
+    run_cost_credits: 0.5

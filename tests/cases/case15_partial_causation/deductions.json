@@ -1,0 +1,58 @@
+[
+  {
+    "client_id": "CLA",
+    "client_name_raw": "Alpha Demo Agro Industries Pvt Ltd",
+    "advice_no": "APA/2026/1115",
+    "line_no": "1",
+    "reason_code": "late_delivery",
+    "trip_refs": [
+      "LR-A-1115"
+    ],
+    "deduction_date": "2026-11-12",
+    "received_date": "2026-11-13",
+    "amount": "8000.00",
+    "reason_text": "Late delivery penalty 4 day(s) @ Rs 2,000 per day",
+    "invoice_ref": "INV-A-2026-1115",
+    "client_calc": {
+      "rate": "2000",
+      "unit": "flat_per_day",
+      "units_counted": "4",
+      "from_ts": "2026-11-05T18:00:00+05:30",
+      "to_ts": "2026-11-09T12:00:00+05:30"
+    },
+    "source_ref": {
+      "file": "deductions.csv",
+      "row": 1
+    },
+    "dispute_key": "CLA|APA20261115|1",
+    "event_fp": "cf24f36347a8e570",
+    "deduction_id": "CLA|APA20261115|1"
+  },
+  {
+    "client_id": "CLF",
+    "client_name_raw": "Foxtrot Demo Sugar Ltd",
+    "advice_no": "FPA/2026/1115",
+    "line_no": "1",
+    "reason_code": "late_delivery",
+    "trip_refs": [
+      "LR-F-1115"
+    ],
+    "deduction_date": "2026-11-12",
+    "received_date": "2026-11-13",
+    "amount": "5000.00",
+    "reason_text": "Late delivery LD, one instance @ Rs 5,000",
+    "invoice_ref": "INV-F-2026-1115",
+    "client_calc": {
+      "rate": "5000",
+      "unit": "per_instance",
+      "units_counted": "1"
+    },
+    "source_ref": {
+      "file": "deductions.csv",
+      "row": 2
+    },
+    "dispute_key": "CLF|FPA20261115|1",
+    "event_fp": "3f9ce4cb6b9332ec",
+    "deduction_id": "CLF|FPA20261115|1"
+  }
+]

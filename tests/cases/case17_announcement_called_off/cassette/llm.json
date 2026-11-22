@@ -1,0 +1,16 @@
+{
+  "note": "model reading of the two sample pages",
+  "entries": [
+    {
+      "endpoint": "/v1/messages",
+      "response": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"proposals\": [{\"event_type\": \"bandh\", \"event_quote\": \"The Kolhapur District Sugarcane Growers' Union has called for a Kolhapur bandh on 22 September 2026 to press for a higher cane price.\", \"status\": \"announced\", \"status_quote\": \"The Kolhapur District Sugarcane Growers' Union has called for a Kolhapur bandh on 22 September 2026 to press for a higher cane price.\", \"places_affected\": [{\"quote\": \"The Kolhapur District Sugarcane Growers' Union has called for a Kolhapur bandh on 22 September 2026 to press for a higher cane price.\", \"value\": \"Kolhapur\"}], \"event_from\": \"2026-09-22\", \"event_to\": \"2026-09-22\", \"date_quote\": \"The Kolhapur District Sugarcane Growers' Union has called for a Kolhapur bandh on 22 September 2026 to press for a higher cane price.\"}, {\"event_type\": \"bandh\", \"event_quote\": \"The Kolhapur bandh called for 22 September 2026 has been called off after talks with the district administration, the union said on Monday.\", \"status\": \"called_off\", \"status_quote\": \"The Kolhapur bandh called for 22 September 2026 has been called off after talks with the district administration, the union said on Monday.\", \"places_affected\": [{\"quote\": \"The Kolhapur bandh called for 22 September 2026 has been called off after talks with the district administration, the union said on Monday.\", \"value\": \"Kolhapur\"}], \"event_from\": \"2026-09-22\", \"event_to\": \"2026-09-22\", \"date_quote\": \"The Kolhapur bandh called for 22 September 2026 has been called off after talks with the district administration, the union said on Monday.\"}]}"
+          }
+        ]
+      }
+    }
+  ]
+}

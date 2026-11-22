@@ -1,0 +1,85 @@
+[
+  {
+    "trip_id": "LR-A-1007",
+    "client_id": "CLA",
+    "lr_no": "LR-A-1007",
+    "origin": "Guwahati",
+    "destination": "Haldia",
+    "lane": "ASSAM-HALDIA",
+    "route_places": [
+      "Guwahati",
+      "Bongaigaon",
+      "Srirampur",
+      "Bakshirhat",
+      "Siliguri",
+      "Kishanganj",
+      "Dalkhola",
+      "Malda",
+      "Haldia"
+    ],
+    "route_states": [
+      "Assam",
+      "West Bengal",
+      "Bihar"
+    ],
+    "source_ref": {
+      "file": "trips.json",
+      "field": "LR-A-1007"
+    },
+    "vehicle_no": "AS01ZZ1007",
+    "invoice_no": "INV-A-1007",
+    "freight": "28000.00",
+    "driver_ref": "DRV-A-1007",
+    "gate_out_at": [
+      {
+        "value": "2026-10-10T08:00:00+05:30",
+        "source": "client_gate_log",
+        "ref": {
+          "file": "gate_log.csv",
+          "row": 1,
+          "field": "gate_out_at"
+        }
+      }
+    ],
+    "delivery_due_at": "2026-10-14T18:00:00+05:30",
+    "arrival_at": [
+      {
+        "value": "2026-10-24T12:00:00+05:30",
+        "source": "consignee_gate_log",
+        "ref": {
+          "file": "gate_log.csv",
+          "row": 2,
+          "field": "arrival_at"
+        }
+      }
+    ],
+    "halts": [],
+    "assertions": [
+      {
+        "kind": "ops_note",
+        "event_type": "govt_detention",
+        "at": "2026-10-11T20:00:00+05:30",
+        "place": "Srirampur, Kokrajhar, Assam",
+        "text": "Driver called the ops desk: truck held at the Srirampur check point on the Assam-West Bengal border by officials; no written order given.",
+        "ref": {
+          "file": "notes.csv",
+          "row": 1,
+          "field": "text"
+        }
+      }
+    ],
+    "notices": [
+      {
+        "sent_at": "2026-10-12T10:00:00+05:30",
+        "channel": "email",
+        "addressee": "Client logistics desk",
+        "subject": "Force majeure notice: LR-A-1007 held at Srirampur check point",
+        "ref": {
+          "file": "notices.csv",
+          "row": 1,
+          "field": "sent_at"
+        }
+      }
+    ]
+  }
+]

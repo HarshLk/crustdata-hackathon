@@ -1,0 +1,15 @@
+id: case11_kill_while_sending
+prd_case: '11'
+title: Process killed while sending a dispute (data for the kill harness)
+clients:
+- CLA
+kind: kill
+settings_overrides: {}
+kill:
+  crash_points:
+  - call.after_intent
+  - call.after_response_before_cache
+  - send.after_lookup
+  - send.after_intent
+  - send.after_deliver
+  expect: exactly one outbox message for the action id; status sent; no cache_key paid twice in the ledger

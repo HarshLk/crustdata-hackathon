@@ -1,0 +1,51 @@
+{
+  "source": "SAMPLE pages on example.test (no real report exists for this hard case)",
+  "entries": [
+    {
+      "endpoint": "/web/search/live",
+      "response": {
+        "success": true,
+        "results": [
+          {
+            "title": "Union calls Kolhapur bandh on 22 September",
+            "snippet": "The Kolhapur District Sugarcane Growers' Union has called for a Kolhapur bandh on 22 September 2026 to press for a higher cane price.",
+            "url": "https://news.example.test/kolhapur-bandh-called-22-september"
+          },
+          {
+            "title": "Kolhapur bandh called off",
+            "snippet": "The Kolhapur bandh called for 22 September 2026 has been called off after talks with the district administration, the union said on Monday.",
+            "url": "https://news.example.test/kolhapur-bandh-called-off"
+          }
+        ]
+      }
+    },
+    {
+      "endpoint": "/company/identify",
+      "response": []
+    },
+    {
+      "endpoint": "/web/enrich/live",
+      "url": "https://news.example.test/kolhapur-bandh-called-22-september",
+      "response": {
+        "url": "https://news.example.test/kolhapur-bandh-called-22-september",
+        "success": true,
+        "title": "Union calls Kolhapur bandh on 22 September",
+        "content": "<html><head><title>Union calls Kolhapur bandh on 22 September</title><meta property=\"article:published_time\" content=\"2026-09-19T10:00:00+05:30\"></head><body><article>\n<p>The Kolhapur District Sugarcane Growers' Union has called for a Kolhapur bandh on 22 September 2026 to press for a higher cane price.</p>\n<p>Union leaders said shops, markets and road traffic on the Pune-Bengaluru highway near Kolhapur would be affected if the bandh went ahead.</p>\n<p>SAMPLE FIXTURE written for the test suite by agent d2; this is not a real news report and example.test is not a real publisher. It exists only to test that an announced event that is later called off is never treated as evidence of a disruption. SAMPLE FIXTURE written for the test suite by agent d2; this is not a real news report and example.test is not a real publisher. It exists only to test that an announced event that is later called off is never treated as evidence of a disruption. SAMPLE FIXTURE written for the test suite by agent d2; this is not a real news report and example.test is not a real publisher. It exists only to test that an announced event that is later called off is never treated as evidence of a disruption. SAMPLE FIXTURE written for the test suite by agent d2; this is not a real news report and example.test is not a real publisher. It exists only to test that an announced event that is later called off is never treated as evidence of a disruption. </p>\n</article></body></html>",
+        "timestamp": 1795339181,
+        "http_status": "200"
+      }
+    },
+    {
+      "endpoint": "/web/enrich/live",
+      "url": "https://news.example.test/kolhapur-bandh-called-off",
+      "response": {
+        "url": "https://news.example.test/kolhapur-bandh-called-off",
+        "success": true,
+        "title": "Kolhapur bandh called off",
+        "content": "<html><head><title>Kolhapur bandh called off</title><meta property=\"article:published_time\" content=\"2026-09-21T18:00:00+05:30\"></head><body><article>\n<p>The Kolhapur bandh called for 22 September 2026 has been called off after talks with the district administration, the union said on Monday.</p>\n<p>Traffic on the highway near Kolhapur and markets in the city are expected to run normally on 22 September.</p>\n<p>SAMPLE FIXTURE written for the test suite by agent d2; this is not a real news report and example.test is not a real publisher. It exists only to test that an announced event that is later called off is never treated as evidence of a disruption. SAMPLE FIXTURE written for the test suite by agent d2; this is not a real news report and example.test is not a real publisher. It exists only to test that an announced event that is later called off is never treated as evidence of a disruption. SAMPLE FIXTURE written for the test suite by agent d2; this is not a real news report and example.test is not a real publisher. It exists only to test that an announced event that is later called off is never treated as evidence of a disruption. SAMPLE FIXTURE written for the test suite by agent d2; this is not a real news report and example.test is not a real publisher. It exists only to test that an announced event that is later called off is never treated as evidence of a disruption. </p>\n</article></body></html>",
+        "timestamp": 1795339181,
+        "http_status": "200"
+      }
+    }
+  ]
+}

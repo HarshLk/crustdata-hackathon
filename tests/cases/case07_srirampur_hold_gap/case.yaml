@@ -1,0 +1,7 @@
+id: case07_srirampur_hold_gap
+prd_case: '7'
+title: Pet-coke load Assam -> Haldia held at Srirampur check point; no detention memo, no GPS
+clients:
+- CLA
+kind: evidence
+settings_overrides: {}

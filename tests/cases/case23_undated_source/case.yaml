@@ -1,0 +1,9 @@
+id: case23_undated_source
+prd_case: '23'
+title: Only qualifying report has no readable publication date
+clients:
+- CLA
+kind: evidence
+settings_overrides: {}
+faults:
+- undated@/web/enrich/live

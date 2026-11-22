@@ -1,0 +1,88 @@
+[
+  {
+    "trip_id": "LR-A-1008",
+    "client_id": "CLA",
+    "lr_no": "LR-A-1008",
+    "origin": "Cuttack",
+    "destination": "Bhubaneswar",
+    "lane": "CUTTACK-BHUBANESWAR",
+    "route_places": [
+      "Cuttack",
+      "Bhubaneswar"
+    ],
+    "route_states": [
+      "Odisha"
+    ],
+    "source_ref": {
+      "file": "trips.json",
+      "field": "LR-A-1008"
+    },
+    "vehicle_no": "OD05ZZ1008",
+    "invoice_no": "INV-A-1008",
+    "freight": "28000.00",
+    "driver_ref": "DRV-A-1008",
+    "gate_out_at": [
+      {
+        "value": "2026-10-08T07:00:00+05:30",
+        "source": "client_gate_log",
+        "ref": {
+          "file": "gate_log.csv",
+          "row": 1,
+          "field": "gate_out_at"
+        }
+      }
+    ],
+    "delivery_due_at": "2026-10-08T12:00:00+05:30",
+    "arrival_at": [
+      {
+        "value": "2026-10-08T20:00:00+05:30",
+        "source": "consignee_gate_log",
+        "ref": {
+          "file": "gate_log.csv",
+          "row": 2,
+          "field": "arrival_at"
+        }
+      }
+    ],
+    "halts": [
+      {
+        "start": "2026-10-08T07:30:00+05:30",
+        "end": "2026-10-08T18:30:00+05:30",
+        "place": "Cuttack, Cuttack, Odisha",
+        "source": "gps",
+        "ref": {
+          "file": "gps.csv",
+          "row": 10,
+          "field": "halt"
+        }
+      }
+    ],
+    "assertions": [
+      {
+        "kind": "driver_report",
+        "event_type": "bandh",
+        "at": "2026-10-08T07:45:00+05:30",
+        "place": "Cuttack, Cuttack, Odisha",
+        "text": "Driver reports bandh supporters blocking the highway at Cuttack; trucks stopped.",
+        "ref": {
+          "file": "notes.csv",
+          "row": 1,
+          "field": "text"
+        }
+      }
+    ],
+    "notices": [
+      {
+        "sent_at": "2026-10-08T10:00:00+05:30",
+        "channel": "email",
+        "addressee": "Client logistics desk",
+        "subject": "Force majeure notice: Odisha bandh, LR-A-1008 stopped at Cuttack",
+        "ref": {
+          "file": "notices.csv",
+          "row": 1,
+          "field": "sent_at"
+        }
+      }
+    ]
+  }
+]

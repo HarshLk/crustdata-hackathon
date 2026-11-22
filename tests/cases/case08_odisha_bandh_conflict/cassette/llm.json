@@ -1,0 +1,16 @@
+{
+  "note": "model reading: ThePrint supports at Cuttack; OrissaPOST quotes the Bhubaneswar-Cuttack Police Commissioner that national highways were unaffected",
+  "entries": [
+    {
+      "endpoint": "/v1/messages",
+      "response": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"proposals\": [{\"event_type\": \"bandh\", \"event_quote\": \"The protesters, holding party flags and banners, staged demonstrations in various places and blocked roads and national highways in Bhubaneswar, Cuttack, Bargarh, Bhadrak, Balasore, Rayagada, Kendrapara, Bolangir, Berhampur, and Sambalpur.\", \"status\": \"happened\", \"status_quote\": \"The protesters, holding party flags and banners, staged demonstrations in various places and blocked roads and national highways in Bhubaneswar, Cuttack, Bargarh, Bhadrak, Balasore, Rayagada, Kendrapara, Bolangir, Berhampur, and Sambalpur.\", \"places_affected\": [{\"quote\": \"The protesters, holding party flags and banners, staged demonstrations in various places and blocked roads and national highways in Bhubaneswar, Cuttack, Bargarh, Bhadrak, Balasore, Rayagada, Kendrapara, Bolangir, Berhampur, and Sambalpur.\", \"value\": \"Cuttack\"}], \"event_from\": \"2026-10-08\", \"event_to\": \"2026-10-08\", \"date_quote\": \"\", \"effect_quote\": \"A number of buses, trucks, taxis, and autorickshaws were stopped in several districts.\"}, {\"event_type\": \"bandh\", \"event_quote\": \"A number of buses, trucks, taxis, and autorickshaws were stopped in several districts.\", \"status\": \"happened\", \"status_quote\": \"A number of buses, trucks, taxis, and autorickshaws were stopped in several districts.\", \"places_affected\": [], \"event_from\": \"2026-10-08\", \"event_to\": \"2026-10-08\", \"date_quote\": \"\", \"effect_quote\": \"A number of buses, trucks, taxis, and autorickshaws were stopped in several districts.\", \"unaffected\": [{\"quote\": \"Bhubaneswar-Cuttack Police Commissioner S Dev Dutta Singh informed that 18 platoons of police force along with 200 officers were deployed to provide security during the protest, while 14 platoons of force were in Cuttack city. About 100 protesters were taken into preventive arrest during the protest in the capital city, he said. “The major roads, including national highways, and train lines have remained unaffected.\", \"value\": \"Cuttack\"}]}]}"
+          }
+        ]
+      }
+    }
+  ]
+}

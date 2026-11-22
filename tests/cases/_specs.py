@@ -753,3 +753,435 @@ not as a physically affected place. Discovery path (nobody asserts a disruption)
 **Hand arithmetic:** due 5 Nov 14:00, gate-in 22:00 = 8 h -> 1 day x Rs 2,000 = Rs 2,000 = deducted. Disputable 0.
 """ + KINI_SOURCES,
 })
+
+
+def a_trip(tid: str, lane: str, origin: str, dest: str, gate_out: str, due: str, arrival: str, *, halts=(), assertions=(),
+           notices=(), client_id: str = "CLA", freight: str = "28000.00", vehicle: str | None = None) -> dict:
+    t = trip(tid, client_id, lane, origin, dest, vehicle_no=vehicle or f"MH12ZZ{tid[-4:]}",
+             invoice_no=f"INV-{tid[3:]}", freight=freight, driver_ref=f"DRV-{tid[3:]}",
+             gate_out_at=[obs(gate_out, "client_gate_log", "gate_log.csv", 1, "gate_out_at")],
+             delivery_due_at=ts(due), arrival_at=[obs(arrival, "consignee_gate_log", "gate_log.csv", 2, "arrival_at")])
+    t["halts"] = [{"start": ts(s), "end": ts(e), "place": p, "source": "gps",
+                   "ref": {"file": "gps.csv", "row": 10 + i, "field": "halt"}} for i, (s, e, p) in enumerate(halts)]
+    t["assertions"] = [{"kind": k, "event_type": et, "at": ts(at), "place": p, "text": tx,
+                        "ref": {"file": "notes.csv", "row": 1 + i, "field": "text"}}
+                       for i, (k, et, at, p, tx) in enumerate(assertions)]
+    t["notices"] = [{"sent_at": ts(at), "channel": "email", "addressee": "Client logistics desk", "subject": sj,
+                     "ref": {"file": "notices.csv", "row": 1 + i, "field": "sent_at"}} for i, (at, sj) in enumerate(notices)]
+    return t
+
+
+def a_ded(tid: str, advice: str, amount: str, days: str, due: str, arrival: str, ddate: str,
+          client_id: str = "CLA", name: str = A_NAME, rate: str = "2000", unit: str = "flat_per_day",
+          reason: str | None = None) -> dict:
+    return deduction(client_id, name, advice, "1", tid, "late_delivery", deduction_date=ddate, amount=amount,
+                     reason_text=reason or f"Late delivery penalty {days} day(s) @ Rs {int(rate):,} per day",
+                     invoice_ref=f"INV-{tid[3:]}",
+                     client_calc={"rate": rate, "unit": unit, "units_counted": days, "from_ts": ts(due), "to_ts": ts(arrival)},
+                     source_ref={"file": "deductions.csv", "row": 1})
+
+
+# =============================================================================== case 7: Srirampur hold, honest gap
+c7_trip = a_trip("LR-A-1007", "ASSAM-HALDIA", "Guwahati", "Haldia", "2026-10-10 08:00", "2026-10-14 18:00",
+                 "2026-10-24 12:00", vehicle="AS01ZZ1007",
+                 assertions=[("ops_note", "govt_detention", "2026-10-11 20:00", "Srirampur, Kokrajhar, Assam",
+                              "Driver called the ops desk: truck held at the Srirampur check point on the Assam-West Bengal "
+                              "border by officials; no written order given.")],
+                 notices=[("2026-10-12 10:00", "Force majeure notice: LR-A-1007 held at Srirampur check point")])
+c7_ded = a_ded("LR-A-1007", "APA/2026/1007", "20000.00", "10", "2026-10-14 18:00", "2026-10-24 12:00", "2026-11-02")
+SPECS.append({
+    "slug": "case07_srirampur_hold_gap", "prd": "7", "kind": "evidence", "open_track": True,
+    "title": "Pet-coke load Assam -> Haldia held at Srirampur check point; no detention memo, no GPS",
+    "fixture_clients": ["a"], "trips": [c7_trip], "deductions": [c7_ded],
+    "cassette": cassette("logisticsinsider_srirampur", "toi_srirampur_oct7"),
+    "expected": {c7_ded["dispute_key"]: {"outcome": "cannot_verify", "primary_reason": "EVIDENCE_PARTIAL",
+                                         "missing_item_contains": "GPS", "flags": [SI_], "max_paid_calls": EV_MAX}},
+    "notes": """
+# Case 7: honest gap on a real event (Srirampur check point)
+
+**Rule:** DESIGN 8.4: news alone never carries a dispute; an ops note that merely repeats the claim is not
+corroboration. PRD stage 3: a regulatory hold needs the detention memo; none is on file. D-11
+(`search_when_corroboration_missing: true`) runs the search anyway so the case file shows the event is real.
+Result: `cannot_verify / EVIDENCE_PARTIAL`, naming the GPS extract (and the detention memo or written order).
+
+**Terms (Client A):** FM names "seizure or detention by a government agency"; notice within 10 days, sent
+12 Oct 10:00 (about 14 h after the ops note); hold rule covers government detention.
+
+**Facts:** gate-out Guwahati 10 Oct 2026 08:00; ops note 11 Oct 20:00 "held at the Srirampur check point ... no written
+order given"; due Haldia 14 Oct 18:00; consignee gate-in 24 Oct 12:00. No GPS extract, no memo.
+
+**Arithmetic:** delay 14 Oct 18:00 -> 24 Oct 12:00 = 9 days 18 h -> 10 days (part day counts) x Rs 2,000 = Rs 20,000 =
+deducted. Nothing disputable until the memo and GPS extract arrive.
+
+**Sources (real responses, 22 Nov 2026):**
+
+| Source | URL | Published | Retrieved (UTC) | Passage |
+| --- | --- | --- | --- | --- |
+| Logistics Insider | https://www.logisticsinsider.in/trucks-stranded-assam-bengal-border-petroleum-coke/ | 2026-10-23T06:01:58+00:00 | 2026-11-22T09:31:11Z | "The vehicles have reportedly been held around Srirampur and Bakshirhat since September 17." |
+| Times of India | timesofindia.indiatimes.com/city/kolkata/sos-to-pmo-after-orders-from-above-hold-up-300-raw-petroleum-coke-trucks-at-assam-bengal-border/articleshow/134754712.cms | 2026-10-07T08:39:00+05:30 | 2026-11-22T09:19:41Z | "...stranded at the Assam-West Bengal border for more than a fortnight, with authorities in West Bengal allegedly refusing passage without issuing any written order or citing a specific reason." |
+
+The PRD row cites India Shipping News (23 Oct 2026); that page is not in the saved responses: TO CONFIRM.
+""",
+})
+
+# =============================================================================== case 7b: unreported local event
+c7b_trip = a_trip("LR-A-0924", "PUNE-KOLHAPUR", "Pune", "Kolhapur", "2026-09-24 05:00", "2026-09-24 18:00",
+                  "2026-09-25 09:00",
+                  halts=[("2026-09-24 11:00", "2026-09-24 17:00", "Umbraj, Satara, Maharashtra")],
+                  assertions=[("driver_report", "blockade", "2026-09-24 11:15", "Umbraj, Satara, Maharashtra",
+                               "Driver reports the road blocked by villagers near Umbraj; waiting.")],
+                  notices=[("2026-09-24 15:00", "Force majeure notice: road blocked near Umbraj, LR-A-0924")])
+c7b_ded = a_ded("LR-A-0924", "APA/2026/0924", "2000.00", "1", "2026-09-24 18:00", "2026-09-25 09:00", "2026-10-03")
+SPECS.append({
+    "slug": "case07b_unreported_local_block", "prd": "7b", "kind": "evidence",
+    "title": "Driver reports a road blocked near a village; no news, advisory or record found",
+    "fixture_clients": ["a"], "trips": [c7b_trip], "deductions": [c7b_ded],
+    "cassette": cassette(empty_search=True),
+    "expected": {c7b_ded["dispute_key"]: {"outcome": "cannot_verify", "primary_reason": "NO_EVIDENCE_FOUND",
+                                          "missing_item_contains": "advisory", "flags": [SI_], "max_paid_calls": 4}},
+    "notes": """
+# Case 7b: unreported local event
+
+**Rule:** PRD section 6: if the 3PL itself asserts a disruption (driver report) and no source confirms it, the answer is
+cannot verify NO_EVIDENCE_FOUND (not valid), naming "police or district advisory for the reported blockage".
+Zero-result searches are free (F-5), so at most the 3 ladder searches run and no fetch.
+
+**Facts:** driver report 24 Sep 2026 11:15 near Umbraj (Satara district); GPS halt 11:00-17:00 there; notice 15:00;
+due 24 Sep 18:00; gate-in 25 Sep 09:00. Every search returns zero results (cassette).
+
+**Arithmetic:** delay 15 h -> 1 day x Rs 2,000 = Rs 2,000 = deducted; disputable 0 until an advisory is found.
+""",
+})
+
+# =============================================================================== case 8: sources conflict
+c8_trip = a_trip("LR-A-1008", "CUTTACK-BHUBANESWAR", "Cuttack", "Bhubaneswar", "2026-10-08 07:00", "2026-10-08 12:00",
+                 "2026-10-08 20:00", vehicle="OD05ZZ1008",
+                 halts=[("2026-10-08 07:30", "2026-10-08 18:30", "Cuttack, Cuttack, Odisha")],
+                 assertions=[("driver_report", "bandh", "2026-10-08 07:45", "Cuttack, Cuttack, Odisha",
+                              "Driver reports bandh supporters blocking the highway at Cuttack; trucks stopped.")],
+                 notices=[("2026-10-08 10:00", "Force majeure notice: Odisha bandh, LR-A-1008 stopped at Cuttack")])
+c8_ded = a_ded("LR-A-1008", "APA/2026/1008", "2000.00", "1", "2026-10-08 12:00", "2026-10-08 20:00", "2026-10-20")
+SPECS.append({
+    "slug": "case08_odisha_bandh_conflict", "prd": "8", "kind": "evidence",
+    "title": "Cuttack -> Bhubaneswar, late on 8 Oct 2026 (Odisha 12-hour bandh); notice given; sources conflict",
+    "fixture_clients": ["a"], "trips": [c8_trip], "deductions": [c8_ded],
+    "cassette": cassette("theprint_odisha", "orissapost_odisha"),
+    "expected": {c8_ded["dispute_key"]: {"outcome": "cannot_verify", "primary_reason": "SOURCES_CONFLICT",
+                                         "flags": [SI_], "max_paid_calls": EV_MAX}},
+    "notes": """
+# Case 8: real conflicting evidence (Odisha bandh, 8 Oct 2026)
+
+**Rule:** DESIGN 8.3 step 10: an "unaffected" statement whose place is on the route, beside a qualifying support, is
+SOURCES_CONFLICT; both are shown and a person decides.
+
+**Terms (Client A):** FM names bandhs; notice within 10 days (sent 8 Oct 10:00).
+
+**Facts:** gate-out Cuttack 8 Oct 07:00; driver report 07:45 and GPS halt 07:30-18:30 at Cuttack; due Bhubaneswar
+12:00; gate-in 20:00 (8 h late).
+
+**Arithmetic:** 8 h -> 1 day x Rs 2,000 = Rs 2,000 = deducted. If the support stood alone, the halt (11 h) + 12 h
+allowance would cover the whole delay and Rs 2,000 would be disputable; the conflict stops that.
+
+**Sources:**
+
+| Source | URL | Published | Retrieved (UTC) | Passage | Stance |
+| --- | --- | --- | --- | --- | --- |
+| ThePrint (PTI) | https://theprint.in/india/normal-life-hit-in-odisha-as-india-bloc-parties-observe-bandh-over-new-mining-law-other-issues/3065014/ | 2026-10-08T04:18:16+00:00 | 2026-11-22 (saved run) | "blocked roads and national highways in Bhubaneswar, Cuttack, Bargarh, ... A number of buses, trucks, taxis, and autorickshaws were stopped in several districts." | supports |
+| OrissaPOST | https://www.orissapost.com/12-hour-bandh-disrupts-traffic-daily-life-across-odisha/ | 2026-10-08T12:18:00+00:00 | 2026-11-22T10:51:35Z (live, human_mode, by d2) | "The major roads, including national highways, and train lines have remained unaffected." (Bhubaneswar-Cuttack Police Commissioner) | contradicts |
+
+The OrissaPOST search result entry is constructed from the fetched page (title, first sentence, URL); the page itself
+is the real fetched response.
+""",
+})
+
+
+def llm_cassette(proposals: list[dict], note: str) -> dict:
+    """Fake model reading (propose_passages). One response serves every model call in the case: quotes that are not
+    in a page are discarded by the deterministic test, and refute calls fall back to the deterministic recheck."""
+    import json as j
+    return {"llm.json": {"note": note, "entries": [{"endpoint": "/v1/messages", "response": {
+        "content": [{"type": "text", "text": j.dumps({"proposals": proposals}, ensure_ascii=False)}]}}]}}
+
+
+def _q(quote: str, value: str) -> dict:
+    return {"quote": quote, "value": value}
+
+
+LI_HELD = "The vehicles have reportedly been held around Srirampur and Bakshirhat since September 17."
+TOI_HELD = ("According to traders and transporters, more than 300 lorries loaded with raw petroleum coke, or RPC, from "
+            "IOCL refineries at Guwahati, Digboi and Bongaigaon have been stopped around Srirampur and Bakshirhat.")
+C7_LLM = [
+    {"event_type": "govt_detention", "event_quote": LI_HELD, "status": "happened", "status_quote": LI_HELD,
+     "places_affected": [_q(LI_HELD, "Srirampur")], "event_from": "2026-09-17", "event_to": "2026-10-23",
+     "date_quote": LI_HELD, "effect_quote": LI_HELD},
+    {"event_type": "govt_detention", "event_quote": TOI_HELD, "status": "happened", "status_quote": TOI_HELD,
+     "places_affected": [_q(TOI_HELD, "Srirampur")], "event_from": "2026-09-22", "event_to": "2026-10-07",
+     "date_quote": TOI_HELD, "effect_quote": TOI_HELD},
+]
+for s in SPECS:
+    if s["slug"] == "case07_srirampur_hold_gap":
+        s["cassette"].update(llm_cassette(C7_LLM, "model reading of the two Srirampur reports (hand-written fake)"))
+
+TP_BLOCK = ("The protesters, holding party flags and banners, staged demonstrations in various places and blocked roads and "
+            "national highways in Bhubaneswar, Cuttack, Bargarh, Bhadrak, Balasore, Rayagada, Kendrapara, Bolangir, "
+            "Berhampur, and Sambalpur.")
+STOPPED = "A number of buses, trucks, taxis, and autorickshaws were stopped in several districts."
+OP_UNAFF = ("Bhubaneswar-Cuttack Police Commissioner S Dev Dutta Singh informed that 18 platoons of police force along with "
+            "200 officers were deployed to provide security during the protest, while 14 platoons of force were in Cuttack "
+            "city. About 100 protesters were taken into preventive arrest during the protest in the capital city, he said. "
+            "“The major roads, including national highways, and train lines have remained unaffected.")
+C8_LLM = [
+    {"event_type": "bandh", "event_quote": TP_BLOCK, "status": "happened", "status_quote": TP_BLOCK,
+     "places_affected": [_q(TP_BLOCK, "Cuttack")], "event_from": "2026-10-08", "event_to": "2026-10-08",
+     "date_quote": "", "effect_quote": STOPPED},
+    {"event_type": "bandh", "event_quote": STOPPED, "status": "happened", "status_quote": STOPPED,
+     "places_affected": [], "event_from": "2026-10-08", "event_to": "2026-10-08", "date_quote": "",
+     "effect_quote": STOPPED, "unaffected": [_q(OP_UNAFF, "Cuttack")]},
+]
+for s in SPECS:
+    if s["slug"] == "case08_odisha_bandh_conflict":
+        s["cassette"].update(llm_cassette(C8_LLM, "model reading: ThePrint supports at Cuttack; OrissaPOST quotes the "
+                                                  "Bhubaneswar-Cuttack Police Commissioner that national highways were unaffected"))
+
+
+# =============================================================================== case 11: kill test data
+c11_trip = kini_trip("CLA", "A", n="1111")
+c11_ded = kini_deduction("CLA", A_NAME, "A", n="1111")
+SPECS.append({
+    "slug": "case11_kill_while_sending", "prd": "11", "kind": "kill",
+    "title": "Process killed while sending a dispute (data for the kill harness)",
+    "fixture_clients": ["a"], "trips": [c11_trip], "deductions": [c11_ded], "cassette": cassette(*KINI_PAGES),
+    "kill": {"crash_points": ["call.after_intent", "call.after_response_before_cache", "send.after_lookup",
+                              "send.after_intent", "send.after_deliver"],
+             "expect": "exactly one outbox message for the action id; status sent; no cache_key paid twice in the ledger"},
+    "expected": {c11_ded["dispute_key"]: {"outcome": "disputable", "grounds": ["FORCE_MAJEURE"],
+                                          "amount_disputable": "2000.00", "flags": [SI_], "max_paid_calls": EV_MAX}},
+    "notes": "# Case 11: kill while sending\n\n**Rule:** PRD section 9 / DESIGN 7: approve -> `sending` -> deliver with the "
+             "message id as idempotency key -> `sent`. After a kill at any crash point in `case.yaml` and a restart: "
+             "exactly one message with that id at K7, status sent, and no paid call repeated (the search and fetches "
+             "come from cache at zero cost). The verdict is case 1's.\n" + C1_ARITH,
+})
+
+# =============================================================================== case 15: partial causation
+F_NAME = "Foxtrot Demo Sugar Ltd"
+client_f = clone_client("a", "CLF", F_NAME)
+for t in client_f["terms"]:
+    if t["term_type"] == "penalty_rule":
+        t["params"] = {"event": "late_delivery", "rate": "5000", "unit": "per_instance", "base": "none"}
+        t["verbatim"] = "Liquidated Damages from the Service Provider @ Rs.5000/- for each instance of delay in delivery beyond the due date."
+c15_ta = kini_trip("CLA", "A", n="1115")
+c15_ta["arrival_at"][0]["value"] = ts("2026-11-09 12:00")
+c15_tf = kini_trip("CLF", "F", n="1115")
+c15_tf["arrival_at"][0]["value"] = ts("2026-11-09 12:00")
+c15_da = kini_deduction("CLA", A_NAME, "A", n="1115", amount="8000.00", days="4", arrival="2026-11-09 12:00")
+c15_df = deduction("CLF", F_NAME, "FPA/2026/1115", "1", "LR-F-1115", "late_delivery", deduction_date="2026-11-12",
+                   received_date="2026-11-13", amount="5000.00", reason_text="Late delivery LD, one instance @ Rs 5,000",
+                   invoice_ref="INV-F-2026-1115",
+                   client_calc={"rate": "5000", "unit": "per_instance", "units_counted": "1"},
+                   source_ref={"file": "deductions.csv", "row": 2})
+SPECS.append({
+    "slug": "case15_partial_causation", "prd": "15", "kind": "evidence",
+    "title": "Disruption explains part of a multi-day delay: per-day penalty (partial dispute) vs per-event penalty",
+    "fixture_clients": ["a"], "inline_clients": [client_f], "trips": [c15_ta, c15_tf], "deductions": [c15_da, c15_df],
+    "cassette": cassette(*KINI_PAGES),
+    "expected": {c15_da["dispute_key"]: {"outcome": "disputable", "grounds": ["FORCE_MAJEURE"],
+                                         "amount_disputable": "2000.00", "flags": [SI_], "max_paid_calls": EV_MAX},
+                 c15_df["dispute_key"]: {"outcome": "cannot_verify", "primary_reason": "CAUSATION_PARTIAL",
+                                         "flags": [SI_], "max_paid_calls": EV_MAX}},
+    "notes": """
+# Case 15: partial causation
+
+**Departure from the PRD row, stated:** the PRD describes a 12-hour bandh. The only bandh with saved real pages (Odisha,
+8 Oct) is the SOURCES_CONFLICT case, so this case reuses the real Kini blockade with case 1's halt and a much later
+delivery. The rule tested is the same: only the overlap plus the allowance is excused (DESIGN 8.4).
+
+**Facts:** as case 1 (GPS halt at Nagthane 5 Nov 06:00 -> 6 Nov 04:00; notice 5 Nov 11:00), but consignee gate-in
+9 Nov 2026 12:00. Client A penalty Rs 2,000 per day (part day counts); Client F (otherwise Client A's terms) Rs 5,000
+per instance.
+
+**Hand arithmetic, Client A (per day)**
+
+| Step | Working | Value |
+| --- | --- | --- |
+| Delay | 5 Nov 18:00 -> 9 Nov 12:00 | 90 h -> 4 days (part day counts) |
+| Deducted | 4 x 2,000 | Rs 8,000 |
+| Reading 1 (shift by halt-in-event + allowance) | halt inside event dates 18 h (to 5 Nov 24:00) + 12 h = 30 h; due -> 7 Nov 00:00; delay 60 h | 3 days |
+| Reading 1 with the full 22 h halt | 22 + 12 = 34 h; due -> 7 Nov 04:00; delay 56 h | 3 days |
+| Reading 2 (only halt hours inside the late window) | 5 Nov 18:00 -> 6 Nov 00:00 = 6 h (or 10 h to 04:00) + 12 h = 18-22 h; 90 - 18..22 = 68-72 h | 3 days |
+| Correct penalty | 3 x 2,000 | Rs 6,000 |
+| **Disputable** | 8,000 - 6,000 | **Rs 2,000.00** |
+
+**Client F (per instance):** the delay (90 h) is longer than the excused interval (at most 34 h), and a per-event
+penalty cannot be split -> `INCOMPLETE / CAUSATION_PARTIAL`, cannot verify, disputable 0.
+""" + KINI_SOURCES,
+})
+
+# =============================================================================== case 16: lookalike issuer
+c16_trip = kini_trip("CLA", "A", n="1116", notice=False, gps=False)
+c16_trip["assertions"] = []
+LOOK = "Alpha Demo Agro Foods Pvt Ltd"
+c16_ded = deduction("ALPHADEMOAGROFOODSPVTLTD", LOOK, "AFPA/2026/1116", "1", "LR-A-1116", "late_delivery",
+                    deduction_date="2026-11-12", received_date="2026-11-13", amount="2000.00",
+                    reason_text="Late delivery penalty 1 day @ Rs 2,000 per day", invoice_ref="INV-A-2026-1116",
+                    source_ref={"file": "deductions.csv", "row": 1})
+SPECS.append({
+    "slug": "case16_lookalike_issuer", "prd": "16", "kind": "lookalike",
+    "title": "Deduction issued by a lookalike entity (the client's sister company)",
+    "fixture_clients": ["a"], "trips": [c16_trip], "deductions": [c16_ded], "cassette": cassette(),
+    "expected": {c16_ded["dispute_key"]: {"outcome": "cannot_verify", "primary_reason": "AMBIGUOUS_MATCH",
+                                          "missing_item_contains": "Alpha Demo Agro Foods", "max_paid_calls": 1}},
+    "notes": f"""
+# Case 16: lookalike company
+
+**Rule:** D-27 / DESIGN 5.7 strict identity: clients match only on the exact normalised legal name or a person-confirmed
+alias. "{LOOK}" is neither the legal name nor an alias of Client A ("{A_NAME}"); Crustdata identify may be
+used to show why the names differ, never to resolve them. Result: cannot verify AMBIGUOUS_MATCH, naming the legal
+entity with no agreement (the PRD allows AMBIGUOUS_MATCH or TERMS_MISSING; the gate returns AMBIGUOUS_MATCH).
+The deduction's `client_id` is the normalised raw name, as d1's reader sets it for an unmatched client.
+
+**Arithmetic:** none; disputable 0. At most one identify call (`max_paid_calls: 1`).
+""",
+})
+
+# =============================================================================== case 17: announcement, then called off
+def _sample_page(url: str, title: str, published: str, paras: list[str]) -> dict:
+    body = "".join(f"<p>{p}</p>\n" for p in paras)
+    content = (f"<html><head><title>{title}</title><meta property=\"article:published_time\" content=\"{published}\">"
+               f"</head><body><article>\n{body}</article></body></html>")
+    return {"url": url, "success": True, "title": title, "content": content, "timestamp": 1795339181, "http_status": "200"}
+
+
+ANN = "The Kolhapur District Sugarcane Growers' Union has called for a Kolhapur bandh on 22 September 2026 to press for a higher cane price."
+OFF = "The Kolhapur bandh called for 22 September 2026 has been called off after talks with the district administration, the union said on Monday."
+FILL = ("SAMPLE FIXTURE written for the test suite by agent d2; this is not a real news report and example.test is not a "
+        "real publisher. It exists only to test that an announced event that is later called off is never treated as "
+        "evidence of a disruption. ")
+p_ann = _sample_page("https://news.example.test/kolhapur-bandh-called-22-september", "Union calls Kolhapur bandh on 22 September",
+                     "2026-09-19T10:00:00+05:30", [ANN, "Union leaders said shops, markets and road traffic on the Pune-Bengaluru highway near Kolhapur would be affected if the bandh went ahead.", FILL * 4])
+p_off = _sample_page("https://news.example.test/kolhapur-bandh-called-off", "Kolhapur bandh called off",
+                     "2026-09-21T18:00:00+05:30", [OFF, "Traffic on the highway near Kolhapur and markets in the city are expected to run normally on 22 September.", FILL * 4])
+c17_cas = {"crustdata.json": {"source": "SAMPLE pages on example.test (no real report exists for this hard case)", "entries": [
+    {"endpoint": SEARCH_EP, "response": {"success": True, "results": [
+        {"title": "Union calls Kolhapur bandh on 22 September", "snippet": ANN, "url": p_ann["url"]},
+        {"title": "Kolhapur bandh called off", "snippet": OFF, "url": p_off["url"]}]}},
+    {"endpoint": IDENTIFY_EP, "response": []},
+    {"endpoint": FETCH_EP, "url": p_ann["url"], "response": p_ann},
+    {"endpoint": FETCH_EP, "url": p_off["url"], "response": p_off}]}}
+c17_cas.update(llm_cassette([
+    {"event_type": "bandh", "event_quote": ANN, "status": "announced", "status_quote": ANN,
+     "places_affected": [_q(ANN, "Kolhapur")], "event_from": "2026-09-22", "event_to": "2026-09-22", "date_quote": ANN},
+    {"event_type": "bandh", "event_quote": OFF, "status": "called_off", "status_quote": OFF,
+     "places_affected": [_q(OFF, "Kolhapur")], "event_from": "2026-09-22", "event_to": "2026-09-22", "date_quote": OFF}],
+    "model reading of the two sample pages"))
+c17_trip = a_trip("LR-A-0922", "PUNE-KOLHAPUR", "Pune", "Kolhapur", "2026-09-22 04:00", "2026-09-22 18:00", "2026-09-23 10:00")
+c17_ded = a_ded("LR-A-0922", "APA/2026/0922", "2000.00", "1", "2026-09-22 18:00", "2026-09-23 10:00", "2026-10-01")
+SPECS.append({
+    "slug": "case17_announcement_called_off", "prd": "17", "kind": "evidence",
+    "title": "Union announced a bandh for the trip date; later called off; nobody claims a disruption",
+    "fixture_clients": ["a"], "trips": [c17_trip], "deductions": [c17_ded], "cassette": c17_cas,
+    "expected": {c17_ded["dispute_key"]: {"outcome": "valid", "flags": [SI_], "max_paid_calls": EV_MAX}},
+    "notes": """
+# Case 17: an announcement is not evidence
+
+**Rule:** PRD section 6 stage 6: an advance announcement alone does not count; it must be reported as having happened.
+Discovery path (nobody asserts a disruption): the announcement is rejected (status announced) and the later report
+says it was called off -> nothing qualifying -> valid, both reports in the search log.
+
+**Sample data, labelled:** no real report of an announced-then-cancelled event on our lanes was saved, so the two
+pages are SAMPLE pages on the reserved domain `example.test`, each saying so in its text.
+
+**Arithmetic:** due 22 Sep 18:00, gate-in 23 Sep 10:00 = 16 h -> 1 day x Rs 2,000 = Rs 2,000 = deducted. Disputable 0.
+""",
+})
+
+# =============================================================================== case 19: budget below one search
+c19_ta = kini_trip("CLA", "A", n="1119")
+c19_da = kini_deduction("CLA", A_NAME, "A", n="1119")
+c19_tg = dict(c6_trip, trip_id="LR-G-1119", lr_no="LR-G-1119", invoice_no="INV-G-2026-1119", vehicle_no="MH12ZZ1119")
+c19_dg = deduction("CLG", G_NAME, "GPA/2026/1119", "1", "LR-G-1119", "late_delivery",
+                   **{k: v for k, v in c6_ded.items() if k in ("deduction_date", "received_date", "amount", "reason_text", "client_calc")},
+                   invoice_ref="INV-G-2026-1119", source_ref={"file": "deductions.csv", "row": 2})
+SPECS.append({
+    "slug": "case19_budget_below_one_search", "prd": "19", "kind": "evidence",
+    "title": "Run cost limit set below one search",
+    "fixture_clients": ["a", "g"], "trips": [c19_ta, c19_tg], "deductions": [c19_da, c19_dg],
+    "cassette": cassette(*KINI_PAGES), "settings_overrides": {"budget": {"run_cost_credits": 0.5}},
+    "expected": {c19_da["dispute_key"]: {"outcome": "cannot_verify", "primary_reason": "BUDGET_REACHED", "flags": [SI_],
+                                         "max_paid_calls": 0},
+                 c19_dg["dispute_key"]: {"outcome": "disputable", "grounds": ["WRONG_BASE", "OVER_CAP"],
+                                         "amount_disputable": "49500.00", "flags": [SI_], "max_paid_calls": 0}},
+    "notes": """
+# Case 19: budget below one search
+
+**Rule:** DESIGN 5.9 / D-25: when the budget cannot cover a search, every deduction that needs one still gets a verdict,
+cannot verify BUDGET_REACHED ("search not completed within the run's cost limit"). Free-check verdicts are unchanged.
+`settings_overrides: budget.run_cost_credits = 0.5` (one search costs at least 1 credit).
+
+**Deductions:** case 1's facts (needs a search) -> BUDGET_REACHED, no paid call. Case 6's facts (LR-G-1119) -> unchanged:
+
+| Step | Working | Rs |
+| --- | --- | --- |
+| Deducted | 1% x 3,00,000 x 18 | 54,000.00 |
+| Uncapped on trip cost | 1% x 30,000 x 18 | 5,400.00 |
+| Cap | 15% x 30,000 | 4,500.00 |
+| **Disputable** | 54,000 - 4,500 | **49,500.00** |
+""",
+})
+
+# =============================================================================== case 21: news alone
+c21_trip = kini_trip("CLA", "A", n="1121", gps=False)
+c21_trip["assertions"] = [{"kind": "ops_note", "event_type": "blockade", "at": ts("2026-11-05 11:00"), "place": None,
+                           "text": "Ops desk: informed client of NH-48 blockade affecting LR-A-1121.",
+                           "ref": {"file": "notes.csv", "row": 1, "field": "text"}}]
+c21_ded = kini_deduction("CLA", A_NAME, "A", n="1121")
+SPECS.append({
+    "slug": "case21_news_without_gps", "prd": "21", "kind": "evidence",
+    "title": "Case 1 without any GPS, FASTag or driver record for the window",
+    "fixture_clients": ["a"], "trips": [c21_trip], "deductions": [c21_ded], "cassette": cassette(*KINI_PAGES),
+    "expected": {c21_ded["dispute_key"]: {"outcome": "cannot_verify", "primary_reason": "EVIDENCE_PARTIAL",
+                                          "missing_item_contains": "GPS", "flags": [SI_], "max_paid_calls": EV_MAX}},
+    "notes": """
+# Case 21: news alone never carries a dispute
+
+**Rule:** DESIGN 8.4: a supporting passage becomes a ground only with own-record corroboration (GPS halt, FASTag gap or
+timed driver report placing the truck in the affected area). Here the only records are the notice email (5 Nov 11:00)
+and an ops note that repeats the claim without a place: not corroboration. D-11 runs the search, the Outlook report
+qualifies, and the verdict is cannot verify EVIDENCE_PARTIAL naming the GPS extract for the vehicle on 5-6 Nov.
+
+**Arithmetic:** as case 1, deducted Rs 2,000 for 13 h late; disputable 0 until the GPS extract is produced.
+""" + KINI_SOURCES,
+})
+
+# =============================================================================== case 22: redirects and a blocked fetch
+c22_trip = kini_trip("CLA", "A", n="1122")
+c22_ded = kini_deduction("CLA", A_NAME, "A", n="1122")
+SPECS.append({
+    "slug": "case22_redirects_blocked_fetch", "prd": "22", "kind": "evidence",
+    "title": "Top results are google.com redirects; the first fetch is blocked",
+    "fixture_clients": ["a"], "trips": [c22_trip], "deductions": [c22_ded], "cassette": cassette(*KINI_PAGES),
+    "faults": ["block_first@/web/enrich/live"],
+    "expected": {c22_ded["dispute_key"]: {"outcome": "disputable", "grounds": ["FORCE_MAJEURE"],
+                                          "amount_disputable": "2000.00", "flags": [SI_], "max_paid_calls": EV_MAX}},
+    "notes": "# Case 22: provider behaviour\n\n**Rule:** PRD 6a / DESIGN 8.3: google.com/goto links are resolved (free, "
+             "`web` entries) to the publisher URL, never fetched through Crustdata; a blocked page (`success: true` but a "
+             "\"Verifying your request\" body, F-3) is detected, ledgered with its cost, retried once with `human_mode`, "
+             "and the verdict is case 1's. Fault: `block_first@/web/enrich/live` (a1's FakeTransport) blocks the first "
+             "fetch call.\n" + C1_ARITH + KINI_SOURCES,
+})
+
+# =============================================================================== case 23: undated source only
+c23_trip = kini_trip("CLA", "A", n="1123")
+c23_ded = kini_deduction("CLA", A_NAME, "A", n="1123")
+SPECS.append({
+    "slug": "case23_undated_source", "prd": "23", "kind": "evidence",
+    "title": "Only qualifying report has no readable publication date",
+    "fixture_clients": ["a"], "trips": [c23_trip], "deductions": [c23_ded], "cassette": cassette(*KINI_PAGES),
+    "faults": ["undated@/web/enrich/live"],
+    "expected": {c23_ded["dispute_key"]: {"outcome": "cannot_verify", "primary_reason": "SOURCE_UNDATED",
+                                          "flags": [SI_], "max_paid_calls": EV_MAX}},
+    "notes": "# Case 23: dated sources only\n\n**Rule:** PRD 6a: no publication date parsed from the page -> the source "
+             "cannot support a dispute; the only qualifying page being undated gives cannot verify SOURCE_UNDATED, "
+             "naming the undated page. Fault `undated@/web/enrich/live` strips every date tag from fetched pages (the "
+             "ETInfra page in the cassette is undated in reality too).\n\n**Arithmetic:** as case 1, deducted Rs 2,000; "
+             "disputable 0.\n" + KINI_SOURCES,
+})

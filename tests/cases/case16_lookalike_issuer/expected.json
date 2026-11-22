@@ -1,0 +1,11 @@
+{
+  "ALPHADEMOAGROFOODSPVTLTD|AFPA20261116|1": {
+    "outcome": "cannot_verify",
+    "grounds": [],
+    "primary_reason": "AMBIGUOUS_MATCH",
+    "amount_disputable": "0",
+    "flags": [],
+    "missing_item_contains": "Alpha Demo Agro Foods",
+    "max_paid_calls": 1
+  }
+}

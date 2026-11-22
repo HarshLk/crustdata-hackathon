@@ -1,0 +1,28 @@
+# Stand-in clients (not real companies). Built from fixtures/clients/.
+clients:
+- client_id: CLA
+  legal_name: Alpha Demo Agro Industries Pvt Ltd
+  aliases:
+  - Alpha Demo Agro
+  - ALPHA DEMO AGRO INDUSTRIES PRIVATE LIMITED
+  lanes:
+  - PUNE-KOLHAPUR
+  - PUNE-MUMBAI
+  - CUTTACK-BHUBANESWAR
+  - ASSAM-HALDIA
+  approvers:
+    kam: kam.demo
+    finance: finance.demo
+    legal: legal.demo
+- client_id: CLG
+  legal_name: Golf Demo Public Sector Buyer
+  aliases:
+  - Golf Demo PSB
+  - GOLF DEMO PUBLIC SECTOR BUYER (GEM)
+  lanes:
+  - PUNE-KOLHAPUR
+  - PUNE-MUMBAI
+  approvers:
+    kam: kam.demo
+    finance: finance.demo
+    legal: legal.demo
