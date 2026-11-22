@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Penalty-Deduction Recovery</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column; diagrams break out to full width inside their own scroll containers. */
+:root {
+  --bg: #f6f8f8; --panel: #ffffff; --fg: #17252b; --muted: #55676e; --line: #cfd9db;
+  --human: #0b6b73; --human-bg: #dff1f1; --paid: #9a5a00; --paid-bg: #fbeed6; --core-bg: #eaf0f1;
+  --display: "Space Grotesk", "Inter", system-ui, sans-serif;
+  --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #10181b; --panel: #172227; --fg: #e6eef0; --muted: #9fb1b7; --line: #31434a;
+  --human: #6fd0d6; --human-bg: #123a3e; --paid: #f0b45c; --paid-bg: #3f2e10; --core-bg: #1c2a30; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #10181b; --panel: #172227; --fg: #e6eef0; --muted: #9fb1b7; --line: #31434a;
+  --human: #6fd0d6; --human-bg: #123a3e; --paid: #f0b45c; --paid-bg: #3f2e10; --core-bg: #1c2a30; color-scheme: dark }
+
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 16px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 40px 72px; }
+.wrap { max-width: 1120px; margin: 0 auto; display: flex; flex-direction: column; gap: 56px; }
+.col { max-width: 68ch; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; line-height: 1.15; margin: 0; }
+h1 { font-size: 2.1rem; font-weight: 600; }
+h2 { font-size: 1.45rem; font-weight: 600; }
+h3 { font-size: 1.02rem; font-weight: 600; }
+p { margin: 0; }
+.lede { font-size: 1.08rem; color: var(--muted); }
+.eyebrow { font-size: .74rem; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+section { display: flex; flex-direction: column; gap: 18px; }
+header { display: flex; flex-direction: column; gap: 14px; }
+.facts { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: .92rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.facts b { color: var(--fg); font-weight: 600; }
+
+.scroll { overflow-x: auto; }
+figure { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+figure .scroll { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 14px; }
+figcaption { font-size: .9rem; color: var(--muted); max-width: 80ch; }
+svg { display: block; width: 100%; min-width: 900px; height: auto; color: var(--fg); font-family: var(--body); }
+svg .box { fill: var(--panel); stroke: currentColor; stroke-width: 1.2; }
+svg .core { fill: var(--core-bg); stroke: currentColor; stroke-width: 1.2; }
+svg .human { fill: var(--human-bg); stroke: var(--human); stroke-width: 1.6; }
+svg .paid { fill: var(--paid-bg); stroke: var(--paid); stroke-width: 1.6; }
+svg .t { font-size: 13px; font-weight: 600; fill: currentColor; }
+svg .s { font-size: 11px; fill: var(--muted); }
+svg .lab { font-size: 11px; fill: currentColor; }
+svg .band { font-size: 12px; font-weight: 600; fill: currentColor; }
+svg .arrow { stroke: currentColor; stroke-width: 1.3; fill: none; }
+svg .th { fill: var(--human); } svg .tp { fill: var(--paid); }
+
+.legend { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: .86rem; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 8px; }
+.sw { width: 14px; height: 14px; border-radius: 3px; border: 1.6px solid var(--fg); background: var(--panel); flex: none; }
+.sw.h { border-color: var(--human); background: var(--human-bg); } .sw.p { border-color: var(--paid); background: var(--paid-bg); }
+
+table { border-collapse: collapse; width: 100%; font-size: .93rem; }
+th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+th { font-size: .74rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+td.n { font-family: var(--display); font-weight: 600; white-space: nowrap; }
+code { font-family: var(--mono); font-size: .84em; }
+td code { display: block; white-space: pre; }
+.tbl { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; }
+.tbl table { min-width: 760px; }
+.note { border-left: 3px solid var(--paid); padding: 4px 0 4px 14px; color: var(--fg); max-width: 72ch; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 22px 32px; }
+.grid > div { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+ul { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column; gap: 6px; }
+li { color: var(--fg); }
+.muted { color: var(--muted); }
+</style>
+
+<style>
+nav.top{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.9rem;padding-bottom:14px;border-bottom:1px solid var(--line)}
+nav.top a,a{color:var(--human)} a{text-underline-offset:2px}
+.dl{display:flex;flex-wrap:wrap;gap:10px}
+.dl a{display:inline-block;padding:9px 14px;border:1.5px solid var(--human);border-radius:6px;text-decoration:none;font-weight:600;font-size:.92rem}
+pre{margin:0;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px;overflow-x:auto;font-family:var(--mono);font-size:.84rem;line-height:1.6}
+section{scroll-margin-top:16px}
+</style>
+<style>body{margin:0}</style>
+</head>
+<body>
+
+
+<div class="wrap">
+
+<nav class="top"><a href="#architecture">Technical architecture</a><a href="#business">Business architecture</a><a href="#deliverables">Deliverables</a><a href="#run">How to run</a><a href="#results">Results</a><a href="#demo">Demo</a><a href="#limits">Limitations</a><a href="#next">Future work</a><a href="https://github.com/HarshLk/crustdata-hackathon">Repository</a></nav>
+<header>
+  <span class="eyebrow">ContextCon 05 · Services, Replaced · 22 Nov 2026</span>
+  <h1>Penalty-deduction recovery for a 3PL</h1>
+  <p class="lede col">When a client deducts a penalty from a logistics company's payment, this service checks the deduction against that client's own agreement, the company's trip records and dated public evidence. It answers valid, disputable or cannot verify, with every fact sourced, and sends a dispute exactly once after a named person approves.</p>
+  <div class="facts">
+    <span><b>579</b> automated tests passing</span>
+    <span><b>30</b> specified test cases passing</span>
+    <span><b>0</b> paid calls for arithmetic and records cases</span>
+    <span>main at <b>bc87a98</b></span>
+  </div>
+</header>
+
+<section id="architecture">
+  <span class="eyebrow">Technical architecture</span>
+  <h2>Models read, code decides, people authorise</h2>
+  <p class="col">The verdict is computed by deterministic code from confirmed contract terms and cited records. A model can propose a term, a column mapping or a news passage, and every proposal is checked against the source text. Two points need a named person. Everything that costs money passes through one broker.</p>
+  <figure>
+    <div class="scroll">
+      <svg viewBox="0 0 1100 720" role="img" aria-label="Technical architecture: inputs flow through a request reader and agreement intake into a seven-stage deterministic adjudicator; paid calls go through one broker to Crustdata and a model provider and are written to a cost ledger; verdicts are rendered from the store; a dispute letter passes an approval gate and is sent exactly once to an outbox.">
+        <defs>
+          <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+        </defs>
+
+        <!-- Row A: inputs -->
+        <rect class="box" x="280" y="30" width="230" height="44" rx="4"/>
+        <text class="t" x="395" y="50" text-anchor="middle">Deductions, trips, clients</text>
+        <text class="s" x="395" y="65" text-anchor="middle">sheet, PDF, pasted email</text>
+        <rect class="box" x="540" y="30" width="190" height="44" rx="4"/>
+        <text class="t" x="635" y="50" text-anchor="middle">Agreements</text>
+        <text class="s" x="635" y="65" text-anchor="middle">master, schedules, amendments</text>
+        <line class="arrow" x1="395" y1="74" x2="395" y2="119" marker-end="url(#ah)"/>
+        <line class="arrow" x1="635" y1="74" x2="635" y2="119" marker-end="url(#ah)"/>
+
+        <!-- Row B: reading -->
+        <rect class="box" x="40" y="120" width="150" height="56" rx="4"/>
+        <text class="t" x="115" y="143" text-anchor="middle">vault.db</text>
+        <text class="s" x="115" y="160" text-anchor="middle">driver names, phones</text>
+        <rect class="box" x="280" y="120" width="230" height="56" rx="4"/>
+        <text class="t" x="395" y="143" text-anchor="middle">Request reader</text>
+        <text class="s" x="395" y="160" text-anchor="middle">maps unseen columns, validated</text>
+        <rect class="box" x="540" y="120" width="190" height="56" rx="4"/>
+        <text class="t" x="635" y="143" text-anchor="middle">Agreement intake</text>
+        <text class="s" x="635" y="160" text-anchor="middle">proposes terms with page, clause</text>
+        <rect class="human" x="770" y="120" width="250" height="56" rx="4"/>
+        <text class="t th" x="895" y="143" text-anchor="middle">Person confirms terms</text>
+        <text class="s" x="895" y="160" text-anchor="middle">approval 1: nothing is judged before this</text>
+        <line class="arrow" x1="280" y1="150" x2="191" y2="150" marker-end="url(#ah)"/>
+        <text class="lab" x="235" y="142" text-anchor="middle">driver data</text>
+        <line class="arrow" x1="730" y1="148" x2="769" y2="148" marker-end="url(#ah)"/>
+        <line class="arrow" x1="395" y1="176" x2="395" y2="229" marker-end="url(#ah)"/>
+        <text class="lab" x="403" y="207">deductions, trips</text>
+        <line class="arrow" x1="895" y1="176" x2="895" y2="229" marker-end="url(#ah)"/>
+        <text class="lab" x="903" y="207">confirmed terms</text>
+
+        <!-- Row C: adjudicator -->
+        <rect class="core" x="40" y="230" width="1020" height="150" rx="6"/>
+        <text class="band" x="56" y="254">Adjudicator: deterministic code. Each stage is saved under a hash of its inputs, so a restart or a re-run reuses what is unchanged.</text>
+        <g>
+          <rect class="box" x="56" y="270" width="132" height="70" rx="4"/><text class="t" x="122" y="298" text-anchor="middle">1 Received</text><text class="s" x="122" y="316" text-anchor="middle">parse, fixed identity</text>
+          <rect class="box" x="198" y="270" width="132" height="70" rx="4"/><text class="t" x="264" y="298" text-anchor="middle">2 Matched</text><text class="s" x="264" y="316" text-anchor="middle">client, trip, terms</text>
+          <rect class="box" x="340" y="270" width="132" height="70" rx="4"/><text class="t" x="406" y="298" text-anchor="middle">3 Terms</text><text class="s" x="406" y="316" text-anchor="middle">rate, base, cap, duplicate</text>
+          <rect class="box" x="482" y="270" width="132" height="70" rx="4"/><text class="t" x="548" y="298" text-anchor="middle">4 Records</text><text class="s" x="548" y="316" text-anchor="middle">delay, client-caused</text>
+          <rect class="box" x="624" y="270" width="132" height="70" rx="4"/><text class="t" x="690" y="298" text-anchor="middle">5 Notice</text><text class="s" x="690" y="316" text-anchor="middle">notice sent, wording</text>
+          <rect class="paid" x="766" y="270" width="132" height="70" rx="4"/><text class="t tp" x="832" y="298" text-anchor="middle">6 Evidence</text><text class="s" x="832" y="316" text-anchor="middle">dated public reports</text>
+          <rect class="box" x="908" y="270" width="132" height="70" rx="4"/><text class="t" x="974" y="298" text-anchor="middle">7 Verdict</text><text class="s" x="974" y="316" text-anchor="middle">recompute, audit</text>
+        </g>
+        <line class="arrow" x1="56" y1="360" x2="1039" y2="360" marker-end="url(#ah)"/>
+        <text class="lab" x="56" y="374">free checks first</text>
+        <text class="lab" x="1040" y="374" text-anchor="end">a check that did not finish is never read as "nothing wrong"</text>
+
+        <!-- Row D: stores, broker, providers -->
+        <rect class="box" x="40" y="440" width="250" height="120" rx="4"/>
+        <text class="t" x="165" y="468" text-anchor="middle">state.db</text>
+        <text class="s" x="165" y="490" text-anchor="middle">stage results, memoised</text>
+        <text class="s" x="165" y="508" text-anchor="middle">verdicts, actions, approvals</text>
+        <text class="s" x="165" y="526" text-anchor="middle">audit trail, hash-chained</text>
+        <line class="arrow" x1="165" y1="381" x2="165" y2="439" marker-start="url(#ah)" marker-end="url(#ah)"/>
+        <text class="lab" x="173" y="415">save, reuse</text>
+
+        <rect class="paid" x="320" y="440" width="130" height="120" rx="4"/>
+        <text class="t tp" x="385" y="468" text-anchor="middle">Cost ledger</text>
+        <text class="s" x="385" y="490" text-anchor="middle">one row per call</text>
+        <text class="s" x="385" y="508" text-anchor="middle">credits and rupees</text>
+        <text class="s" x="385" y="526" text-anchor="middle">cache hits at zero</text>
+
+        <rect class="paid" x="480" y="440" width="330" height="120" rx="4"/>
+        <text class="t tp" x="645" y="468" text-anchor="middle">Paid-call broker</text>
+        <text class="s" x="645" y="490" text-anchor="middle">guard → cache → budget → rate limit → retries</text>
+        <text class="s" x="645" y="508" text-anchor="middle">response cached before it is used</text>
+        <text class="s" x="645" y="526" text-anchor="middle">a call in flight survives a kill</text>
+        <line class="arrow" x1="790" y1="381" x2="790" y2="439" marker-end="url(#ah)"/>
+        <text class="lab" x="782" y="415" text-anchor="end">paid calls</text>
+        <line class="arrow" x1="480" y1="500" x2="451" y2="500" marker-end="url(#ah)"/>
+
+        <text class="lab" x="955" y="428" text-anchor="middle">data calls</text>
+        <rect class="box" x="850" y="440" width="210" height="52" rx="4"/>
+        <text class="t" x="955" y="462" text-anchor="middle">Crustdata</text>
+        <text class="s" x="955" y="478" text-anchor="middle">search, fetch, identify</text>
+        <rect class="box" x="850" y="508" width="210" height="52" rx="4"/>
+        <text class="t" x="955" y="530" text-anchor="middle">Model provider</text>
+        <text class="s" x="955" y="546" text-anchor="middle">reads text, never decides</text>
+        <line class="arrow" x1="810" y1="466" x2="849" y2="466" marker-end="url(#ah)"/>
+        <line class="arrow" x1="810" y1="534" x2="849" y2="534" marker-end="url(#ah)"/>
+
+        <!-- Row E: outputs and action -->
+        <line class="arrow" x1="145" y1="560" x2="145" y2="619" marker-end="url(#ah)"/>
+        <text class="lab" x="153" y="594">rendered from the store</text>
+        <rect class="box" x="40" y="620" width="210" height="64" rx="4"/>
+        <text class="t" x="145" y="646" text-anchor="middle">Verdicts and case file</text>
+        <text class="s" x="145" y="664" text-anchor="middle">verdicts.jsonl, HTML pages</text>
+        <rect class="box" x="290" y="620" width="150" height="64" rx="4"/>
+        <text class="t" x="365" y="646" text-anchor="middle">Action drafted</text>
+        <text class="s" x="365" y="664" text-anchor="middle">dispute letter</text>
+        <rect class="human" x="480" y="620" width="190" height="64" rx="4"/>
+        <text class="t th" x="575" y="646" text-anchor="middle">Approval gate</text>
+        <text class="s" x="575" y="664" text-anchor="middle">approval 2: this exact letter</text>
+        <rect class="box" x="710" y="620" width="170" height="64" rx="4"/>
+        <text class="t" x="795" y="646" text-anchor="middle">Send once</text>
+        <text class="s" x="795" y="664" text-anchor="middle">re-audit, then deliver</text>
+        <rect class="box" x="920" y="620" width="140" height="64" rx="4"/>
+        <text class="t" x="990" y="646" text-anchor="middle">Outbox</text>
+        <text class="s" x="990" y="664" text-anchor="middle">one file per action</text>
+        <line class="arrow" x1="250" y1="652" x2="289" y2="652" marker-end="url(#ah)"/>
+        <line class="arrow" x1="440" y1="652" x2="479" y2="652" marker-end="url(#ah)"/>
+        <line class="arrow" x1="670" y1="652" x2="709" y2="652" marker-end="url(#ah)"/>
+        <line class="arrow" x1="880" y1="652" x2="919" y2="652" marker-end="url(#ah)"/>
+      </svg>
+    </div>
+    <div class="legend">
+      <span><i class="sw h"></i>A named person must act</span>
+      <span><i class="sw p"></i>Costs money: budgeted, retried, ledgered</span>
+      <span><i class="sw"></i>Deterministic code or a store</span>
+    </div>
+    <figcaption>How one deduction moves through the system. The request reader and agreement intake also reach the model through the broker; those arrows are left out to keep the figure readable. Driver names and phones stop at the vault and never reach the adjudicator, Crustdata, the model or the client.</figcaption>
+  </figure>
+
+  <div class="grid">
+    <div><h3>Restart is the same as re-run</h3><p class="muted">Every stage result is stored under a hash of what it read. After a kill, a settings change or a new document, the same command runs again and only what changed is recomputed.</p></div>
+    <div><h3>Nothing is paid for twice</h3><p class="muted">A paid response is written to the cache and the ledger in one step, before it is used. Two deductions on the same route and dates share one search.</p></div>
+    <div><h3>Nothing is sent twice</h3><p class="muted">A letter's identity is fixed by its content. Sending records its intent first; on restart it checks the outbox by that identity before delivering.</p></div>
+    <div><h3>Every citation is re-checked</h3><p class="muted">Before a verdict becomes disputable, and again before a letter is sent, each clause, record and passage is verified against what is stored. The check can only downgrade.</p></div>
+  </div>
+</section>
+
+<section id="business">
+  <span class="eyebrow">Business architecture</span>
+  <h2>Who pays whom, and where the service sits</h2>
+  <p class="col">The buyer is the logistics company's finance controller. Today the billing team writes most deductions off because each one takes hours to contest; large sums go to lawyers. The service is paid only when money comes back.</p>
+  <figure>
+    <div class="scroll">
+      <svg viewBox="0 0 1100 500" role="img" aria-label="Business architecture: the client pays freight minus penalty deductions to the 3PL; the 3PL's billing team passes records and agreements to the recovery service, which returns verdicts and evidence; the account manager approves a dispute letter to the client; the client reverses the deduction; the 3PL pays the service a share of what is recovered; the service pays its data providers per call.">
+        <defs>
+          <marker id="ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker>
+        </defs>
+        <!-- Client -->
+        <rect class="box" x="30" y="150" width="200" height="160" rx="6"/>
+        <text class="t" x="130" y="212" text-anchor="middle">Client (shipper)</text>
+        <text class="s" x="130" y="232" text-anchor="middle">deducts penalties from</text>
+        <text class="s" x="130" y="248" text-anchor="middle">freight payments</text>
+
+        <!-- 3PL -->
+        <rect class="core" x="410" y="60" width="300" height="350" rx="6"/>
+        <text class="band" x="560" y="86" text-anchor="middle">Logistics company (3PL): the customer</text>
+        <rect class="box" x="426" y="102" width="268" height="60" rx="4"/>
+        <text class="t" x="560" y="127" text-anchor="middle">Billing team</text>
+        <text class="s" x="560" y="145" text-anchor="middle">daily user: uploads, reads the queue</text>
+        <rect class="human" x="426" y="176" width="268" height="60" rx="4"/>
+        <text class="t th" x="560" y="201" text-anchor="middle">Key account manager</text>
+        <text class="s" x="560" y="219" text-anchor="middle">approves each dispute</text>
+        <rect class="box" x="426" y="250" width="268" height="60" rx="4"/>
+        <text class="t" x="560" y="275" text-anchor="middle">Finance controller</text>
+        <text class="s" x="560" y="293" text-anchor="middle">buyer: sets thresholds, sees cost and recovery</text>
+        <rect class="human" x="426" y="324" width="268" height="60" rx="4"/>
+        <text class="t th" x="560" y="349" text-anchor="middle">Legal</text>
+        <text class="s" x="560" y="367" text-anchor="middle">co-approves large disputes</text>
+
+        <!-- Service -->
+        <rect class="box" x="890" y="150" width="180" height="160" rx="6"/>
+        <text class="t" x="980" y="212" text-anchor="middle">Recovery service</text>
+        <text class="s" x="980" y="232" text-anchor="middle">checks every deduction,</text>
+        <text class="s" x="980" y="248" text-anchor="middle">drafts the dispute</text>
+        <rect class="paid" x="890" y="400" width="180" height="64" rx="4"/>
+        <text class="t tp" x="980" y="426" text-anchor="middle">Data providers</text>
+        <text class="s" x="980" y="444" text-anchor="middle">Crustdata, model provider</text>
+
+        <!-- Client <-> 3PL -->
+        <line class="arrow" x1="230" y1="180" x2="409" y2="180" marker-end="url(#ab)"/>
+        <text class="lab" x="320" y="172" text-anchor="middle">1  freight minus deductions</text>
+        <line class="arrow" x1="410" y1="230" x2="231" y2="230" marker-end="url(#ab)"/>
+        <text class="lab" x="320" y="222" text-anchor="middle">4  dispute letter, once</text>
+        <line class="arrow" x1="230" y1="280" x2="409" y2="280" marker-end="url(#ab)"/>
+        <text class="lab" x="320" y="272" text-anchor="middle">5  reversal or credit note</text>
+
+        <!-- 3PL <-> Service -->
+        <line class="arrow" x1="710" y1="180" x2="889" y2="180" marker-end="url(#ab)"/>
+        <text class="lab" x="800" y="172" text-anchor="middle">2  records, agreements</text>
+        <line class="arrow" x1="890" y1="230" x2="711" y2="230" marker-end="url(#ab)"/>
+        <text class="lab" x="800" y="222" text-anchor="middle">3  verdicts, evidence</text>
+        <line class="arrow" x1="710" y1="280" x2="889" y2="280" marker-end="url(#ab)"/>
+        <text class="lab" x="800" y="272" text-anchor="middle">6  fee on recovery</text>
+
+        <!-- Service -> providers -->
+        <line class="arrow" x1="980" y1="310" x2="980" y2="399" marker-end="url(#ab)"/>
+        <text class="lab" x="972" y="358" text-anchor="end">7  cost per call, measured</text>
+      </svg>
+    </div>
+    <figcaption>The numbers give the order of events. Steps 1 to 3 happen for every deduction; steps 4 to 6 only for a disputable one that a person approves. The fee in step 6 is a share of the amount actually recovered; the rate is the team's assumption and is not yet set. Step 7 is read from the provider's own billing header on each call.</figcaption>
+  </figure>
+
+  <div class="scroll tbl">
+    <table>
+      <thead><tr><th>Question</th><th>Answer</th><th>Where it comes from</th></tr></thead>
+      <tbody>
+        <tr><td>Who pays for this job today</td><td>Billing staff time (most deductions are written off), then lawyers and arbitration for large sums. In the US, recovery firms take a share of what they recover.</td><td class="muted">Problem research</td></tr>
+        <tr><td>Who buys the service</td><td>The 3PL's finance controller</td><td class="muted">Role design</td></tr>
+        <tr><td>Price</td><td>A share of the amount recovered; nothing to check a deduction</td><td class="muted">Team decision; rate still open</td></tr>
+        <tr><td>Cost of a deduction settled by free checks</td><td>Zero paid calls</td><td class="muted">Measured: cost ledger</td></tr>
+        <tr><td>Cost of a deduction that needs a search</td><td>About 6 to 8 Crustdata credits (one or two searches, three to five page fetches)</td><td class="muted">Measured in live runs</td></tr>
+        <tr><td>When the service declines to spend</td><td>When the amount at stake is below the estimated cost of the search</td><td class="muted">Economic gate in stage 6</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<section id="deliverables">
+  <span class="eyebrow">Deliverables</span>
+  <h2>What the brief asks for, and where it is</h2>
+  <div class="dl"><a href="Hackathon_Project_Briefing_for_Judges.pdf">Project briefing (PDF)</a><a href="Architecture_Diagrams.pdf">Architecture diagrams (PDF)</a><a href="https://github.com/HarshLk/crustdata-hackathon">Source repository</a></div>
+  <div class="scroll tbl"><table>
+    <thead><tr><th>Required</th><th>Where</th><th>State</th></tr></thead>
+    <tbody>
+      <tr><td>Working service, committed throughout</td><td><a href="https://github.com/HarshLk/crustdata-hackathon">Repository</a>, branch <code>main</code>, 91 commits</td><td>579 automated tests passing</td></tr>
+      <tr><td>README: the job, who pays today, input, finished result, pass mark, every data source</td><td><a href="https://github.com/HarshLk/crustdata-hackathon/blob/main/README.md"><code>README.md</code></a></td><td>Done, in six sections</td></tr>
+      <tr><td>Architecture diagram with components, data flow, data calls, approvals, retries, cost ledger</td><td>This page; <a href="https://github.com/HarshLk/crustdata-hackathon/blob/main/docs/architecture.md"><code>docs/architecture.md</code></a> (eight diagrams)</td><td>Done</td></tr>
+      <tr><td>Live, real-world data in at least one decision</td><td>Crustdata news search and fetch in stage 6</td><td>Built and run live; see Limitations</td></tr>
+      <tr><td>Every fact sourced, or "cannot verify" naming what is missing</td><td>Verdict citations; static case file</td><td>Done; audited before every dispute</td></tr>
+      <tr><td>Approval before irreversible actions</td><td>Term confirmation and the approval gate</td><td>Done; bound to the exact letter</td></tr>
+      <tr><td>Time and cost limit per run; cost of each call recorded</td><td>Run budget; cost ledger</td><td>Done</td></tr>
+      <tr><td>Survives stop and restart; each action once</td><td><code>tests/test_kill.py</code>; <code>scripts/smoke.sh</code></td><td>Done; killed at every named crash point</td></tr>
+      <tr><td>Three Open-track test cases with answers</td><td><a href="https://github.com/HarshLk/crustdata-hackathon/blob/main/docs/open_track_cases.md"><code>docs/open_track_cases.md</code></a> (cases 1, 2, 7)</td><td>Written; some source details still to confirm</td></tr>
+      <tr><td>Logs</td><td>One JSON line per stage change, call, approval and send</td><td>Done</td></tr>
+      <tr><td>Ethics and finance material</td><td><a href="https://github.com/HarshLk/crustdata-hackathon/blob/main/docs/ethics.md"><code>docs/ethics.md</code></a>, <a href="https://github.com/HarshLk/crustdata-hackathon/blob/main/docs/finance.md"><code>docs/finance.md</code></a></td><td>Done; fee rate not yet set</td></tr>
+    </tbody></table></div>
+</section>
+
+<section id="run">
+  <span class="eyebrow">How to run</span>
+  <h2>From a fresh clone</h2>
+  <p class="col">Python 3.11 or newer. Setting <code>PDR_OFFLINE=1</code> guarantees nothing is sent to a paid provider; the arithmetic and records cases need no network at all.</p>
+  <pre>git clone https://github.com/HarshLk/crustdata-hackathon.git &amp;&amp; cd crustdata-hackathon
+pip install -r requirements.txt
+export PYTHONPATH=. PDR_OFFLINE=1 PDR_DATA_DIR="$PWD/demo-data"
+alias pdr='python -m pdr.cli'
+
+bash scripts/smoke.sh                     # one-command check; must end with SMOKE OK
+
+pdr doctor &amp;&amp; pdr init
+pdr run --in tests/cases/case06_wrong_base_over_cap --out "$PDR_DATA_DIR/out"
+pdr status                                # queue and stage table
+pdr actions                               # letters waiting for approval
+pdr approve '&lt;action id&gt;' --role kam --name "A. Manager"
+pdr send &amp;&amp; pdr outbox                    # sent exactly once
+pdr ledger --by deduction &amp;&amp; pdr economics
+python -m pytest -q                       # full suite, offline</pre>
+  <p class="col">Open <code>demo-data/out/index.html</code> for the case file. After a kill, run the same command again: finished stages are reused and an unfinished send is completed once.</p>
+</section>
+
+<section id="results">
+  <span class="eyebrow">Results</span>
+  <h2>Nine deductions, Rs 53,900 to recover, no paid calls</h2>
+  <p class="col">Seven case folders run offline. Free checks settled every one of them.</p>
+  <div class="scroll tbl"><table>
+    <thead><tr><th>Deduction</th><th>Verdict</th><th>Why</th><th>To recover</th></tr></thead>
+    <tbody>
+      <tr><td><code>CLG|GPA20260612|1</code></td><td>disputable</td><td>Wrong base and over the cap</td><td>Rs 49,500</td></tr>
+      <tr><td><code>CLG|GPA20261020|1</code></td><td>disputable</td><td>Reason is not in the penalty schedule</td><td>Rs 2,500</td></tr>
+      <tr><td><code>CLH|HPA20261013|1</code></td><td>disputable</td><td>Old rate applied after an amendment</td><td>Rs 1,000</td></tr>
+      <tr><td><code>CLG|GPA20260781|2</code></td><td>disputable</td><td>Duplicate of the deduction below</td><td>Rs 600</td></tr>
+      <tr><td><code>CLG|GPA20260705|1</code></td><td>disputable</td><td>Client took 9 hours to load against 4 agreed</td><td>Rs 300</td></tr>
+      <tr><td><code>CLG|GPA20260704|1</code></td><td>valid</td><td>First of two deductions for one trip</td><td>0</td></tr>
+      <tr><td><code>CLC|CPA20261105|1</code></td><td>cannot verify</td><td>No record that notice was sent; no search was run</td><td>0</td></tr>
+      <tr><td><code>CLK|KPA20261014|1</code></td><td>cannot verify</td><td>Penalty clause points to an annexure never uploaded</td><td>0</td></tr>
+      <tr><td><code>CLJ|JPA20262020|1</code></td><td>cannot verify</td><td>Reason not in the schedule, but the agreement set is not marked complete</td><td>0</td></tr>
+    </tbody></table></div>
+  <p class="col muted">All 27 test-case folders pass (31 deductions: 14 disputable, 5 valid, 12 cannot verify). The evidence-dependent cases pass against Crustdata responses recorded from real calls on 22 Nov 2026.</p>
+</section>
+
+<section id="limits">
+  <span class="eyebrow">Limitations</span>
+  <h2>What does not work yet</h2>
+  <p class="col">Each limit fails safe toward "cannot verify", never toward a wrong dispute.</p>
+  <ul class="col">
+    <li><b>No model key was tested.</b> Clause reading, free-text parsing and passage reading ran on rule-based fallbacks.</li>
+    <li><b>Live news search can miss.</b> About 80% of Crustdata news results are Google redirect links, and Google holds back fresh ones for a few minutes. In three live runs on 22 Nov the force-majeure case returned "cannot verify, no evidence found".</li>
+    <li><b>Offline, the 14 news-dependent cases return cannot verify from the command line.</b> Their recorded responses are used only by the automated tests.</li>
+    <li><b>Sample agreements are stand-ins</b> built from real public tender clauses, and flagged as such on every verdict.</li>
+    <li><b>The fee rate is not yet set.</b></li>
+  </ul>
+</section>
+<section id="demo">
+  <span class="eyebrow">Demo</span>
+  <h2>Seven moves, each showing one part of the architecture</h2>
+  <p class="col">Terminal on the left, the case file in a browser on the right. Run offline (<code>export PDR_OFFLINE=1</code>) so the network cannot interfere. </p>
+  <div class="scroll tbl">
+    <table>
+      <thead><tr><th></th><th>Do</th><th>Part of the architecture</th><th>Say</th></tr></thead>
+      <tbody>
+        <tr><td class="n">1</td><td><code>pdr doctor
+pdr init</code></td><td>Settings and store</td><td>Every verdict is stamped with this settings version. Contract values are not settings; they come only from a client's confirmed terms.</td></tr>
+        <tr><td class="n">2</td><td><code>pdr run --in tests/cases/case06_wrong_base_over_cap
+pdr run --in tests/cases/case04_duplicate
+pdr run --in tests/cases/case12c_client_c_notice_missing</code></td><td>Request reader, then stages 1 to 5 and 7</td><td>Free checks settle these with no paid call: Rs 49,500 over the cap, a duplicate, and one it cannot verify because no notice record exists.</td></tr>
+        <tr><td class="n">3</td><td>Open <code>out/index.html</code>, then the Rs 49,500 case page</td><td>Verdict, citations, case file</td><td>Clause with its page and wording, the recomputation line by line, and what would change the verdict. Then the cannot-verify page: it names what is missing.</td></tr>
+        <tr><td class="n">4</td><td><code>pdr actions
+pdr approve '&lt;action id&gt;' --role kam --name "A. Manager"</code></td><td>Approval gate</td><td>Nothing leaves without a named person. The approval belongs to this exact letter; change a word and it needs approving again.</td></tr>
+        <tr><td class="n">5</td><td><code>PDR_CRASH_AT=send.after_intent pdr send
+ls $PDR_DATA_DIR/outbox
+pdr send
+pdr outbox</code></td><td>Send once, outbox, memoised stages</td><td>Killed mid-send. The outbox is empty. Same command again: it checks the outbox by the letter's identity and delivers once. One file.</td></tr>
+        <tr><td class="n">6</td><td><code>pdr ledger --by deduction
+pdr economics
+pdr trail --verify</code></td><td>Cost ledger, audit trail</td><td>Cost is measured per deduction, not estimated. The trail shows who approved what and cannot be edited unnoticed.</td></tr>
+        <tr><td class="n">7</td><td>Add one line under <code>output.fields</code> in <code>settings.yaml</code>, re-run</td><td>Settings, memoised re-run</td><td>The live fix is a settings edit. A new settings version appears on the verdict and no code changed.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">Keep the live news search out of the main demo. In three live runs on 22 Nov the force-majeure case returned "cannot verify": the search did not surface the article it needed, and Google held back most result links for the first few minutes. Show it only if it was rehearsed successfully the same day.</p>
+</section>
+
+<section id="next">
+  <span class="eyebrow">Future work</span>
+  <h2>What comes next</h2>
+  <div class="grid">
+    <div>
+      <h3>Built on branches, not yet merged</h3>
+      <ul>
+        <li>Decision log: a readable record of how each verdict was reached, shown on the case page</li>
+        <li>Model costs in the ledger, and support for other model providers with the user's own key</li>
+        <li>Alert outbox: "verdict ready" and "approval needed" messages, sent at most once</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Planned</h3>
+      <ul>
+        <li>Case chat that answers only from the decision log and never decides</li>
+        <li>A live approval page beside the static case file</li>
+        <li>"Search deeper" on request: next page of results and every query variant</li>
+        <li>Real WhatsApp delivery for alerts</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Source reliability</h3>
+      <ul>
+        <li>Ask Crustdata to return publisher links in news results; today about 80% are Google redirect links</li>
+        <li>Retry unresolved links a few minutes later within the same run</li>
+        <li>Official sources that need no search links: district orders, weather office releases, traffic police advisories</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Before real use</h3>
+      <ul>
+        <li>Test clause reading and passage reading with a real model key; so far only rule-based fallbacks have run</li>
+        <li>Replace stand-in agreements with the client's signed ones</li>
+        <li>A second person's check of the route-places file</li>
+        <li>Late client documents check, and deletion of trip data after the retention period</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+</div>
+
+</body>
+</html>
